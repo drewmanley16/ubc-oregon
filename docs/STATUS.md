@@ -31,3 +31,4 @@ Times are Pacific. Deadline **Fri Nov 20, 10:00 a.m.** Feature freeze **Thu Nov 
 
 ## Blockers / cross-lane requests
 - (lane D) Need Privy App ID → `NEXT_PUBLIC_PRIVY_APP_ID`.
+- (lane A → lane D) Four UX questions from `docs/ux/journeys.md`: Q1 approve a larger USDC cap once so "Enable payment" is truly one time (per-order approval breaks the 5-tap returning path); Q2 can Privy skip its extra confirm popup for embedded accounts; Q3 how a brand-new buyer gets USDC without visiting a faucet; Q4 lock the demo cart at $100 so it always matches the listing.

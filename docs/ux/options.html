@@ -1,0 +1,326 @@
+<title>Sway Design Paths</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&family=Manrope:wght@500;700;800&family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&display=swap">
+<style>
+/* Layout: a decision sheet. Context strip, then three phone mockups side by side, then build paths, then the skills list. */
+:root {
+  --bg: #F6F7F9; --surface: #FFFFFF; --fg: #16181D; --muted: #5E6573; --line: #E2E5EA;
+  --pick: #1F6F4A; --pick-soft: #E4F2EA;
+  --f-body: "Instrument Sans", system-ui, -apple-system, sans-serif;
+  --f-mono: "JetBrains Mono", ui-monospace, Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #111317; --surface: #1A1D23; --fg: #ECEEF2; --muted: #9AA1AE; --line: #2A2E36;
+  --pick: #6FD39E; --pick-soft: #1C3328; color-scheme: dark } }
+:root[data-theme="dark"] {
+  --bg: #111317; --surface: #1A1D23; --fg: #ECEEF2; --muted: #9AA1AE; --line: #2A2E36;
+  --pick: #6FD39E; --pick-soft: #1C3328; color-scheme: dark }
+
+body { background: var(--bg); color: var(--fg); font-family: var(--f-body); font-size: 15px; line-height: 1.55; }
+.wrap { max-width: 1120px; margin: 0 auto; padding-block: 40px 72px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
+  display: grid; gap: 56px; }
+h1 { font-size: clamp(28px, 4vw, 40px); line-height: 1.1; margin: 0 0 10px; letter-spacing: -0.02em; text-wrap: balance; }
+h2 { font-size: 22px; margin: 0 0 6px; letter-spacing: -0.01em; text-wrap: balance; }
+h3 { font-size: 16px; margin: 0; }
+p { margin: 0; max-width: 68ch; }
+.lede { color: var(--muted); font-size: 17px; }
+.eyebrow { font-family: var(--f-mono); font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); margin-bottom: 8px; }
+.section-head { display: grid; gap: 4px; margin-bottom: 22px; }
+.section-head p { color: var(--muted); }
+
+/* how skills work */
+.explain { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; }
+.explain > div { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 18px; display: grid; gap: 6px; align-content: start; min-width: 0; }
+.explain b { font-size: 15px; }
+.explain span { color: var(--muted); font-size: 14px; }
+
+/* direction cards */
+.dirs { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 24px; }
+.dir { display: grid; gap: 14px; align-content: start; min-width: 0; }
+.dir-meta { display: grid; gap: 6px; }
+.dir-meta .tag { font-family: var(--f-mono); font-size: 12px; color: var(--muted); }
+.dir-meta p { font-size: 14px; color: var(--muted); }
+.swatches { display: flex; gap: 6px; flex-wrap: wrap; }
+.sw { display: grid; gap: 4px; font-family: var(--f-mono); font-size: 10px; color: var(--muted); }
+.sw i { display: block; width: 40px; height: 28px; border-radius: 6px; border: 1px solid var(--line); }
+.rec { display: inline-block; background: var(--pick-soft); color: var(--pick); font-size: 12px; font-weight: 600; padding: 2px 8px; border-radius: 999px; width: fit-content; }
+
+/* phone frame (fixed product renders, own colors on purpose) */
+.phone { width: 100%; max-width: 330px; aspect-ratio: 330 / 640; border-radius: 34px; padding: 10px; background: #0E0F12; box-shadow: 0 1px 0 rgba(255,255,255,.08) inset, 0 18px 40px -18px rgba(0,0,0,.45); }
+.screen { height: 100%; border-radius: 26px; overflow: hidden; position: relative; display: flex; flex-direction: column; }
+
+/* ── Direction A: Receipt ─────────────────── */
+.a { --a-bg:#FFFFFF; --a-ink:#121212; --a-mute:#6B6B6B; --a-rule:#D9D9D9; --a-save:#0B8A4A; --a-paper:#F3F3F1;
+  background: var(--a-paper); color: var(--a-ink); font-family: "Instrument Sans", system-ui, sans-serif; }
+.a .top { padding: 18px 18px 10px; display: flex; justify-content: space-between; align-items: center; font-size: 12px; }
+.a .store { font-weight: 600; }
+.a .demo { font-family: "JetBrains Mono", monospace; font-size: 9px; letter-spacing: .06em; text-transform: uppercase; color: var(--a-mute); border: 1px solid var(--a-rule); padding: 2px 6px; border-radius: 4px; }
+.a .slip { margin: 6px 14px 0; background: var(--a-bg); padding: 18px 16px 22px; font-family: "JetBrains Mono", monospace; font-size: 11.5px; position: relative;
+  -webkit-mask: radial-gradient(circle 5px at 50% 100%, #0000 98%, #000) bottom/14px 100% repeat-x; mask: radial-gradient(circle 5px at 50% 100%, #0000 98%, #000) bottom/14px 100% repeat-x; }
+.a .row { display: flex; justify-content: space-between; gap: 8px; padding: 3px 0; }
+.a .row span:first-child { color: var(--a-mute); min-width: 0; }
+.a .dash { border-top: 1px dashed var(--a-rule); margin: 10px 0; }
+.a .save { color: var(--a-save); font-weight: 600; }
+.a .pay { padding: 22px 18px 0; }
+.a .pay small { font-size: 11px; color: var(--a-mute); display: block; }
+.a .pay strong { font-size: 54px; line-height: 1; letter-spacing: -0.04em; font-weight: 700; display: block; margin-top: 4px; font-variant-numeric: tabular-nums; }
+.a .pay .was { font-size: 13px; color: var(--a-mute); margin-top: 6px; }
+.a .pay .was s { color: var(--a-mute); }
+.a .pay .was b { color: var(--a-save); }
+.a .cta { margin: auto 14px 12px; background: var(--a-ink); color: #fff; border-radius: 12px; text-align: center; padding: 15px; font-weight: 600; font-size: 15px; }
+.a .foot { text-align: center; font-size: 10.5px; color: var(--a-mute); padding-bottom: 14px; }
+
+/* ── Direction B: Pay sheet ───────────────── */
+.b { --b-bg:#E9EDF2; --b-sheet:#FFFFFF; --b-ink:#0F1B2D; --b-mute:#64748B; --b-line:#E6EAF0; --b-save:#00A37A; --b-save-soft:#DDF5EE;
+  background: var(--b-bg); color: var(--b-ink); font-family: "Manrope", system-ui, sans-serif; }
+.b .shop { padding: 20px 18px; display: grid; gap: 10px; opacity: .55; }
+.b .shop .bar { height: 10px; border-radius: 5px; background: #CBD3DD; }
+.b .shop .tile { height: 70px; border-radius: 14px; background: #D6DDE6; }
+.b .sheet { margin-top: auto; background: var(--b-sheet); border-radius: 24px 24px 0 0; padding: 10px 18px 16px; display: grid; gap: 12px; box-shadow: 0 -10px 30px -12px rgba(15,27,45,.25); }
+.b .grab { width: 36px; height: 4px; border-radius: 2px; background: var(--b-line); margin: 0 auto 2px; }
+.b .head { display: flex; justify-content: space-between; align-items: center; font-size: 13px; font-weight: 700; }
+.b .head span:last-child { font-weight: 500; color: var(--b-mute); font-size: 11px; }
+.b .chip { background: var(--b-save-soft); color: #00684E; border-radius: 12px; padding: 10px 12px; font-size: 13px; font-weight: 700; display: flex; justify-content: space-between; }
+.b .lines { display: grid; gap: 6px; font-size: 12.5px; }
+.b .lines div { display: flex; justify-content: space-between; color: var(--b-mute); }
+.b .lines div.tot { color: var(--b-ink); font-weight: 800; font-size: 14px; border-top: 1px solid var(--b-line); padding-top: 8px; }
+.b .big { text-align: center; font-size: 46px; font-weight: 800; letter-spacing: -0.03em; line-height: 1; padding: 4px 0; font-variant-numeric: tabular-nums; }
+.b .big small { display: block; font-size: 11px; font-weight: 500; color: var(--b-mute); letter-spacing: 0; margin-bottom: 6px; }
+.b .cta { background: var(--b-ink); color: #fff; border-radius: 999px; text-align: center; padding: 14px; font-weight: 700; font-size: 15px; }
+.b .foot { text-align: center; font-size: 10.5px; color: var(--b-mute); }
+
+/* ── Direction C: Sale sticker ────────────── */
+.c { --c-bg:#FBFAF7; --c-ink:#0D0D0D; --c-mute:#73706A; --c-line:#E7E4DD; --c-sticker:#FFD60A;
+  background: var(--c-bg); color: var(--c-ink); font-family: "Bricolage Grotesque", system-ui, sans-serif; }
+.c .top { padding: 18px; display: flex; justify-content: space-between; font-family: "Instrument Sans", sans-serif; font-size: 12px; font-weight: 600; }
+.c .top span:last-child { color: var(--c-mute); font-weight: 500; font-size: 10.5px; }
+.c .hero { padding: 6px 18px 0; position: relative; }
+.c .hero .old { font-size: 22px; color: var(--c-mute); text-decoration: line-through; text-decoration-thickness: 2px; font-weight: 600; }
+.c .hero .new { font-size: 84px; font-weight: 800; line-height: .9; letter-spacing: -0.05em; font-variant-numeric: tabular-nums; }
+.c .sticker { position: absolute; right: 16px; top: 4px; width: 84px; height: 84px; border-radius: 50%; background: var(--c-sticker); display: grid; place-content: center; text-align: center; transform: rotate(10deg); font-weight: 800; line-height: 1; }
+.c .sticker b { font-size: 24px; display: block; }
+.c .sticker span { font-size: 10px; font-family: "Instrument Sans", sans-serif; font-weight: 600; }
+.c .items { margin: 20px 18px 0; border-top: 2px solid var(--c-ink); font-family: "Instrument Sans", sans-serif; font-size: 12.5px; }
+.c .items div { display: flex; justify-content: space-between; gap: 8px; padding: 9px 0; border-bottom: 1px solid var(--c-line); }
+.c .items div span:first-child { min-width: 0; }
+.c .items .s { font-weight: 700; }
+.c .cta { margin: auto 14px 12px; background: var(--c-ink); color: var(--c-sticker); border-radius: 14px; text-align: center; padding: 15px; font-weight: 800; font-size: 17px; }
+.c .foot { text-align: center; font-family: "Instrument Sans", sans-serif; font-size: 10.5px; color: var(--c-mute); padding-bottom: 14px; }
+
+/* paths */
+.paths { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; }
+.path { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 20px; display: grid; gap: 10px; align-content: start; min-width: 0; }
+.path.best { border-color: var(--pick); box-shadow: 0 0 0 1px var(--pick) inset; }
+.path ul { margin: 0; padding-left: 18px; color: var(--muted); font-size: 14px; display: grid; gap: 4px; }
+.facts { display: flex; gap: 8px; flex-wrap: wrap; }
+.facts span { font-family: var(--f-mono); font-size: 11px; color: var(--muted); border: 1px solid var(--line); border-radius: 6px; padding: 2px 7px; }
+
+/* skills table */
+.tbl { overflow-x: auto; background: var(--surface); border: 1px solid var(--line); border-radius: 14px; }
+table { border-collapse: collapse; width: 100%; min-width: 640px; font-size: 14px; }
+th, td { text-align: left; padding: 12px 16px; border-bottom: 1px solid var(--line); vertical-align: top; }
+th { font-family: var(--f-mono); font-size: 11px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); font-weight: 400; }
+tr:last-child td { border-bottom: 0; }
+td:first-child { font-weight: 600; white-space: nowrap; }
+.v { display: inline-block; font-size: 12px; font-weight: 600; padding: 2px 8px; border-radius: 999px; white-space: nowrap; }
+.v.yes { background: var(--pick-soft); color: var(--pick); }
+.v.later { background: color-mix(in srgb, var(--muted) 14%, transparent); color: var(--fg); }
+.v.no { border: 1px solid var(--line); color: var(--muted); }
+.note { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 18px 20px; display: grid; gap: 6px; }
+.note p { color: var(--muted); font-size: 14px; }
+a { color: var(--pick); }
+</style>
+
+<div class="wrap">
+
+  <header>
+    <div class="eyebrow">Sway · Lane A · Wed Nov 18</div>
+    <h1>Pick a look and a way to build it</h1>
+    <p class="lede">Three visual directions for the checkout screen, three ways to turn the winner into a clickable mockup, and which of Meng To's design skills are worth installing. Pick one of each in the popup in Claude Code.</p>
+  </header>
+
+  <section>
+    <div class="section-head">
+      <div class="eyebrow">How the skills in the post work</div>
+      <h2>Recipe cards for your AI</h2>
+      <p>A skill is a set of written instructions Claude reads before it starts a job, like handing a new designer your studio's style guide. You install it once, then call it by name.</p>
+    </div>
+    <div class="explain">
+      <div><b>1. Install</b><span>One command adds the skill to Claude Code. Example: Impeccable's command is <code>/plugin marketplace add pbakaus/impeccable</code>.</span></div>
+      <div><b>2. Call it</b><span>Type its command, for example <code>/impeccable critique</code> on a screen. Claude follows that skill's rules instead of its own defaults.</span></div>
+      <div><b>3. What changes</b><span>Fewer "AI made this" tells: beige palettes, cards inside cards, vague buttons like "Continue", pointless pulsing dots.</span></div>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-head">
+      <div class="eyebrow">Part 1 · Visual direction</div>
+      <h2>Same screen, three personalities</h2>
+      <p>Each one is the checkout quote for the Daybreak demo cart. All three follow Lane B's brief: calm neutrals, one vivid savings color, prices you can read in 5 seconds.</p>
+    </div>
+    <div class="dirs">
+
+      <article class="dir">
+        <div class="phone"><div class="screen a">
+          <div class="top"><span class="store">Daybreak Coffee</span><span class="demo">Demo credit</span></div>
+          <div class="slip">
+            <div class="row"><span>Roaster's Choice, 3 mo.</span><span>$72.00</span></div>
+            <div class="row"><span>Pour-over set</span><span>$28.00</span></div>
+            <div class="dash"></div>
+            <div class="row"><span>Order total</span><span>$100.00</span></div>
+            <div class="row save"><span style="color:inherit">Sway savings</span><span>−$12.00</span></div>
+          </div>
+          <div class="pay">
+            <small>You pay</small>
+            <strong>$88.00</strong>
+            <div class="was"><s>$100.00</s> · <b>you keep $12</b></div>
+          </div>
+          <div class="cta">Pay $88</div>
+          <div class="foot">Price held for 0:58</div>
+        </div></div>
+        <div class="dir-meta">
+          <span class="rec">My pick</span>
+          <h3>A. Receipt</h3>
+          <span class="tag">Instrument Sans · JetBrains Mono · green savings</span>
+          <p>The cart prints as a torn paper receipt with typewriter-style numbers. It matches what Sway is (proof of a payment) and makes the receipt screen and the explorer link feel like the same object. Easiest to keep consistent.</p>
+          <div class="swatches">
+            <div class="sw"><i style="background:#F3F3F1"></i>paper</div>
+            <div class="sw"><i style="background:#FFFFFF"></i>slip</div>
+            <div class="sw"><i style="background:#121212"></i>ink</div>
+            <div class="sw"><i style="background:#6B6B6B"></i>muted</div>
+            <div class="sw"><i style="background:#0B8A4A"></i>savings</div>
+          </div>
+        </div>
+      </article>
+
+      <article class="dir">
+        <div class="phone"><div class="screen b">
+          <div class="shop"><div class="bar" style="width:40%"></div><div class="tile"></div><div class="tile"></div></div>
+          <div class="sheet">
+            <div class="grab"></div>
+            <div class="head"><span>Daybreak Coffee</span><span>Demo credit</span></div>
+            <div class="chip"><span>Sway found you a deal</span><span>−$12</span></div>
+            <div class="lines">
+              <div><span>Order</span><span>$100.00</span></div>
+              <div><span>Store credit discount</span><span>−$12.00</span></div>
+              <div class="tot"><span>Total</span><span>$88.00</span></div>
+            </div>
+            <div class="big"><small>You pay</small>$88</div>
+            <div class="cta">Pay $88</div>
+            <div class="foot">Price held for 0:58</div>
+          </div>
+        </div></div>
+        <div class="dir-meta">
+          <h3>B. Pay sheet</h3>
+          <span class="tag">Manrope · mint savings · slide-up sheet</span>
+          <p>Checkout slides up over the store like a phone payment sheet. Feels instantly familiar and trustworthy, which helps "crypto is invisible". Less distinctive in a room of fintech demos.</p>
+          <div class="swatches">
+            <div class="sw"><i style="background:#E9EDF2"></i>bg</div>
+            <div class="sw"><i style="background:#FFFFFF"></i>sheet</div>
+            <div class="sw"><i style="background:#0F1B2D"></i>ink</div>
+            <div class="sw"><i style="background:#64748B"></i>muted</div>
+            <div class="sw"><i style="background:#00A37A"></i>savings</div>
+          </div>
+        </div>
+      </article>
+
+      <article class="dir">
+        <div class="phone"><div class="screen c">
+          <div class="top"><span>Daybreak Coffee</span><span>Demo credit</span></div>
+          <div class="hero">
+            <div class="old">$100</div>
+            <div class="new">$88</div>
+            <div class="sticker"><div><b>−$12</b><span>with Sway</span></div></div>
+          </div>
+          <div class="items">
+            <div><span>Roaster's Choice, 3 mo.</span><span>$72.00</span></div>
+            <div><span>Pour-over set</span><span>$28.00</span></div>
+            <div class="s"><span>Store credit applied</span><span>−$12.00</span></div>
+          </div>
+          <div class="cta">Pay $88</div>
+          <div class="foot">Price held for 0:58</div>
+        </div></div>
+        <div class="dir-meta">
+          <h3>C. Sale sticker</h3>
+          <span class="tag">Bricolage Grotesque · sticker yellow</span>
+          <p>Loud retail energy: the old price crossed out, a giant $88, a yellow sale sticker. Strongest in a 3-second video shot. Harder to keep calm on the seller and merchant screens.</p>
+          <div class="swatches">
+            <div class="sw"><i style="background:#FBFAF7"></i>bg</div>
+            <div class="sw"><i style="background:#0D0D0D"></i>ink</div>
+            <div class="sw"><i style="background:#73706A"></i>muted</div>
+            <div class="sw"><i style="background:#E7E4DD"></i>line</div>
+            <div class="sw"><i style="background:#FFD60A"></i>sticker</div>
+          </div>
+        </div>
+      </article>
+
+    </div>
+  </section>
+
+  <section>
+    <div class="section-head">
+      <div class="eyebrow">Part 2 · How we build the mockup</div>
+      <h2>Three ways to get from this page to your buyer flow</h2>
+      <p>All three end in a link you can drop in team chat. The tokens stay a proposal for Lane B, who owns the real styles in the app.</p>
+    </div>
+    <div class="paths">
+      <div class="path best">
+        <span class="rec">My pick</span>
+        <h3>1. Clickable prototype</h3>
+        <p>I build the 8 buyer screens as one page you tap through like the real app, including the detours (offer expired, not enough balance, closed popup). A tokens sheet sits at the top.</p>
+        <ul>
+          <li>You feel the tap count yourself, which is the friction pass</li>
+          <li>Doubles as the storyboard for the demo video</li>
+          <li>Then Impeccable critiques it before you share</li>
+        </ul>
+        <div class="facts"><span>about 1.5 h</span><span>setup: 1 plugin</span></div>
+      </div>
+      <div class="path">
+        <h3>2. Design canvas</h3>
+        <p>Claude's Design canvas (it's on your account) plus a Design System page. Every screen and state laid out side by side as artboards, like a Figma board.</p>
+        <ul>
+          <li>Best for seeing the whole state matrix at once</li>
+          <li>Not clickable, so the tap count stays on paper</li>
+          <li>Design System page is easy for Lane B to read</li>
+        </ul>
+        <div class="facts"><span>about 1.5 h</span><span>setup: none</span></div>
+      </div>
+      <div class="path">
+        <h3>3. Open Design app</h3>
+        <p>Meng To's pick: a free desktop studio that drives Claude Code from a DESIGN.md file and shows live previews.</p>
+        <ul>
+          <li>Nice studio feel, good for later projects</li>
+          <li>New app to install and learn on a deadline day</li>
+          <li>Output lives in that app, not in the repo</li>
+        </ul>
+        <div class="facts"><span>about 2.5 h</span><span>setup: desktop app</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-head">
+      <div class="eyebrow">Part 3 · The six links in the post</div>
+      <h2>What's worth installing for Sway</h2>
+    </div>
+    <div class="tbl"><table>
+      <thead><tr><th>Skill</th><th>What it does</th><th>For Sway</th><th>Verdict</th></tr></thead>
+      <tbody>
+        <tr><td>Impeccable</td><td>Critique, audit and polish. 62 checks for AI-looking design.</td><td>Run on the mockup before sharing, and on the real app before recording.</td><td><span class="v yes">Install now</span></td></tr>
+        <tr><td>Emil Kowalski skills</td><td>Animation and interaction feel: springs, gestures, mobile polish.</td><td>The "Paying..." to "Paid" moment is the money shot of the video. Mostly Lane B's code.</td><td><span class="v later">Thursday, share with Lane B</span></td></tr>
+        <tr><td>Stageshow (Benji Taylor)</td><td>Polished UI stills, animations and bento grids for showing off a product.</td><td>Title cards and "how it works" shots for the video you're editing.</td><td><span class="v later">Thursday, for the video</span></td></tr>
+        <tr><td>Meng To's skills</td><td>183 skills. The useful three: no-ai-design-slop, audit-ai-design-slop, design-first-ui-prompting.</td><td>Overlaps Impeccable. Most of the 183 are 3D, games and landing-page effects.</td><td><span class="v no">Skip</span></td></tr>
+        <tr><td>Open Design</td><td>Local design studio app that drives Claude Code.</td><td>Only if you pick path 3.</td><td><span class="v no">Only with path 3</span></td></tr>
+        <tr><td>Solid Glass</td><td>Dark glassy design system with components for AI chat apps.</td><td>Built for AI tools, dark first. Fights Lane B's "calm consumer fintech" brief.</td><td><span class="v no">Skip</span></td></tr>
+      </tbody>
+    </table></div>
+  </section>
+
+  <section class="note">
+    <h3>One thing to agree with Lane B</h3>
+    <p>Officially the visual system is Lane B's job. If you pick a direction here, I'd post the swatches and the type pairing in team chat as Lane A's proposal, so Lane B can adopt or adjust it in the app instead of finding out later. Your mockup files stay in docs/ux, which is yours.</p>
+  </section>
+
+</div>

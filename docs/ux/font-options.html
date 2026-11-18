@@ -1,0 +1,101 @@
+<meta charset="utf-8">
+<title>Sway Font Lineup</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Mona+Sans:wdth,wght@75..125,400..900&family=Figtree:wght@400..900&family=Hanken+Grotesk:wght@400..900&family=Google+Sans+Flex:wght@400..900&display=swap">
+<style>
+/* Layout: four identical checkout screens in a row, only the typeface changes. Label above each phone. */
+:root {
+  --bg: #F3F4F2; --panel: #FFFFFF; --fg: #141816; --muted: #5B6560; --line: #DFE3E0; --tag: #0E1110; --tag-fg: #FFFFFF;
+  --s-paper: #F7F8F6; --s-surface: #FFFFFF; --s-ink: #0E1110; --s-muted: #5D6662; --s-line: #E3E7E4; --s-save: #0A7A45; --s-save-soft: #E3F3EA;
+  --sys: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #0F1211; --panel: #181C1A; --fg: #E9EDEB; --muted: #9AA49F; --line: #2A302D; --tag: #E9EDEB; --tag-fg: #0F1211; color-scheme: dark } }
+:root[data-theme="dark"] {
+  --bg: #0F1211; --panel: #181C1A; --fg: #E9EDEB; --muted: #9AA49F; --line: #2A302D; --tag: #E9EDEB; --tag-fg: #0F1211; color-scheme: dark }
+
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--fg); font-family: var(--sys); font-size: 15px; line-height: 1.5; }
+.wrap { max-width: 1320px; margin: 0 auto; padding-block: 36px 64px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); display: grid; gap: 32px; }
+h1 { font-size: clamp(26px, 3.6vw, 36px); line-height: 1.1; margin: 0 0 8px; letter-spacing: -0.02em; }
+header p { margin: 0; color: var(--muted); max-width: 64ch; }
+
+.grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(290px, 1fr)); gap: 28px 20px; }
+.opt { display: grid; gap: 14px; align-content: start; justify-items: center; min-width: 0; }
+.label { width: 100%; max-width: 300px; display: grid; gap: 4px; }
+.label .top { display: flex; align-items: center; gap: 10px; }
+.letter { width: 30px; height: 30px; border-radius: 8px; background: var(--tag); color: var(--tag-fg); display: grid; place-content: center; font-weight: 800; font-size: 15px; flex: none; }
+.label b { font-size: 17px; }
+.label .now { font-size: 11px; font-weight: 700; border: 1px solid var(--line); border-radius: 999px; padding: 1px 8px; color: var(--muted); }
+.label p { margin: 0; color: var(--muted); font-size: 13.5px; }
+
+.phone { width: 300px; max-width: 100%; height: 600px; border-radius: 38px; padding: 9px; background: #0B0C0C; box-shadow: 0 24px 50px -26px rgba(0,0,0,.5); }
+.screen { height: 100%; border-radius: 30px; overflow: hidden; background: var(--s-paper); color: var(--s-ink); display: flex; flex-direction: column; font-family: var(--f); }
+.f-mona { --f: "Mona Sans", var(--sys); --w: 118%; }
+.f-fig { --f: "Figtree", var(--sys); --w: 100%; }
+.f-hank { --f: "Hanken Grotesk", var(--sys); --w: 100%; }
+.f-gsf { --f: "Google Sans Flex", var(--sys); --w: 100%; }
+
+.sb { height: 34px; flex: none; display: flex; justify-content: space-between; align-items: center; padding: 0 22px; font-size: 12px; font-weight: 600; }
+.sb i { width: 78px; height: 22px; border-radius: 12px; background: #0B0C0C; }
+.nav { display: flex; justify-content: space-between; align-items: center; padding: 6px 16px; font-size: 12.5px; font-weight: 600; }
+.chip { font-size: 10.5px; font-weight: 600; color: var(--s-muted); background: var(--s-surface); border: 1px solid var(--s-line); border-radius: 999px; padding: 2px 8px; }
+.price { padding: 8px 16px 0; }
+.lbl { font-size: 12px; color: var(--s-muted); }
+.was { font-size: 17px; font-weight: 600; color: var(--s-muted); text-decoration: line-through; text-decoration-thickness: 2px; }
+.big { font-weight: 800; font-stretch: var(--w); font-size: 80px; line-height: .9; letter-spacing: -0.04em; margin: 2px 0 10px; }
+.save { display: inline-flex; align-items: center; gap: 5px; background: var(--s-save-soft); color: var(--s-save); font-weight: 700; font-size: 12.5px; border-radius: 999px; padding: 5px 10px 5px 7px; }
+.save svg { width: 14px; height: 14px; fill: none; stroke: currentColor; stroke-width: 2.8; stroke-linecap: round; stroke-linejoin: round; }
+.det { margin: 18px 16px 0; border-top: 1px solid var(--s-line); padding-top: 10px; display: grid; gap: 7px; font-size: 12.5px; }
+.det .h { font-weight: 700; font-size: 13px; color: var(--s-ink); margin-bottom: 2px; }
+.det div { display: flex; justify-content: space-between; gap: 10px; color: var(--s-muted); }
+.det .g { color: var(--s-save); font-weight: 600; }
+.det .t { color: var(--s-ink); font-weight: 700; border-top: 1px solid var(--s-line); padding-top: 7px; }
+.dock { margin-top: auto; padding: 10px 12px 12px; display: grid; gap: 7px; }
+.timer { text-align: center; font-size: 11px; color: var(--s-muted); }
+.cta { height: 48px; border-radius: 13px; background: var(--s-ink); color: #fff; display: grid; place-content: center; font-weight: 700; font-size: 15px; }
+.spec { width: 100%; max-width: 300px; font-family: var(--f); background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px; display: grid; gap: 2px; }
+.spec .a { font-size: 28px; font-weight: 800; font-stretch: var(--w); letter-spacing: -0.02em; line-height: 1.1; }
+.spec .b { font-size: 13px; color: var(--muted); }
+</style>
+
+<div class="wrap">
+  <header>
+    <h1>Pick Sway's font</h1>
+    <p>Same checkout screen four times. Only the font changes. Letters match the popup in Claude Code. All four are free on Google Fonts and none are on the AI-overused lists.</p>
+  </header>
+
+  <div class="grid" id="grid"></div>
+</div>
+
+<script>
+const OPTS = [
+  { k: 'A', cls: 'f-mona', name: 'Mona Sans', now: true, note: "GitHub's typeface. Price set extra-wide, so it feels confident and a bit techy." },
+  { k: 'B', cls: 'f-fig', name: 'Figtree', note: 'Friendly and round. Free stand-in for Proxima Nova. Top pick in your font guide.' },
+  { k: 'C', cls: 'f-hank', name: 'Hanken Grotesk', note: 'Warm, classic grotesk. Calm and trustworthy, a little editorial.' },
+  { k: 'D', cls: 'f-gsf', name: 'Google Sans Flex', note: "Google's own brand font, open since 2025. Polished, app-native feel." }
+];
+const check = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>';
+document.getElementById('grid').innerHTML = OPTS.map(o => `
+  <article class="opt">
+    <div class="label">
+      <div class="top"><span class="letter">${o.k}</span><b>${o.name}</b>${o.now ? '<span class="now">In prototype now</span>' : ''}</div>
+      <p>${o.note}</p>
+    </div>
+    <div class="phone"><div class="screen ${o.cls}">
+      <div class="sb"><span>9:41</span><i></i><span>100%</span></div>
+      <div class="nav"><span>Daybreak Coffee</span><span class="chip">Demo credit</span></div>
+      <div class="price"><div class="lbl">Your total</div><div class="was">$100.00</div><div class="big">$88</div>
+        <span class="save">${check}You save $12 with Sway</span></div>
+      <div class="det"><div class="h">Price details</div>
+        <div><span>Roaster's Choice beans</span><span>$72.00</span></div>
+        <div><span>Ceramic pour-over set</span><span>$28.00</span></div>
+        <div class="g"><span>Store credit discount</span><span>−$12.00</span></div>
+        <div class="t"><span>You pay</span><span>$88.00</span></div></div>
+      <div class="dock"><div class="timer">Price held for 1:00</div><div class="cta">Pay $88</div></div>
+    </div></div>
+    <div class="spec ${o.cls}"><span class="a">You saved $12</span><span class="b">Il1 0O · Sign in to pay $88 · Enable payment</span></div>
+  </article>`).join('');
+</script>
