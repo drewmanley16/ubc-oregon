@@ -14,6 +14,7 @@ UBC 2026 Hackathon · Track: **Consumer Applications** · Chain award: **Best Us
 **Status: skeleton — implementation in progress.** See [docs/STATUS.md](docs/STATUS.md).
 
 ## Team & contributing
+**New teammate?** Paste your lane's prompt from [KICKOFF.md](KICKOFF.md) into Claude Code.
 Every teammate (and their coding agent) starts at **[AGENTS.md](AGENTS.md)** → their lane file in [`docs/lanes/`](docs/lanes/).
 
 ## How it works
