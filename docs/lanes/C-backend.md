@@ -21,9 +21,10 @@ Contracts, pages, wallet, copy, styles. Need a type change in `packages/shared/s
 
 - [x] `GET /api/merchants`, `GET /api/merchants/:id/products` (seeded from `server/seed.ts`).
 - [ ] **Orders (no DB):** `server/orders.ts` — `createOrder` validates lines against seed prices (ignore client prices), `totalCents` via bigint, random 32-byte `orderId`, HMAC-SHA256 token over canonical JSON with `ORDER_SIGNING_SECRET`; `verifyOrderToken` with `timingSafeEqual`. Wire `POST /api/orders`.
-- [ ] **Listings:** `readActiveListings(merchantId)` in `server/chain.ts` — multicall `getListing(i)` for `i ∈ [1, nextListingId)`; map status enum (1 Active, 2 Filled, 3 Cancelled); `txHash` from `ListingCreated` logs. Wire `GET /api/listings`.
+- [ ] **Listings:** `readActiveListings(merchantId)` in `server/chain.ts` — multicall `getListing(i)` for `i ∈ [1, nextListingId)`; map status enum (1 Active, 2 Filled, 3 Cancelled); include `sellerPayoutUnits`; `txHash` from `ListingCreated` logs. Wire `GET /api/listings`.
+  *Pricing note:* sellers no longer set prices — every listing for a merchant is priced at that merchant's Sway rates, so quotes tie on price and the tie-break (lowest listingId = oldest listing, FIFO) decides.
 - [ ] **Quote:** `GET /api/quote` per spec §6: filter Active + same merchant + `creditCents == amountCents` + ask > 0; sort ask asc, id asc; `grossSavingsCents` via `grossSavingsCents()`; `expiresAt` = now+60s; `chainId` from deployment. No match → `NoQuote{reason:"NO_LISTING"}` (HTTP 200). RPC down → `CHAIN_UNAVAILABLE` (HTTP 503). **Never fabricate.**
-- [ ] **Order status/receipt:** `GET /api/orders/:id?token=` — verify token; `orderSettled(orderId)` on chain; if true, fetch `CheckoutCompleted` log (filter by indexed `orderId`, from `deployBlock`), confirm tx receipt `status==="success"`, return `PAID` + `CheckoutReceipt` with `explorerUrl` from `explorerTxUrl()`. Else `UNPAID`.
+- [ ] **Order status/receipt:** `GET /api/orders/:id?token=` — verify token; `orderSettled(orderId)` on chain; if true, fetch `CheckoutCompleted` log (filter by indexed `orderId`, from `deployBlock`), confirm tx receipt `status==="success"`, return `PAID` + `CheckoutReceipt` (incl. `sellerPayoutUnits`, `feeUnits` from the event) with `explorerUrl` from `explorerTxUrl()`. Else `UNPAID`.
 - [ ] Validate all query/body params with zod; errors use `apiError()` shape.
 - [ ] Tests: quote selection (cheapest, tie-break, wrong merchant, wrong amount, none), token tamper rejected, totals integer-exact.
 - [ ] `.env.example` entries for anything new.

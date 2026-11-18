@@ -8,6 +8,10 @@ import {ISwayMarketplace} from "../../src/interfaces/ISwayMarketplace.sol";
 contract FalseReturnToken is ERC20 {
     constructor() ERC20("False", "FALSE") {}
 
+    function decimals() public pure override returns (uint8) {
+        return 6;
+    }
+
     function mint(address to, uint256 amt) external {
         _mint(to, amt);
     }
@@ -28,6 +32,10 @@ contract ReentrantToken is ERC20 {
 
     constructor() ERC20("Reenter", "RE") {}
 
+    function decimals() public pure override returns (uint8) {
+        return 6;
+    }
+
     function arm(ISwayMarketplace m, uint256 l, uint256 mid, uint256 c) external {
         market = m;
         listingId = l;
@@ -47,5 +55,14 @@ contract ReentrantToken is ERC20 {
             } catch {}
         }
         return super.transferFrom(from, to, amt);
+    }
+}
+
+/// 2-decimal token: 1 credit cent == 1 unit, so bps splits genuinely round.
+contract TwoDecimalToken is ERC20 {
+    constructor() ERC20("Two", "TWO") {}
+
+    function decimals() public pure override returns (uint8) {
+        return 2;
     }
 }

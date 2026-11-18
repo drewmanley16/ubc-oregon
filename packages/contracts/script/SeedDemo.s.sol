@@ -5,10 +5,8 @@ import {Script, console2} from "forge-std/Script.sol";
 import {MerchantCredit} from "../src/MerchantCredit.sol";
 import {SwayMarketplace} from "../src/SwayMarketplace.sol";
 
-/// Deterministic, re-runnable demo fixture. Each run issues fresh $100 credit to the seller and lists it:
-///   Daybreak Coffee (1)  $100 -> 88 USDC   (the hero demo: save $12)
-///   Northline Apparel(2) $100 -> 90 USDC
-///   Parkside Market (3)  $100 -> 85 USDC
+/// Deterministic, re-runnable demo fixture. Each run issues fresh $100 credit to the seller and lists
+/// it at each merchant's Sway-set rates (demo: buyer pays 88, seller gets 85, Sway keeps 3).
 ///   forge script script/SeedDemo.s.sol --rpc-url arc_testnet --broadcast
 /// Env: MERCHANT_1_ISSUER_PRIVATE_KEY (issuer of all 3 by default), SELLER_PRIVATE_KEY,
 ///      SEED_ONLY_DAYBREAK=true to seed just the hero listing.
@@ -29,7 +27,6 @@ contract SeedDemo is Script {
         address seller = vm.addr(sellerPk);
         bool onlyDaybreak = vm.envOr("SEED_ONLY_DAYBREAK", false);
 
-        uint256[3] memory asks = [uint256(88e6), 90e6, 85e6];
         uint256 n = onlyDaybreak ? 1 : 3;
 
         vm.startBroadcast(issuerPk);
@@ -41,8 +38,10 @@ contract SeedDemo is Script {
         vm.startBroadcast(sellerPk);
         if (!credit.isApprovedForAll(seller, address(market))) credit.setApprovalForAll(address(market), true);
         for (uint256 m = 1; m <= n; ++m) {
-            uint256 id = market.createListing(m, FACE, asks[m - 1]);
+            uint256 id = market.createListing(m, FACE);
+            SwayMarketplace.Listing memory l = market.getListing(id);
             console2.log("listing", id, "merchant", m);
+            console2.log("  buyer pays / seller gets (units)", l.askUsdcUnits, l.sellerPayoutUnits);
         }
         vm.stopBroadcast();
     }

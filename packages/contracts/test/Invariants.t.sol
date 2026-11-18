@@ -17,7 +17,9 @@ contract Handler is Test {
     address[2] public buyers = [address(0xb01), address(0xb02)];
 
     uint256 public ghostMinted; // sum over both merchants
-    uint256 public ghostFilledAsks;
+    uint256 public ghostPayouts;
+    uint256 public ghostFees;
+    uint256 public ghostBuyerSpend;
     uint256 public ghostOrderNonce;
 
     constructor(MerchantCredit c, SwayMarketplace m, MockUSDC u, address i1, address i2) {
@@ -43,15 +45,14 @@ contract Handler is Test {
         ghostMinted += cents;
     }
 
-    function list(uint256 mSeed, uint256 sSeed, uint256 cents, uint256 ask) external {
+    function list(uint256 mSeed, uint256 sSeed, uint256 cents) external {
         uint256 mid = bound(mSeed, 1, 2);
         address s = sellers[sSeed % 3];
         uint256 bal = credit.balanceOf(s, mid);
         if (bal == 0) return;
         cents = bound(cents, 1, bal);
-        ask = bound(ask, 1, 10_000e6);
         vm.prank(s);
-        market.createListing(mid, cents, ask);
+        market.createListing(mid, cents);
     }
 
     function cancel(uint256 idSeed) external {
@@ -74,7 +75,9 @@ contract Handler is Test {
         deal(address(usdc), b, usdc.balanceOf(b) + l.askUsdcUnits);
         vm.prank(b);
         market.checkout(id, keccak256(abi.encode(++ghostOrderNonce)), l.merchantId, l.askUsdcUnits, l.creditCents);
-        ghostFilledAsks += l.askUsdcUnits;
+        ghostPayouts += l.sellerPayoutUnits;
+        ghostFees += l.askUsdcUnits - l.sellerPayoutUnits;
+        ghostBuyerSpend += l.askUsdcUnits;
     }
 
     function sellerUsdcTotal() external view returns (uint256 t) {
@@ -89,12 +92,13 @@ contract InvariantsTest is Test {
     SwayMarketplace market;
     MockUSDC usdc;
     Handler handler;
+    address treasury = makeAddr("treasury");
 
     function setUp() public {
         address admin = makeAddr("admin");
         usdc = new MockUSDC();
         credit = new MerchantCredit(admin, "");
-        market = new SwayMarketplace(admin, address(usdc), address(credit));
+        market = new SwayMarketplace(admin, address(usdc), address(credit), treasury);
         address i1 = makeAddr("issuer1");
         address i2 = makeAddr("issuer2");
         bytes32 role = credit.REDEEMER_ROLE();
@@ -102,6 +106,8 @@ contract InvariantsTest is Test {
         credit.grantRole(role, address(market));
         credit.registerMerchant(1, i1);
         credit.registerMerchant(2, i2);
+        market.setMerchantRates(1, 8_800, 8_500);
+        market.setMerchantRates(2, 9_137, 8_011); // odd rates exercise rounding
         vm.stopPrank();
         handler = new Handler(credit, market, usdc, i1, i2);
         targetContract(address(handler));
@@ -134,9 +140,12 @@ contract InvariantsTest is Test {
         }
     }
 
-    /// I4: sellers received exactly the sum of filled asks; marketplace never holds USDC.
-    function invariant_sellerProceedsEqualSumOfFilledAsks() public view {
-        assertEq(handler.sellerUsdcTotal(), handler.ghostFilledAsks());
+    /// I4/I9: sellers got exactly their locked payouts, treasury exactly the fees, buyers paid exactly
+    ///        payout + fee; marketplace never holds USDC.
+    function invariant_paymentSplitIsExact() public view {
+        assertEq(handler.sellerUsdcTotal(), handler.ghostPayouts());
+        assertEq(usdc.balanceOf(treasury), handler.ghostFees());
+        assertEq(handler.ghostBuyerSpend(), handler.ghostPayouts() + handler.ghostFees());
         assertEq(usdc.balanceOf(address(market)), 0);
     }
 }

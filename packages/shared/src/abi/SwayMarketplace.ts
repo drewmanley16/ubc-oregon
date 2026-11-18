@@ -17,6 +17,11 @@ export const swayMarketplaceAbi = [
         "name": "credit_",
         "type": "address",
         "internalType": "address"
+      },
+      {
+        "name": "treasury_",
+        "type": "address",
+        "internalType": "address"
       }
     ],
     "stateMutability": "nonpayable"
@@ -93,11 +98,6 @@ export const swayMarketplaceAbi = [
         "name": "creditCents",
         "type": "uint256",
         "internalType": "uint256"
-      },
-      {
-        "name": "askUsdcUnits",
-        "type": "uint256",
-        "internalType": "uint256"
       }
     ],
     "outputs": [
@@ -155,6 +155,11 @@ export const swayMarketplaceAbi = [
           },
           {
             "name": "askUsdcUnits",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "sellerPayoutUnits",
             "type": "uint256",
             "internalType": "uint256"
           },
@@ -225,6 +230,30 @@ export const swayMarketplaceAbi = [
         "name": "",
         "type": "bool",
         "internalType": "bool"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "merchantRates",
+    "inputs": [
+      {
+        "name": "merchantId",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "buyerPriceBps",
+        "type": "uint16",
+        "internalType": "uint16"
+      },
+      {
+        "name": "sellerPayoutBps",
+        "type": "uint16",
+        "internalType": "uint16"
       }
     ],
     "stateMutability": "view"
@@ -361,6 +390,40 @@ export const swayMarketplaceAbi = [
   },
   {
     "type": "function",
+    "name": "previewPrice",
+    "inputs": [
+      {
+        "name": "merchantId",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "creditCents",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "askUsdcUnits",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "sellerPayoutUnits",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "feeUnits",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
     "name": "renounceRole",
     "inputs": [
       {
@@ -397,6 +460,42 @@ export const swayMarketplaceAbi = [
   },
   {
     "type": "function",
+    "name": "setMerchantRates",
+    "inputs": [
+      {
+        "name": "merchantId",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "buyerPriceBps",
+        "type": "uint16",
+        "internalType": "uint16"
+      },
+      {
+        "name": "sellerPayoutBps",
+        "type": "uint16",
+        "internalType": "uint16"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "setTreasury",
+    "inputs": [
+      {
+        "name": "treasury_",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
     "name": "supportsInterface",
     "inputs": [
       {
@@ -410,6 +509,32 @@ export const swayMarketplaceAbi = [
         "name": "",
         "type": "bool",
         "internalType": "bool"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "treasury",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "unitsPerCent",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256",
+        "internalType": "uint256"
       }
     ],
     "stateMutability": "view"
@@ -470,6 +595,18 @@ export const swayMarketplaceAbi = [
       },
       {
         "name": "usdcUnits",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
+      },
+      {
+        "name": "sellerPayoutUnits",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
+      },
+      {
+        "name": "feeUnits",
         "type": "uint256",
         "indexed": false,
         "internalType": "uint256"
@@ -541,6 +678,37 @@ export const swayMarketplaceAbi = [
         "type": "uint256",
         "indexed": false,
         "internalType": "uint256"
+      },
+      {
+        "name": "sellerPayoutUnits",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "MerchantRatesSet",
+    "inputs": [
+      {
+        "name": "merchantId",
+        "type": "uint256",
+        "indexed": true,
+        "internalType": "uint256"
+      },
+      {
+        "name": "buyerPriceBps",
+        "type": "uint16",
+        "indexed": false,
+        "internalType": "uint16"
+      },
+      {
+        "name": "sellerPayoutBps",
+        "type": "uint16",
+        "indexed": false,
+        "internalType": "uint16"
       }
     ],
     "anonymous": false
@@ -635,6 +803,19 @@ export const swayMarketplaceAbi = [
   },
   {
     "type": "event",
+    "name": "TreasurySet",
+    "inputs": [
+      {
+        "name": "treasury",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
     "name": "Unpaused",
     "inputs": [
       {
@@ -700,6 +881,22 @@ export const swayMarketplaceAbi = [
   },
   {
     "type": "error",
+    "name": "InvalidRates",
+    "inputs": [
+      {
+        "name": "buyerPriceBps",
+        "type": "uint16",
+        "internalType": "uint16"
+      },
+      {
+        "name": "sellerPayoutBps",
+        "type": "uint16",
+        "internalType": "uint16"
+      }
+    ]
+  },
+  {
+    "type": "error",
     "name": "ListingNotActive",
     "inputs": [
       {
@@ -747,6 +944,17 @@ export const swayMarketplaceAbi = [
       },
       {
         "name": "maxUsdcUnits",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ]
+  },
+  {
+    "type": "error",
+    "name": "RatesNotSet",
+    "inputs": [
+      {
+        "name": "merchantId",
         "type": "uint256",
         "internalType": "uint256"
       }

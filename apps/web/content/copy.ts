@@ -36,6 +36,7 @@ export const copy = {
     retailValue: "Retail value",
     paid: "You paid",
     sellerPaid: "Paid to credit seller",
+    swayFee: "Sway service fee (included)",
     creditRedeemed: "Store credit redeemed",
     viewOnExplorer: "View transaction",
   },
