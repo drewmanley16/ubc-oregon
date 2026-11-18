@@ -39,75 +39,75 @@ export const swayMarketplaceAbi = [
     "name": "cancelListing",
     "inputs": [
       {
-        "name": "",
+        "name": "listingId",
         "type": "uint256",
         "internalType": "uint256"
       }
     ],
     "outputs": [],
-    "stateMutability": "pure"
+    "stateMutability": "nonpayable"
   },
   {
     "type": "function",
     "name": "checkout",
     "inputs": [
       {
-        "name": "",
+        "name": "listingId",
         "type": "uint256",
         "internalType": "uint256"
       },
       {
-        "name": "",
+        "name": "orderId",
         "type": "bytes32",
         "internalType": "bytes32"
       },
       {
-        "name": "",
+        "name": "expectedMerchantId",
         "type": "uint256",
         "internalType": "uint256"
       },
       {
-        "name": "",
+        "name": "maxUsdcUnits",
         "type": "uint256",
         "internalType": "uint256"
       },
       {
-        "name": "",
+        "name": "expectedCreditCents",
         "type": "uint256",
         "internalType": "uint256"
       }
     ],
     "outputs": [],
-    "stateMutability": "pure"
+    "stateMutability": "nonpayable"
   },
   {
     "type": "function",
     "name": "createListing",
     "inputs": [
       {
-        "name": "",
+        "name": "merchantId",
         "type": "uint256",
         "internalType": "uint256"
       },
       {
-        "name": "",
+        "name": "creditCents",
         "type": "uint256",
         "internalType": "uint256"
       },
       {
-        "name": "",
+        "name": "askUsdcUnits",
         "type": "uint256",
         "internalType": "uint256"
       }
     ],
     "outputs": [
       {
-        "name": "",
+        "name": "listingId",
         "type": "uint256",
         "internalType": "uint256"
       }
     ],
-    "stateMutability": "pure"
+    "stateMutability": "nonpayable"
   },
   {
     "type": "function",
@@ -325,7 +325,7 @@ export const swayMarketplaceAbi = [
     "name": "orderSettled",
     "inputs": [
       {
-        "name": "",
+        "name": "orderId",
         "type": "bytes32",
         "internalType": "bytes32"
       }
@@ -711,11 +711,6 @@ export const swayMarketplaceAbi = [
   },
   {
     "type": "error",
-    "name": "NotImplemented",
-    "inputs": []
-  },
-  {
-    "type": "error",
     "name": "NotSeller",
     "inputs": [
       {
@@ -764,6 +759,17 @@ export const swayMarketplaceAbi = [
   },
   {
     "type": "error",
+    "name": "SafeERC20FailedOperation",
+    "inputs": [
+      {
+        "name": "token",
+        "type": "address",
+        "internalType": "address"
+      }
+    ]
+  },
+  {
+    "type": "error",
     "name": "WrongMerchant",
     "inputs": [
       {
@@ -777,6 +783,11 @@ export const swayMarketplaceAbi = [
         "internalType": "uint256"
       }
     ]
+  },
+  {
+    "type": "error",
+    "name": "ZeroAddress",
+    "inputs": []
   },
   {
     "type": "error",
