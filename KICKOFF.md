@@ -1,5 +1,23 @@
 # Kickoff prompts — paste one into your Claude Code
 
+## 0. One-time setup
+
+**Command-line tools**
+- Everyone: Node 22 or newer, pnpm 10 (`npm i -g pnpm`), and the GitHub CLI (`gh auth login`).
+- Lanes C and D only: Foundry (`curl -L https://foundry.paradigm.xyz | bash && foundryup`).
+
+**Claude Code plugins** (run these inside Claude Code)
+
+| Plugin | Install if you're on | Command |
+|---|---|---|
+| typescript-lsp | B, C, D | `/plugin install typescript-lsp@claude-plugins-official` |
+| frontend-design | B (A is optional) | `/plugin install frontend-design@claude-plugins-official` |
+| vercel | C, D | `/plugin install vercel@claude-plugins-official` |
+
+**Lane A:** turn on Claude in Chrome so your Claude can click through `localhost:3000` for first-time-user QA.
+
+## 1. Start
+
 1. Clone the repo:
    ```bash
    git clone --recurse-submodules https://github.com/drewmanley16/ubc-oregon.git && cd ubc-oregon
