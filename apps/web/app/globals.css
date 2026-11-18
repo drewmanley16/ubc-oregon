@@ -1,0 +1,16 @@
+@import "tailwindcss";
+
+/* LANE B owns. Design tokens. Direction: premium consumer fintech, calm neutrals,
+   ONE vivid savings accent, very legible large prices, subtle motion. No purple crypto dashboard. */
+@theme {
+  --color-ink: #111111;
+  --color-paper: #fafaf7;
+  --color-savings: #0a8f5a; /* placeholder — lane B to finalize */
+  --font-sans: ui-sans-serif, system-ui, sans-serif;
+}
+
+body {
+  background: var(--color-paper);
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+}

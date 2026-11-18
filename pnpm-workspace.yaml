@@ -1,0 +1,6 @@
+packages:
+  - apps/*
+  - packages/shared
+ignoredBuiltDependencies:
+  - sharp
+  - unrs-resolver

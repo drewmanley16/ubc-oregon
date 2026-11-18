@@ -1,0 +1,15 @@
+{
+  "name": "sway",
+  "private": true,
+  "packageManager": "pnpm@10.15.0",
+  "scripts": {
+    "dev": "pnpm --filter @sway/web dev",
+    "build": "pnpm --filter @sway/web build",
+    "lint": "pnpm --filter @sway/web lint",
+    "typecheck": "pnpm -r typecheck",
+    "contracts:build": "cd packages/contracts && forge build",
+    "contracts:test": "cd packages/contracts && forge test -vv",
+    "abi": "node scripts/export-abi.mjs",
+    "check": "pnpm contracts:test && pnpm abi && pnpm typecheck && pnpm build"
+  }
+}
