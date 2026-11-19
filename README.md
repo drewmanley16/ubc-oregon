@@ -19,9 +19,15 @@ Every teammate (and their coding agent) starts at **[AGENTS.md](AGENTS.md)** →
 
 ## How it works
 1. A (fictional) merchant issues $100 of on-chain credit (ERC-1155, 1 unit = $0.01) to a customer.
-2. That customer lists the credit for 88 USDC; the credit moves into marketplace escrow.
+2. That customer lists the credit to cash out; the credit moves into marketplace escrow. Sellers don't haggle —
+   Sway sets a fixed rate per merchant.
 3. A shopper with a $100 cart gets a quote, approves 88 USDC, and confirms checkout.
-4. One transaction: 88 USDC → seller, $100 credit burned, `CheckoutCompleted` emitted as the merchant's receipt.
+4. One transaction: 85 USDC → seller, 3 USDC → Sway, $100 credit burned, `CheckoutCompleted` emitted as the merchant's receipt.
+
+## Business model
+Sway sets per-merchant rates as a % of face value. Demo rates: **buyer pays 88%, seller receives 85%,
+Sway keeps the 3% spread.** Rates are locked into each listing when it's created and enforced on-chain;
+the buyer's price never includes hidden fees ("your $100 order costs $88").
 
 Architecture: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) · Full spec: [docs/SPEC.md](docs/SPEC.md)
 

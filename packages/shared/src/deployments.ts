@@ -8,6 +8,7 @@ export type Deployment = {
   marketplace: Address;
   usdc: Address;
   usdcIsMock: boolean;
+  treasury: Address;
   usdcDecimals: number;
   deployBlock: number;
 };

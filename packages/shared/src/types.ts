@@ -1,4 +1,4 @@
-// FROZEN CROSS-LANE API TYPES (spec §6). Backend (lane C) produces these; web (lane D) consumes them.
+// FROZEN CROSS-LANE API TYPES (spec §6, + Sway fee model added Nov 18 — see ISwayMarketplace.sol). Backend (lane C) produces these; web (lane D) consumes them.
 // Rule: every money amount is a DECIMAL INTEGER STRING. Never a JS number, never a float.
 //   *Cents      -> merchant credit / fiat face value in cents ("10000" = $100.00)
 //   *UsdcUnits  -> ERC-20 USDC base units at the token's decimals ("88000000" = 88 USDC @ 6dp)
@@ -33,7 +33,8 @@ export type MarketplaceListing = {
   merchantId: number;
   sellerAddress: Address;
   faceValueCents: IntString;
-  askUsdcUnits: IntString;
+  askUsdcUnits: IntString; // buyer pays (locked at listing time from merchant rates)
+  sellerPayoutUnits: IntString; // seller receives; Sway fee = ask - payout
   status: ListingStatus;
   txHash: Hex; // tx that created the listing
 };
@@ -90,7 +91,9 @@ export type CheckoutReceipt = {
   seller: Address;
   listingId: string;
   creditCents: IntString;
-  usdcUnits: IntString;
+  usdcUnits: IntString; // total buyer paid == sellerPayoutUnits + feeUnits
+  sellerPayoutUnits: IntString;
+  feeUnits: IntString; // Sway's revenue on this sale
   grossSavingsCents: IntString;
   txHash: Hex;
   blockNumber: IntString;

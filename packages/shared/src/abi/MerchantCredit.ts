@@ -180,7 +180,7 @@ export const merchantCreditAbi = [
     "name": "issuerOf",
     "inputs": [
       {
-        "name": "",
+        "name": "merchantId",
         "type": "uint256",
         "internalType": "uint256"
       }
@@ -199,28 +199,28 @@ export const merchantCreditAbi = [
     "name": "mintCredit",
     "inputs": [
       {
-        "name": "",
+        "name": "merchantId",
         "type": "uint256",
         "internalType": "uint256"
       },
       {
-        "name": "",
+        "name": "to",
         "type": "address",
         "internalType": "address"
       },
       {
-        "name": "",
+        "name": "cents",
         "type": "uint256",
         "internalType": "uint256"
       },
       {
-        "name": "",
+        "name": "memo",
         "type": "bytes32",
         "internalType": "bytes32"
       }
     ],
     "outputs": [],
-    "stateMutability": "pure"
+    "stateMutability": "nonpayable"
   },
   {
     "type": "function",
@@ -246,41 +246,41 @@ export const merchantCreditAbi = [
     "name": "redeem",
     "inputs": [
       {
-        "name": "",
+        "name": "merchantId",
         "type": "uint256",
         "internalType": "uint256"
       },
       {
-        "name": "",
+        "name": "cents",
         "type": "uint256",
         "internalType": "uint256"
       },
       {
-        "name": "",
+        "name": "orderId",
         "type": "bytes32",
         "internalType": "bytes32"
       }
     ],
     "outputs": [],
-    "stateMutability": "pure"
+    "stateMutability": "nonpayable"
   },
   {
     "type": "function",
     "name": "registerMerchant",
     "inputs": [
       {
-        "name": "",
+        "name": "merchantId",
         "type": "uint256",
         "internalType": "uint256"
       },
       {
-        "name": "",
+        "name": "issuer",
         "type": "address",
         "internalType": "address"
       }
     ],
     "outputs": [],
-    "stateMutability": "pure"
+    "stateMutability": "nonpayable"
   },
   {
     "type": "function",
@@ -426,7 +426,7 @@ export const merchantCreditAbi = [
     "name": "totalIssued",
     "inputs": [
       {
-        "name": "",
+        "name": "merchantId",
         "type": "uint256",
         "internalType": "uint256"
       }
@@ -445,7 +445,7 @@ export const merchantCreditAbi = [
     "name": "totalRedeemed",
     "inputs": [
       {
-        "name": "",
+        "name": "merchantId",
         "type": "uint256",
         "internalType": "uint256"
       }
@@ -891,11 +891,6 @@ export const merchantCreditAbi = [
         "internalType": "uint256"
       }
     ]
-  },
-  {
-    "type": "error",
-    "name": "NotImplemented",
-    "inputs": []
   },
   {
     "type": "error",

@@ -9,6 +9,9 @@
 - Each `orderId` settles at most once. Buyer is never charged above the `maxUsdcUnits` they signed.
 - Credit of merchant A cannot pay merchant B (distinct token ids + explicit merchant check).
 - Integer math only. ReentrancyGuard, Pausable, SafeERC20.
+- Buyer pays exactly seller payout + Sway fee; prices are locked per listing, so an admin rate change
+  cannot alter an existing listing. Buyer price rounds up, seller payout rounds down (never creates value).
+- Admin powers (rates, treasury, pause) are centralized in one key for the demo.
 
 ## What is NOT real
 - Merchants and credit are fictional; credit has no claim on any real business or goods.
