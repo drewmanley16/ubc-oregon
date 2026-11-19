@@ -23,3 +23,20 @@
 ## Risks for a real launch
 Merchant default/insolvency, fraudulent issuance, transfer restrictions on gift cards/store credit,
 money-transmission and prepaid-access regulation, stablecoin risk, shallow liquidity.
+
+## Gift card swap (added Nov 19)
+- **Simulated retailer.** The store gift-card system (`apps/web/server/giftcards.ts`) is a simulation for fictional
+  stores; card numbers use a `7777…` prefix. A real deployment needs a retailer or exchange-partner API for balance
+  checks and swaps — scraping retailer balance pages is not viable (CAPTCHAs, terms of service).
+- **Custody.** Between swap and reveal, Sway holds the card value (vault). Buyers and sellers trust Sway as custodian,
+  like existing exchanges; this likely carries money-transmission / AML obligations in production.
+- **Why the swap matters.** A balance check alone can't prove who spent a card, because buyer and seller both know the PIN
+  after a plain handoff. Swapping before listing means only Sway, then only the buyer, ever knows the live number.
+- **Backing invariant.** On-chain credit is minted only after the old card is zeroed and the vault card exists;
+  each minted unit is backed by a vaulted card of the same store + value. Reveal assigns one card per paid order (idempotent).
+- **Reveal auth.** Card details are released only for a `CheckoutCompleted` in a successful tx whose `buyer` signed
+  the reveal message (EIP-191). PINs are AES-256-GCM encrypted at rest.
+- **Server issuer key.** `MERCHANT_1_ISSUER_PRIVATE_KEY` lives in server env so the server can mint for sales and send
+  new sellers 0.2 testnet USDC of gas. If that key leaked, an attacker could mint unbacked demo credit. Testnet only.
+- **Crash window.** If the server crashes mid-swap, value can briefly exist on both old and new cards (never neither);
+  credit is not minted until both writes succeed. A sale stuck in `MINTING` needs manual review.

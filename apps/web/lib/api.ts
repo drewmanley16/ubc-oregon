@@ -23,3 +23,28 @@ export const api = {
       j<OrderStatus>,
     ),
 };
+
+// ── Gift cards (simulated retailer) ────────────────────────────
+export type DemoCard = { number: string; pin: string; merchantId: number; balanceCents: string };
+export type CardBalance = { last4: string; merchantId: number; balanceCents: string; status: "ACTIVE" | "SWAPPED_OUT" };
+export type Sale = {
+  saleId: string;
+  seller: string;
+  merchantId: number;
+  faceCents: string;
+  oldLast4: string;
+  status: "SWAPPED" | "MINTING" | "READY_TO_LIST";
+  mintTx?: string;
+  gasTx?: string | null;
+};
+export type RevealedCard = { number: string; pin: string; merchantId: number; merchantName: string; balanceCents: string; simulated: true };
+
+const post = <T>(url: string, body: unknown) =>
+  fetch(url, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(body) }).then(j<T>);
+
+export const giftcards = {
+  demoCard: (merchantId: number) => post<DemoCard>("/api/demo/cards", { merchantId }),
+  balance: (number: string, pin: string) => post<CardBalance>("/api/giftcards/balance", { number, pin }),
+  sell: (req: { merchantId: number; number: string; pin: string; seller: string }) => post<Sale>("/api/sell", req),
+  reveal: (req: { orderId: string; token: string; tx?: string; signature: string }) => post<RevealedCard>("/api/cards/reveal", req),
+};

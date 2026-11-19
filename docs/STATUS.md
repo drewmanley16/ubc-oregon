@@ -23,6 +23,8 @@ Times are Pacific. Deadline **Fri Nov 20, 10:00 a.m.** Feature freeze **Thu Nov 
 - [x] **(D → C handoff) Critical-path API** — `POST /api/orders` (HMAC tokens, server prices only), `GET /api/listings`, `GET /api/quote`, `GET /api/orders/:id` (chain-verified receipts). 11 node tests (quote selection/tie-break, token tamper, client prices ignored). **Local E2E on anvil (chainId 5042002):** quote → listing 1 @ 88 USDC, saves $12.00 → UNPAID → `checkout` tx → PAID with seller 85 / fee 3 / buyer left 12; quote afterwards → `NO_LISTING`; tampered token → 401. Lane C owns these files going forward. (Nov 18)
 - [x] **(D) Frontend wiring** — Privy + wagmi providers, `useSwayWallet`, `useCheckout` state machine, store→checkout→receipt pages. Build + lint green. *Untested in browser until C's orders/quote land and contracts are on Arc.*
 
+- [x] **(D) Gift card swap model** (team decision Nov 19, Shantam's swap idea) — simulated store card system (`server/giftcards.ts`, Upstash/file KV), `POST /api/sell` (verify → swap → mint → gas top-up), `POST /api/cards/reveal` (chain receipt + buyer signature), `/sell`, gift card store page, receipt reveal, `/balance`. 15 node tests. **Local E2E (anvil, chainId 5042002):** demo card → wrong PIN rejected → sell: swapped, minted 10000 credit, seller gas 0 → 0.2 → old card $0 / `SWAPPED_OUT` → re-sell rejected `ZERO_BALANCE` → seller lists → quote 88 USDC → buyer checkout → reveal signed by seller rejected `NOT_BUYER` → reveal by buyer returns a NEW number with $100 → idempotent → USDC buyer 12 / seller 85 / treasury 3.
+
 ## Deployments
 | Contract | Address | Explorer |
 |---|---|---|
@@ -35,10 +37,12 @@ Times are Pacific. Deadline **Fri Nov 20, 10:00 a.m.** Feature freeze **Thu Nov 
 |---|---|---|---|
 | Nov 18 | Initial interfaces frozen | all | initial commit |
 | Nov 18 | `SwayMarketplace` adds constructor error `ZeroAddress()` (ABI regenerated; no interface/event change) | C (none needed) | lane-d/contracts |
+| Nov 19 | **Product pivot to gift cards (no contract change).** Seed products are now one `$100 gift card` per store. New: `SwayWallet.signMessage`, `/api/sell`, `/api/cards/reveal`, `/api/demo/cards`, `/api/giftcards/balance`, `lib/api.ts` `giftcards.*`, copy keys `store.*`, `sell.*`, `card.*`, `balance.*`. Cart flow removed. | A (copy), B (sell/reveal/card visuals), C (owns new server files) | lane-d/giftcard-swap |
 | Nov 18 | `MarketplaceListing.txHash` is now `Hex \| null` (Arc limits log queries to ~2,000 blocks, so the creation tx is only looked up in a ~3 h window). `GET /api/quote` takes optional `orderId`; `GET /api/orders/:id` takes optional `tx` hint (re-verified on chain). | C, D | lane-d/critical-path-api |
 | Nov 18 | **Fee model.** Sway-set per-merchant rates (demo 88% buyer / 85% seller / 3% fee). `createListing(merchantId, creditCents)` (no ask arg). `Listing` + `ListingCreated` add `sellerPayoutUnits`; `CheckoutCompleted` adds `sellerPayoutUnits`, `feeUnits`. New: `setMerchantRates`, `setTreasury`, `previewPrice`, `merchantRates`, `treasury`. Types: `MarketplaceListing.sellerPayoutUnits`, `CheckoutReceipt.sellerPayoutUnits/feeUnits`, `Deployment.treasury`. Copy: `receipt.swayFee`. | **C** (listings + receipts), A (fee copy), B (receipt) | lane-d/contracts |
 
 ## Blockers / cross-lane requests
 - (lane D) Need Privy App ID → `NEXT_PUBLIC_PRIVY_APP_ID`.
-- (lane D) Waiting on Arc faucet funding for deployer/issuer/seller/buyer before Arc deploy.
+- (lane D) Waiting on Arc faucet funding: **deployer ~2 USDC, issuer ~5 USDC** (it mints for every sale and tops up each new seller with 0.2 USDC gas). Buyer = a Privy account with ~90 USDC at demo time.
+- (lane D) Need Upstash Redis REST URL + token for Vercel (local dev uses a file).
 - ~~(lane D → C) Buyer flow E2E needs orders/quote/receipt endpoints~~ — done by D on `lane-d/critical-path-api`. Lane C: review it, then take the remaining items in your lane file.

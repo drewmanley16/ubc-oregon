@@ -13,3 +13,6 @@ packages/contracts/cache/
 packages/contracts/broadcast/*/31337/
 packages/contracts/broadcast/**/dry-run/
 packages/contracts/deployments/local-*.json
+
+# Local simulated gift-card store (server/kv.ts FileKV)
+apps/web/.data/

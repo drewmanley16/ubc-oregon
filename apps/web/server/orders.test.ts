@@ -9,7 +9,7 @@ const load = () => import("./orders.ts");
 
 test("createOrder uses server prices and integer totals; token round-trips", async () => {
   const { createOrder, verifyOrderToken } = await load();
-  const o = createOrder({ merchantId: 1, lines: [{ productId: "dbc-beans-sub", quantity: 1 }, { productId: "dbc-pourover", quantity: 1 }] });
+  const o = createOrder({ merchantId: 1, lines: [{ productId: "dbc-gc-100", quantity: 1 }] });
   assert.equal(o.totalCents, "10000");
   assert.match(o.orderId, /^0x[0-9a-f]{64}$/);
   const v = verifyOrderToken(o.token);
@@ -20,19 +20,19 @@ test("createOrder uses server prices and integer totals; token round-trips", asy
 
 test("client-sent prices are ignored", async () => {
   const { createOrder } = await load();
-  const o = createOrder({ merchantId: 1, lines: [{ productId: "dbc-pourover", quantity: 2, priceCents: "1" } as never] });
-  assert.equal(o.totalCents, "5600");
+  const o = createOrder({ merchantId: 1, lines: [{ productId: "dbc-gc-100", quantity: 2, priceCents: "1" } as never] });
+  assert.equal(o.totalCents, "20000");
 });
 
 test("orderIds are unique", async () => {
   const { createOrder } = await load();
-  const req = { merchantId: 1, lines: [{ productId: "dbc-pourover", quantity: 1 }] };
+  const req = { merchantId: 1, lines: [{ productId: "dbc-gc-100", quantity: 1 }] };
   assert.notEqual(createOrder(req).orderId, createOrder(req).orderId);
 });
 
 test("tampered tokens are rejected", async () => {
   const { createOrder, verifyOrderToken } = await load();
-  const o = createOrder({ merchantId: 1, lines: [{ productId: "dbc-pourover", quantity: 1 }] });
+  const o = createOrder({ merchantId: 1, lines: [{ productId: "dbc-gc-100", quantity: 1 }] });
   const [body, mac] = o.token.split(".");
   const p = JSON.parse(Buffer.from(body, "base64url").toString());
   p.totalCents = "1";
@@ -45,8 +45,8 @@ test("tampered tokens are rejected", async () => {
 
 test("unknown merchant / product from another merchant / bad quantity are rejected", async () => {
   const { createOrder, OrderError } = await load();
-  assert.throws(() => createOrder({ merchantId: 99, lines: [{ productId: "dbc-pourover", quantity: 1 }] }), OrderError);
-  assert.throws(() => createOrder({ merchantId: 2, lines: [{ productId: "dbc-pourover", quantity: 1 }] }), OrderError);
-  assert.throws(() => createOrder({ merchantId: 1, lines: [{ productId: "dbc-pourover", quantity: 0 }] }), OrderError);
+  assert.throws(() => createOrder({ merchantId: 99, lines: [{ productId: "dbc-gc-100", quantity: 1 }] }), OrderError);
+  assert.throws(() => createOrder({ merchantId: 2, lines: [{ productId: "dbc-gc-100", quantity: 1 }] }), OrderError);
+  assert.throws(() => createOrder({ merchantId: 1, lines: [{ productId: "dbc-gc-100", quantity: 0 }] }), OrderError);
   assert.throws(() => createOrder({ merchantId: 1, lines: [] }), OrderError);
 });
