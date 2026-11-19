@@ -8,10 +8,10 @@ import { copy } from "@/content/copy";
 
 const deployment = getDeployment();
 
-export function ReceiptClient({ orderId, token }: { orderId: Hex; token: string }) {
+export function ReceiptClient({ orderId, token, txHash }: { orderId: Hex; token: string; txHash?: Hex }) {
   const q = useQuery({
     queryKey: ["order", orderId, "receipt"],
-    queryFn: () => api.order(orderId, token),
+    queryFn: () => api.order(orderId, token, txHash),
     enabled: !!token,
     // Indexers/RPC can lag a block behind the wallet's receipt: poll until PAID.
     refetchInterval: (query) => (query.state.data?.state === "PAID" ? false : 2_000),

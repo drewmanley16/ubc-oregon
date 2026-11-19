@@ -36,7 +36,7 @@ export type MarketplaceListing = {
   askUsdcUnits: IntString; // buyer pays (locked at listing time from merchant rates)
   sellerPayoutUnits: IntString; // seller receives; Sway fee = ask - payout
   status: ListingStatus;
-  txHash: Hex; // tx that created the listing
+  txHash: Hex | null; // tx that created the listing (null if older than the server log-scan window)
 };
 
 export type CheckoutQuote = {

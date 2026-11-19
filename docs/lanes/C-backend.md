@@ -19,15 +19,24 @@ Contracts, pages, wallet, copy, styles. Need a type change in `packages/shared/s
 
 ## Tasks
 
+> **Nov 18 update from lane D:** the critical path below was implemented on `lane-d/critical-path-api` to unblock the
+> buyer E2E (tested end to end on a local chain). **You own these files now** — please review, then pick up the unchecked items.
+> Arc gotchas learned: `eth_getLogs` rejects ranges much above **2,000 blocks** (~18 min at ~0.56 s/block), so never scan
+> from `deployBlock`; receipts are found via the checkout tx hash (`?tx=`, re-verified) with a bounded recent scan as fallback.
+> viem caches `getBlockNumber` ~4 s — use `{ cacheTime: 0 }` for freshness-sensitive reads.
+
 - [x] `GET /api/merchants`, `GET /api/merchants/:id/products` (seeded from `server/seed.ts`).
-- [ ] **Orders (no DB):** `server/orders.ts` — `createOrder` validates lines against seed prices (ignore client prices), `totalCents` via bigint, random 32-byte `orderId`, HMAC-SHA256 token over canonical JSON with `ORDER_SIGNING_SECRET`; `verifyOrderToken` with `timingSafeEqual`. Wire `POST /api/orders`.
-- [ ] **Listings:** `readActiveListings(merchantId)` in `server/chain.ts` — multicall `getListing(i)` for `i ∈ [1, nextListingId)`; map status enum (1 Active, 2 Filled, 3 Cancelled); include `sellerPayoutUnits`; `txHash` from `ListingCreated` logs. Wire `GET /api/listings`.
+- [x] **Orders (no DB):** `server/orders.ts` — `createOrder` validates lines against seed prices (ignore client prices), `totalCents` via bigint, random 32-byte `orderId`, HMAC-SHA256 token over canonical JSON with `ORDER_SIGNING_SECRET`; `verifyOrderToken` with `timingSafeEqual`. Wire `POST /api/orders`.
+- [x] **Listings:** `readActiveListings(merchantId)` in `server/chain.ts` — multicall `getListing(i)` for `i ∈ [1, nextListingId)`; map status enum (1 Active, 2 Filled, 3 Cancelled); include `sellerPayoutUnits`; `txHash` from `ListingCreated` logs. Wire `GET /api/listings`.
   *Pricing note:* sellers no longer set prices — every listing for a merchant is priced at that merchant's Sway rates, so quotes tie on price and the tie-break (lowest listingId = oldest listing, FIFO) decides.
-- [ ] **Quote:** `GET /api/quote` per spec §6: filter Active + same merchant + `creditCents == amountCents` + ask > 0; sort ask asc, id asc; `grossSavingsCents` via `grossSavingsCents()`; `expiresAt` = now+60s; `chainId` from deployment. No match → `NoQuote{reason:"NO_LISTING"}` (HTTP 200). RPC down → `CHAIN_UNAVAILABLE` (HTTP 503). **Never fabricate.**
-- [ ] **Order status/receipt:** `GET /api/orders/:id?token=` — verify token; `orderSettled(orderId)` on chain; if true, fetch `CheckoutCompleted` log (filter by indexed `orderId`, from `deployBlock`), confirm tx receipt `status==="success"`, return `PAID` + `CheckoutReceipt` (incl. `sellerPayoutUnits`, `feeUnits` from the event) with `explorerUrl` from `explorerTxUrl()`. Else `UNPAID`.
-- [ ] Validate all query/body params with zod; errors use `apiError()` shape.
-- [ ] Tests: quote selection (cheapest, tie-break, wrong merchant, wrong amount, none), token tamper rejected, totals integer-exact.
+- [x] **Quote:** `GET /api/quote` per spec §6: filter Active + same merchant + `creditCents == amountCents` + ask > 0; sort ask asc, id asc; `grossSavingsCents` via `grossSavingsCents()`; `expiresAt` = now+60s; `chainId` from deployment. No match → `NoQuote{reason:"NO_LISTING"}` (HTTP 200). RPC down → `CHAIN_UNAVAILABLE` (HTTP 503). **Never fabricate.**
+- [x] **Order status/receipt:** `GET /api/orders/:id?token=` — verify token; `orderSettled(orderId)` on chain; if true, fetch `CheckoutCompleted` log (filter by indexed `orderId`, from `deployBlock`), confirm tx receipt `status==="success"`, return `PAID` + `CheckoutReceipt` (incl. `sellerPayoutUnits`, `feeUnits` from the event) with `explorerUrl` from `explorerTxUrl()`. Else `UNPAID`.
+- [x] Validate all query/body params with zod; errors use `apiError()` shape.
+- [x] Tests: quote selection (cheapest, tie-break, wrong merchant, wrong amount, none), token tamper rejected, totals integer-exact.
 - [ ] `.env.example` entries for anything new.
+- [ ] Route-level tests (call the route handlers with a mocked `publicClient`) for 400/401/409/503 paths.
+- [ ] `RECEIPT_NOT_FOUND` (settled but outside scan window with no tx hint): consider a longer chunked scan as a last resort.
+- [ ] Rate-limit / cache `GET /api/listings` if the demo shows lag (Arc RPC round-trips).
 - [ ] Stretch (if capacity, coordinate with D): wire `/receipt/[orderId]` page to `api.order()`.
 
 ## Must never

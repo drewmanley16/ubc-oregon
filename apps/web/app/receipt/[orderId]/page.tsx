@@ -4,10 +4,10 @@ import { ReceiptClient } from "./receipt-client";
 
 export default async function ReceiptPage(props: PageProps<"/receipt/[orderId]">) {
   const { orderId } = await props.params;
-  const { t } = await props.searchParams;
+  const { t, tx } = await props.searchParams;
   return (
     <main className="mx-auto max-w-xl p-6">
-      <ReceiptClient orderId={orderId as Hex} token={typeof t === "string" ? t : ""} />
+      <ReceiptClient orderId={orderId as Hex} token={typeof t === "string" ? t : ""} txHash={typeof tx === "string" ? (tx as Hex) : undefined} />
     </main>
   );
 }

@@ -20,6 +20,7 @@ Times are Pacific. Deadline **Fri Nov 20, 10:00 a.m.** Feature freeze **Thu Nov 
 - [x] **(D) Contracts** — MerchantCredit + SwayMarketplace implemented. `forge test`: **52 passed, 0 failed** (49 unit/fuzz + 3 invariants, 2048 calls each, 0 reverts).
 - [x] **(D) Fee model** — per-merchant rates, locked per listing. Anvil rehearsal: buyer −88, seller +85, treasury +3 in one tx.
 - [x] **(D) Deploy + SeedDemo scripts** — rehearsed on local anvil: checkout tx status 1, seller +88 USDC, escrow 0, totalRedeemed 10000, replay → `OrderAlreadySettled`.
+- [x] **(D → C handoff) Critical-path API** — `POST /api/orders` (HMAC tokens, server prices only), `GET /api/listings`, `GET /api/quote`, `GET /api/orders/:id` (chain-verified receipts). 11 node tests (quote selection/tie-break, token tamper, client prices ignored). **Local E2E on anvil (chainId 5042002):** quote → listing 1 @ 88 USDC, saves $12.00 → UNPAID → `checkout` tx → PAID with seller 85 / fee 3 / buyer left 12; quote afterwards → `NO_LISTING`; tampered token → 401. Lane C owns these files going forward. (Nov 18)
 - [x] **(D) Frontend wiring** — Privy + wagmi providers, `useSwayWallet`, `useCheckout` state machine, store→checkout→receipt pages. Build + lint green. *Untested in browser until C's orders/quote land and contracts are on Arc.*
 
 ## Deployments
@@ -34,9 +35,10 @@ Times are Pacific. Deadline **Fri Nov 20, 10:00 a.m.** Feature freeze **Thu Nov 
 |---|---|---|---|
 | Nov 18 | Initial interfaces frozen | all | initial commit |
 | Nov 18 | `SwayMarketplace` adds constructor error `ZeroAddress()` (ABI regenerated; no interface/event change) | C (none needed) | lane-d/contracts |
+| Nov 18 | `MarketplaceListing.txHash` is now `Hex \| null` (Arc limits log queries to ~2,000 blocks, so the creation tx is only looked up in a ~3 h window). `GET /api/quote` takes optional `orderId`; `GET /api/orders/:id` takes optional `tx` hint (re-verified on chain). | C, D | lane-d/critical-path-api |
 | Nov 18 | **Fee model.** Sway-set per-merchant rates (demo 88% buyer / 85% seller / 3% fee). `createListing(merchantId, creditCents)` (no ask arg). `Listing` + `ListingCreated` add `sellerPayoutUnits`; `CheckoutCompleted` adds `sellerPayoutUnits`, `feeUnits`. New: `setMerchantRates`, `setTreasury`, `previewPrice`, `merchantRates`, `treasury`. Types: `MarketplaceListing.sellerPayoutUnits`, `CheckoutReceipt.sellerPayoutUnits/feeUnits`, `Deployment.treasury`. Copy: `receipt.swayFee`. | **C** (listings + receipts), A (fee copy), B (receipt) | lane-d/contracts |
 
 ## Blockers / cross-lane requests
 - (lane D) Need Privy App ID → `NEXT_PUBLIC_PRIVY_APP_ID`.
 - (lane D) Waiting on Arc faucet funding for deployer/issuer/seller/buyer before Arc deploy.
-- (lane D → C) Buyer flow E2E needs `POST /api/orders`, `GET /api/orders/:id`, `GET /api/quote`. Frontend calls them via `lib/api.ts` exactly as typed.
+- ~~(lane D → C) Buyer flow E2E needs orders/quote/receipt endpoints~~ — done by D on `lane-d/critical-path-api`. Lane C: review it, then take the remaining items in your lane file.
