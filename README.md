@@ -8,6 +8,8 @@ knows, so the seller's copy is instantly worth $0. The buyer pays USDC on **Arc 
 transaction** the seller is paid, Sway takes its fee, and the buyer's claim is settled. Only the buyer's
 wallet can then reveal the new number + PIN.
 
+**Live demo:** https://sway-ubc.vercel.app
+
 UBC 2026 Hackathon · Track: **Consumer Applications** · Chain award: **Best Use of Arc**
 
 > ⚠️ Hackathon prototype. All merchants and credit are fictional with no real-world value. Testnet only.

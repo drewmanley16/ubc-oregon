@@ -26,6 +26,8 @@ Times are Pacific. Deadline **Fri Nov 20, 10:00 a.m.** Feature freeze **Thu Nov 
 - [x] **(D) Gift card swap model** (team decision Nov 19, Shantam's swap idea) — simulated store card system (`server/giftcards.ts`, Upstash/file KV), `POST /api/sell` (verify → swap → mint → gas top-up), `POST /api/cards/reveal` (chain receipt + buyer signature), `/sell`, gift card store page, receipt reveal, `/balance`. 15 node tests. **Local E2E (anvil, chainId 5042002):** demo card → wrong PIN rejected → sell: swapped, minted 10000 credit, seller gas 0 → 0.2 → old card $0 / `SWAPPED_OUT` → re-sell rejected `ZERO_BALANCE` → seller lists → quote 88 USDC → buyer checkout → reveal signed by seller rejected `NOT_BUYER` → reveal by buyer returns a NEW number with $100 → idempotent → USDC buyer 12 / seller 85 / treasury 3.
 
 ## Deployments
+**Web (Vercel):** https://sway-ubc.vercel.app — project `sway-ubc`, root `apps/web`, auto-deploys from `main`. Env vars set (Privy, RPC, fresh signing/vault secrets, issuer key). **Missing:** Upstash (sell/reveal need it on Vercel).
+
 | Contract | Address | Explorer |
 |---|---|---|
 | MerchantCredit | — | — |

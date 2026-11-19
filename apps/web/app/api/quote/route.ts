@@ -6,7 +6,8 @@ import type { NextRequest } from "next/server";
 import { z } from "zod";
 import type { Hex, NoQuote } from "@sway/shared";
 import { apiError } from "@/server/http";
-import { readListings, requireDeployment } from "@/server/chain";
+import { readListings } from "@/server/chain";
+import { getDeployment } from "@sway/shared";
 import { getMerchantById } from "@/server/seed";
 import { buildQuote, selectListing } from "@/server/quote";
 
@@ -29,8 +30,12 @@ export async function GET(req: NextRequest) {
     const body: NoQuote = { executable: false, reason: "MERCHANT_UNKNOWN", message: "We don't know this store." };
     return Response.json(body, noStore);
   }
+  const d = getDeployment();
+  if (!d) {
+    const body: NoQuote = { executable: false, reason: "CHAIN_UNAVAILABLE", message: "Sway isn't live on Arc yet — check back shortly." };
+    return Response.json(body, { status: 503, ...noStore });
+  }
   try {
-    const d = requireDeployment();
     const best = selectListing(await readListings(merchantId), merchantId, BigInt(amountCents));
     if (!best) {
       const body: NoQuote = { executable: false, reason: "NO_LISTING", message: "No savings available for this cart right now." };
