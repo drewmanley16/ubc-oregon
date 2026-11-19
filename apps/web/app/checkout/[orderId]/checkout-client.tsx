@@ -26,7 +26,7 @@ export function CheckoutClient({ orderId, token }: { orderId: Hex; token: string
 
   const quoteQ = useQuery({
     queryKey: ["quote", order?.merchantId, order?.totalCents],
-    queryFn: () => api.quote(order!.merchantId, order!.totalCents),
+    queryFn: () => api.quote(order!.merchantId, order!.totalCents, orderId),
     enabled: !!order,
     refetchInterval: 30_000,
   });
@@ -35,7 +35,7 @@ export function CheckoutClient({ orderId, token }: { orderId: Hex; token: string
   const quoteError = qd && "reason" in qd ? qd.message : quoteQ.error ? (quoteQ.error as Error).message : null;
 
   const onConfirmed = useCallback(
-    () => router.push(`/receipt/${orderId}?t=${encodeURIComponent(token)}`),
+    (txHash: Hex) => router.push(`/receipt/${orderId}?t=${encodeURIComponent(token)}&tx=${txHash}`),
     [router, orderId, token],
   );
 
