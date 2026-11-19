@@ -1,8 +1,8 @@
 "use client";
 // LANE D. The only wallet surface pages/components use (see ./types.ts).
 import { usePrivy, useWallets } from "@privy-io/react-auth";
-import { useAccount } from "wagmi";
-import { ARC_TESTNET_CHAIN_ID, type Address } from "@sway/shared";
+import { useAccount, useSignMessage } from "wagmi";
+import { ARC_TESTNET_CHAIN_ID, type Address, type Hex } from "@sway/shared";
 import { privyEnabled } from "./config";
 import type { SwayWallet } from "./types";
 
@@ -12,9 +12,13 @@ function usePrivySwayWallet(): SwayWallet {
   const { ready, authenticated, login, logout, user } = usePrivy();
   const { wallets } = useWallets();
   const { address, chainId } = useAccount();
+  const { signMessageAsync } = useSignMessage();
   const active = wallets.find((w) => w.address.toLowerCase() === address?.toLowerCase()) ?? wallets[0];
 
-  if (!ready) return { status: "loading", onArc: false, signIn: () => {}, signOut: () => {}, switchToArc: async () => {} };
+  const notReady = async (): Promise<Hex> => {
+    throw new Error("Sign in first.");
+  };
+  if (!ready) return { status: "loading", onArc: false, signIn: () => {}, signOut: () => {}, switchToArc: async () => {}, signMessage: notReady };
   const addr = (address ?? active?.address) as Address | undefined;
   return {
     status: authenticated && addr ? "signed-in" : authenticated ? "loading" : "signed-out",
@@ -26,6 +30,7 @@ function usePrivySwayWallet(): SwayWallet {
     switchToArc: async () => {
       await active?.switchChain(ARC_TESTNET_CHAIN_ID);
     },
+    signMessage: (message: string) => signMessageAsync({ message }),
   };
 }
 
@@ -36,6 +41,10 @@ function useDisabledSwayWallet(): SwayWallet {
     signIn: () => alertMissingConfig(),
     signOut: () => {},
     switchToArc: async () => {},
+    signMessage: async () => {
+      alertMissingConfig();
+      throw new Error("Sign-in is not configured.");
+    },
   };
 }
 

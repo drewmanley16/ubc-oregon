@@ -3,6 +3,12 @@
 Read: `AGENTS.md`, spec §1, §3, §8 "Member A", §11 (pitch — the demo is a UX artifact).
 **Acceptance:** a judge understands the savings proposition in 5 seconds and completes checkout with minimal coaching.
 
+## Nov 19 — product is now gift cards
+Sway = buy discounted gift cards that can't be drained / sell yours for USDC. Flows: **sell** (`/sell`: card number +
+PIN → verified → swapped, old number $0 → list) and **buy** (store → checkout → receipt → "Show my gift card").
+New copy keys to rewrite: `landing.*`, `store.*`, `sell.*`, `card.*`, `balance.*`. Demo script drafted in
+`docs/DEMO_SCRIPT.md` — tighten it. Always label the store card system "simulated".
+
 ## Owns
 `docs/ux/**` · `apps/web/content/copy.ts` (**every** user-facing string).
 

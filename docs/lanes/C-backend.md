@@ -19,6 +19,12 @@ Contracts, pages, wallet, copy, styles. Need a type change in `packages/shared/s
 
 ## Tasks
 
+> **Nov 19 — gift card pivot.** New server files you own (built + tested by D): `server/giftcards.ts` (simulated
+> store card system + swap + vault), `server/kv.ts` (Upstash REST / local file), `server/sales.ts`, `server/issuer.ts`
+> (server-side mint + seller gas top-up), routes `api/sell`, `api/cards/reveal`, `api/demo/cards`, `api/giftcards/balance`.
+> Open items for you: route-level tests; Upstash on Vercel; an admin view of stuck `MINTING` sales; global rate limit on
+> `/api/demo/cards` (each sale costs the issuer gas).
+
 > **Nov 18 update from lane D:** the critical path below was implemented on `lane-d/critical-path-api` to unblock the
 > buyer E2E (tested end to end on a local chain). **You own these files now** — please review, then pick up the unchecked items.
 > Arc gotchas learned: `eth_getLogs` rejects ranges much above **2,000 blocks** (~18 min at ~0.56 s/block), so never scan
