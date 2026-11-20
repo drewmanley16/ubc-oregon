@@ -704,16 +704,19 @@ header p { margin: 0; color: var(--muted); max-width: 66ch; font-size: 16px; }
     panel();
   }
   // Sheets leave the way they came in, then the state changes underneath.
+  // Only one close at a time, and a jump/reset/role switch cancels it so the delayed action can't land on another screen.
+  let closingT = null;
   function closeSheet(then) {
     const sc = screen.querySelector('.scrim');
     if (!sc || matchMedia('(prefers-reduced-motion: reduce)').matches) return then();
     sc.classList.remove('static'); sc.classList.add('closing');
-    setTimeout(() => { lastSheet = null; then(); }, 240);
+    closingT = setTimeout(() => { closingT = null; lastSheet = null; then(); }, 240);
   }
+  const cancelClose = () => { clearTimeout(closingT); closingT = null; };
 
   // ── flow helpers ────────────────────────────
   function reset() {
-    clearTimeout(S.busy); cancelHold();
+    clearTimeout(S.busy); cancelHold(); cancelClose();
     Object.assign(S, { screen: 'landing', phase: null, sheet: null, details: false, taps: 0, secs: 60, hint: '', confirming: false });
     S.signedIn = S.mode === 'return';
     S.seller = { signedIn: false, screen: 'home', allowed: false };
@@ -751,7 +754,7 @@ header p { margin: 0; color: var(--muted); max-width: 66ch; font-size: 16px; }
   // ── taps ────────────────────────────────────
   screen.addEventListener('click', (e) => {
     const el = e.target.closest('[data-act]');
-    if (!el || el.disabled) return;
+    if (!el || el.disabled || closingT) return; // ignore taps on a sheet that is already leaving
     const [a, arg] = el.dataset.act.split(':');
     if (a !== 'noop') S.taps++;
     // Actions taken inside a sheet that also dismiss it: let the sheet slide away first.
@@ -797,10 +800,10 @@ header p { margin: 0; color: var(--muted); max-width: 66ch; font-size: 16px; }
     const m = e.target.closest('[data-mode]');
     if (m) { S.mode = m.dataset.mode; reset(); return; }
     if (e.target.id === 'restart') { reset(); return; }
-    if (e.target.id === 'simSale') { clearTimeout(S.busy); S.seller.screen = 'sold'; render(); return; }
+    if (e.target.id === 'simSale') { clearTimeout(S.busy); cancelClose(); S.seller.screen = 'sold'; render(); return; }
     const j = e.target.closest('[data-jump]');
     if (!j) return;
-    clearTimeout(S.busy); cancelHold();
+    clearTimeout(S.busy); cancelHold(); cancelClose();
     const id = j.dataset.jump;
     S.sheet = null; S.hint = ''; S.secs = 60; S.confirming = false;
     if (S.role === 'seller') {
