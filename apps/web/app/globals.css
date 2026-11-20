@@ -347,3 +347,20 @@ html { background: var(--s-paper); }
 .footer-note { opacity: .7; }
 .secondary-link { display: block; text-align: center; margin: 22px 20px 0; font-weight: 600; font-size: 14.5px; color: var(--s-ink); text-decoration: none; }
 .secondary-link span { color: var(--s-muted); font-weight: 500; }
+
+/* ── brand intro (lane B, Nov 20): "Sway" rises in, tagline follows, the screen lifts away (~2.4s, tap to skip) ── */
+.intro { position: fixed; inset: 0; z-index: 50; display: grid; place-items: center; background: var(--s-paper); cursor: pointer;
+  animation: intro-out .55s 1.85s var(--m-in) forwards; }
+.intro.leaving { animation: intro-out .3s var(--m-in) forwards; }
+.intro-mark { display: grid; justify-items: center; gap: 14px; padding: 0 24px; text-align: center; }
+.intro-word { font-family: var(--f); font-weight: 800; font-size: clamp(72px, 22vw, 136px); line-height: .9; letter-spacing: -0.055em; color: var(--s-ink);
+  animation: intro-word .9s var(--m-out) both; }
+.intro-word::after { content: ""; display: block; height: 6px; border-radius: 3px; background: var(--s-save); margin: 10px auto 0; width: 38%;
+  transform-origin: left center; animation: intro-bar .6s .45s var(--m-out) both; }
+.intro-tag { font-family: var(--f); font-weight: 600; font-size: clamp(16px, 4.4vw, 21px); letter-spacing: -0.01em; color: var(--s-muted);
+  animation: rise .6s .6s var(--m-out) backwards; }
+@keyframes intro-word { from { opacity: 0; transform: translateY(26px) scale(.96); filter: blur(6px); } }
+@keyframes intro-bar { from { transform: scaleX(0); } }
+@keyframes intro-out { to { opacity: 0; visibility: hidden; transform: scale(1.03); } }
+/* reduced motion: no intro at all (the global rule would freeze it on screen) */
+@media (prefers-reduced-motion: reduce) { .intro { display: none; } }

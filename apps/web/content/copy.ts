@@ -29,6 +29,8 @@ export const copy = {
 
   landing: {
     headline: "Gift cards, up to 17% off.",
+    // Added by lane B (Nov 20) for the brand intro (components/sway/Intro.tsx). Lane A: reword freely.
+    introTagline: "buy and sell gift cards, on-chain.",
     sub: "Buy gift cards other people won't use, for less. Or sell yours and get paid the moment it sells.",
     demoBadge: "Demo · fictional shops · test money",
     buyCta: "Shop gift cards",
