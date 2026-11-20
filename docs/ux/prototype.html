@@ -223,17 +223,17 @@ header p { margin: 0; color: var(--muted); max-width: 66ch; font-size: 16px; }
 /* the gift card itself: the one object both people care about */
 .gcard { position: relative; aspect-ratio: 1.586; border-radius: 16px; padding: 16px 18px; color: #fff; display: grid; grid-template-rows: auto 1fr auto; overflow: hidden;
   background: linear-gradient(135deg, var(--c1), var(--c2)); box-shadow: 0 1px 0 rgba(255,255,255,.18) inset, 0 18px 32px -18px rgba(14,17,16,.6); }
-.gcard::after { content: ""; position: absolute; inset: 0; background: radial-gradient(120% 90% at 100% 0%, rgba(255,255,255,.24), transparent 55%); pointer-events: none; }
+.gcard::after { content: ""; position: absolute; inset: 0; background: radial-gradient(120% 90% at 100% 0%, rgba(255,255,255,.06), transparent 55%); pointer-events: none; } /* faint gloss: stronger fails text contrast */
 .gcard .top { display: flex; justify-content: space-between; align-items: center; font-weight: 700; font-size: 14px; }
-.gcard .top small { font-weight: 700; font-size: 10.5px; opacity: .85; letter-spacing: .08em; text-transform: uppercase; }
+.gcard .top small { font-weight: 700; font-size: 10.5px; letter-spacing: .08em; text-transform: uppercase; }
 .gcard > div { position: relative; }
 .gcard .wm { position: absolute; right: -6px; bottom: -42px; font-size: 168px; font-weight: 800; line-height: 1; letter-spacing: -.06em; opacity: .13; pointer-events: none; }
-.gcard .mid { align-self: center; font-size: 12px; font-weight: 600; opacity: .8; letter-spacing: .02em; }
+.gcard .mid { align-self: center; font-size: 12px; font-weight: 600; letter-spacing: .02em; }
 .gcard .num { align-self: end; font-family: ui-monospace, Menlo, monospace; font-size: 16.5px; letter-spacing: .08em; margin-bottom: 8px; white-space: nowrap; }
 .gcard .num.masked { opacity: .75; letter-spacing: .14em; }
 .gcard .bottom { display: flex; justify-content: space-between; align-items: flex-end; }
 .gcard .val { font-weight: 800; font-size: 30px; letter-spacing: -.03em; line-height: 1; }
-.gcard .bottom small { font-size: 11px; opacity: .85; font-weight: 600; }
+.gcard .bottom small { font-size: 11px; font-weight: 600; }
 .gwrap { margin: 0 20px; }
 .offer { padding: 18px 20px 0; }
 .offer .lbl { font-size: 13px; color: var(--s-muted); }
@@ -262,13 +262,13 @@ header p { margin: 0; color: var(--muted); max-width: 66ch; font-size: 16px; }
 @keyframes lift { 45% { transform: translateY(-10px) scale(1.035); } }
 .gcard.back { padding: 0; grid-template-rows: auto 1fr auto; gap: 0;
   background: linear-gradient(135deg, var(--c2), var(--c1)); }
-.gcard.back::after { background: radial-gradient(120% 90% at 0% 100%, rgba(255,255,255,.16), transparent 55%); }
+.gcard.back::after { background: radial-gradient(120% 90% at 0% 100%, rgba(255,255,255,.06), transparent 55%); }
 .gcard .stripe { height: 24px; margin-top: 12px; background: rgba(10,12,11,.85); }
 .gcard .panel { margin: 8px 12px 0; background: rgba(255,255,255,.95); color: var(--s-ink); border-radius: 10px; padding: 7px 11px; display: grid; gap: 5px; align-self: start; position: relative; z-index: 1; }
 .gcard .panel small { display: block; font-size: 10px; font-weight: 700; letter-spacing: .07em; text-transform: uppercase; color: var(--s-muted); }
 .gcard .panel b { font-family: ui-monospace, Menlo, monospace; font-size: 14.5px; letter-spacing: .06em; white-space: nowrap; }
 .gcard .panel .two { display: flex; justify-content: space-between; gap: 12px; }
-.gcard .bkfoot { padding: 0 14px 9px; font-size: 10.5px; font-weight: 600; opacity: .85; display: flex; justify-content: space-between; position: relative; z-index: 1; }
+.gcard .bkfoot { padding: 0 14px 9px; font-size: 10.5px; font-weight: 600; display: flex; justify-content: space-between; position: relative; z-index: 1; }
 .flip.lifting.flipped .panel b { animation: focus-in .55s .5s var(--m-out) backwards; }
 .flip.lifting.flipped .panel .two div:last-child b { animation-delay: .58s; }
 /* very small phones: drop the back's footer line so nothing gets cut off */
@@ -495,9 +495,9 @@ header p { margin: 0; color: var(--muted); max-width: 66ch; font-size: 16px; }
   // Seed data mirrors apps/web/server/seed.ts: three fictional shops, one $100 eGift card each.
   // Card numbers use the 7777 prefix like the simulated card system (16 digits, 6-digit PIN).
   const SHOPS = [
-    { slug: 'daybreak', name: 'Daybreak Coffee', tag: 'Small-batch roasts, big mornings', color: '#C8742B', c1: '#D9883F', c2: '#8E4714', gift: 'A gift for good mornings' },
+    { slug: 'daybreak', name: 'Daybreak Coffee', tag: 'Small-batch roasts, big mornings', color: '#C8742B', c1: '#A85A1E', c2: '#7A3E10', gift: 'A gift for good mornings' },
     { slug: 'northline', name: 'Northline Apparel', tag: 'Built for the long way home', color: '#2F4A5A', c1: '#46677B', c2: '#1C2F3B', gift: 'A gift for the long way home' },
-    { slug: 'parkside', name: 'Parkside Market', tag: 'Your neighborhood grocer', color: '#3E7B4F', c1: '#559A67', c2: '#24533A', gift: 'A gift for the week ahead' }
+    { slug: 'parkside', name: 'Parkside Market', tag: 'Your neighborhood grocer', color: '#3E7B4F', c1: '#3F7A50', c2: '#24533A', gift: 'A gift for the week ahead' }
   ];
   const BUYER_CARD = { number: '7777 4821 0937 6604', pin: '319482' };
   const SELLER_CARD = { number: '7777 0193 5527 5530', pin: '804217' };
