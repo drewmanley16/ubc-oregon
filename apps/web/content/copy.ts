@@ -151,6 +151,10 @@ export const copy = {
     order: "Order",
     viewOnExplorer: "View payment record",
     backToShops: "Back to shops",
+    // Added by lane B (Nov 20) for the confirmation animation (ConfirmSpin). Lane A: reword freely.
+    accepted: "Transaction accepted",
+    viewOnArcscan: "View on Arcscan",
+    continue: "See your gift card",
   },
 
   record: {

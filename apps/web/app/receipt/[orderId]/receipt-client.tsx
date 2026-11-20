@@ -9,6 +9,7 @@ import { api, giftcards, type RevealedCard } from "@/lib/api";
 import { useSwayWallet } from "@/lib/wallet/use-sway-wallet";
 import { getMerchantById } from "@/lib/merchants";
 import { GiftCard, FlipCard } from "@/components/sway/GiftCard";
+import { ConfirmSpin } from "@/components/sway/ConfirmSpin";
 import { TopBar } from "@/components/sway/TopBar";
 import { Icon } from "@/components/sway/Icon";
 import { revealMessage } from "@/server/reveal-message";
@@ -69,6 +70,8 @@ export function ReceiptClient({ orderId, token, txHash }: { orderId: Hex; token:
 
   return (
     <>
+      {/* lane B: confirmation moment. Safe here: this branch only renders once the order is PAID on chain. */}
+      <ConfirmSpin orderId={orderId} merchant={merchant} valueCents={receipt.creditCents} txHash={receipt.txHash} />
       <div className="scroll fresh">
         <TopBar />
         <div className="rc">
