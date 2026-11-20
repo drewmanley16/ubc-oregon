@@ -28,7 +28,7 @@ export const copy = {
   brand: { name: "Sway", tagline: "Gift cards you can trust. Cash for the ones you won't use." },
 
   landing: {
-    headline: "A $10 gift card. $8.80 with Sway.",
+    headline: "Gift cards, 12% off.",
     sub: "Buy gift cards other people won't use, for less. Or sell yours and get paid the moment it sells.",
     demoBadge: "Demo · fictional shops · test money",
     buyCta: "Shop gift cards",
@@ -39,7 +39,7 @@ export const copy = {
       "Only you see the new number and PIN, right after you pay.",
       "The seller is paid at the same moment you pay.",
     ],
-    shopDeal: (savings: string) => `Save ${savings} on a $10 gift card`,
+    shopDeal: (savings: string) => `Save ${savings}`,
     shopNoDeal: "No deals right now",
   },
 
@@ -175,7 +175,7 @@ export const copy = {
     number: "Card number",
     pin: "PIN",
     noCard: "No card handy?",
-    getDemo: "Get a demo $10 card",
+    getDemo: "Get a demo card",
     demoIssued: "Here's a demo $10 card from the shop. We filled it in for you.",
     payout: (amt: string) => `You get ${amt} when it sells`,
     signIn: "Sign in to sell",

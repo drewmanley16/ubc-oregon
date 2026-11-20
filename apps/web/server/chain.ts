@@ -15,8 +15,8 @@ import { conservativeSavingsCents } from "./quote.ts";
 
 export const publicClient = createPublicClient({
   chain: arcTestnet,
-  // JSON-RPC batching (works on Arc and on a local anvil; no multicall3 dependency).
-  transport: http(process.env.ARC_RPC_URL ?? arcTestnet.rpcUrls.default.http[0], { batch: true }),
+  // Small JSON-RPC batches: Arc rejects oversized batches with "Request exceeds defined limit".
+  transport: http(process.env.ARC_RPC_URL ?? arcTestnet.rpcUrls.default.http[0], { batch: { batchSize: 8, wait: 10 }, retryCount: 2 }),
 });
 
 export function requireDeployment() {
@@ -45,30 +45,42 @@ async function recentLogs<T>(fetchChunk: (from: bigint, to: bigint) => Promise<T
   return (await Promise.all(ranges.map(([f, t]) => fetchChunk(f, t)))).flat();
 }
 
-/** All listings (any status), read straight from contract storage. Fine at demo scale. */
+/**
+ * All listings (any status), read straight from contract storage. One shared read per ~3 s:
+ * the landing page quotes 12 shops at once, and each quote would otherwise re-read every listing.
+ * Settlement never relies on this cache — checkout re-reads the listing on chain before paying.
+ */
+let listingsCache: { at: number; p: Promise<MarketplaceListing[]> } | null = null;
+const LISTINGS_TTL_MS = 4_000;
+
 export async function readListings(merchantId?: number): Promise<MarketplaceListing[]> {
+  if (!listingsCache || Date.now() - listingsCache.at > LISTINGS_TTL_MS) {
+    const p = readAllListings();
+    listingsCache = { at: Date.now(), p };
+    p.catch(() => {
+      if (listingsCache?.p === p) listingsCache = null;
+    });
+  }
+  const all = await listingsCache.p;
+  return merchantId === undefined ? all : all.filter((l) => l.merchantId === merchantId);
+}
+
+const MULTICALL3 = "0xcA11bde05977b3631167028862bE2a173976CA11" as const; // deployed on Arc testnet (verified)
+
+async function readAllListings(): Promise<MarketplaceListing[]> {
   const d = requireDeployment();
   const next = await publicClient.readContract({ address: d.marketplace, abi: swayMarketplaceAbi, functionName: "nextListingId" });
   const ids = Array.from({ length: Number(next - 1n) }, (_, i) => BigInt(i + 1));
-  const raw = await Promise.all(
-    ids.map((id) => publicClient.readContract({ address: d.marketplace, abi: swayMarketplaceAbi, functionName: "getListing", args: [id] })),
-  );
-
-  // Creation tx hashes are best-effort (recent window only); null if older than the lookback.
-  let created = new Map<bigint, Hex>();
-  try {
-    const logs = await recentLogs((fromBlock, toBlock) =>
-      publicClient.getContractEvents({ address: d.marketplace, abi: swayMarketplaceAbi, eventName: "ListingCreated", fromBlock, toBlock }),
-    );
-    created = new Map(logs.map((l) => [l.args.listingId!, l.transactionHash]));
-  } catch {
-    /* tx hashes are cosmetic; listing data above is authoritative */
-  }
-
-  return raw.flatMap((l, i) => {
+  if (ids.length === 0) return [];
+  // ONE eth_call for every listing (Arc's public RPC rate-limits many small calls).
+  const results = await publicClient.multicall({
+    multicallAddress: MULTICALL3,
+    allowFailure: false,
+    contracts: ids.map((id) => ({ address: d.marketplace, abi: swayMarketplaceAbi, functionName: "getListing" as const, args: [id] as const })),
+  });
+  return results.flatMap((l, i) => {
     const status = STATUS[Number(l.status)];
     if (!status) return [];
-    if (merchantId !== undefined && l.merchantId !== BigInt(merchantId)) return [];
     return [
       {
         listingId: ids[i].toString(),
@@ -78,7 +90,7 @@ export async function readListings(merchantId?: number): Promise<MarketplaceList
         askUsdcUnits: l.askUsdcUnits.toString(),
         sellerPayoutUnits: l.sellerPayoutUnits.toString(),
         status,
-        txHash: created.get(ids[i]) ?? null,
+        txHash: null, // creation tx lookup dropped: Arc caps log ranges + rate-limits; see explorer
       },
     ];
   });
