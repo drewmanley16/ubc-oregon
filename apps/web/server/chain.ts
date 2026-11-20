@@ -30,7 +30,7 @@ const STATUS: Record<number, ListingStatus | undefined> = { 1: "ACTIVE", 2: "FIL
 /** Arc RPC rejects eth_getLogs ranges much above 2,000 blocks (~18 min at ~0.56 s/block). */
 const LOG_CHUNK = 2_000n;
 /** Bounded lookback for log scans (~3 h). Older history is reached via known tx hashes, not scans. */
-const LOOKBACK_BLOCKS = 20_000n;
+const LOOKBACK_BLOCKS = 8_000n;
 
 async function recentLogs<T>(fetchChunk: (from: bigint, to: bigint) => Promise<T[]>): Promise<T[]> {
   const d = requireDeployment();
@@ -42,7 +42,14 @@ async function recentLogs<T>(fetchChunk: (from: bigint, to: bigint) => Promise<T
     const to = from + LOG_CHUNK - 1n < head ? from + LOG_CHUNK - 1n : head;
     ranges.push([from, to]);
   }
-  return (await Promise.all(ranges.map(([f, t]) => fetchChunk(f, t)))).flat();
+  // Sequential, newest first: Arc's public RPC rate-limits bursts of parallel log queries.
+  const out: T[] = [];
+  for (const [f, t] of ranges.reverse()) {
+    const got = await fetchChunk(f, t);
+    out.push(...got);
+    if (got.length) break;
+  }
+  return out;
 }
 
 /**
