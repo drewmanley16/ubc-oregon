@@ -16,6 +16,11 @@
   --s-paper: #F7F8F6; --s-surface: #FFFFFF; --s-ink: #0E1110; --s-muted: #5D6662; --s-line: #E3E7E4;
   --s-save: #0A7A45; --s-save-soft: #E3F3EA; --s-alert: #B42318; --s-alert-soft: #FCEBE9;
   --s-r-sm: 10px; --s-r-md: 14px; --s-r-lg: 22px;
+
+  /* motion: one settle curve, one gentle spring (small overshoot, only on small things), one exit curve */
+  --m-out: cubic-bezier(.16, 1, .3, 1);
+  --m-spring: cubic-bezier(.34, 1.36, .64, 1);
+  --m-in: cubic-bezier(.4, 0, 1, 1);
 }
 @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
   --bg: #0F1211; --panel: #181C1A; --fg: #E9EDEB; --muted: #9AA49F; --line: #2A302D; --chip: #212624;
@@ -65,7 +70,9 @@ header p { margin: 0; color: var(--muted); max-width: 66ch; font-size: 16px; }
 .shops { display: grid; margin: 24px 20px 0; background: var(--s-surface); border: 1px solid var(--s-line); border-radius: var(--s-r-md); }
 .shop { display: flex; align-items: center; gap: 12px; padding: 14px; background: none; border: 0; border-bottom: 1px solid var(--s-line); text-align: left; width: 100%; }
 .shop:last-child { border-bottom: 0; }
+.shop { transition: background-color .2s ease, transform .45s var(--m-spring); }
 .shop:hover { background: #FAFBFA; }
+.shop:active { background: #F1F3F1; transform: scale(.985); transition-duration: .2s, .12s; }
 .mark { width: 40px; height: 40px; border-radius: 10px; display: grid; place-content: center; color: #fff; font-weight: 800; font-size: 18px; flex: none; }
 .shop .t { display: grid; min-width: 0; flex: 1; }
 .shop b { font-size: 15px; }
@@ -98,9 +105,16 @@ header p { margin: 0; color: var(--muted); max-width: 66ch; font-size: 16px; }
 
 .details { margin: 22px 20px 0; border-top: 1px solid var(--s-line); }
 .details > button { width: 100%; display: flex; justify-content: space-between; align-items: center; background: none; border: 0; padding: 12px 0; font-size: 14px; font-weight: 600; color: var(--s-ink); }
-.details > button .icon { transition: transform .2s; color: var(--s-muted); }
+.details > button { transition: opacity .2s ease; }
+.details > button:active { opacity: .6; }
+.details > button .icon { transition: transform .5s var(--m-out); color: var(--s-muted); }
 .details.open > button .icon { transform: rotate(180deg); }
+.drawer { display: grid; grid-template-rows: 0fr; transition: grid-template-rows .46s var(--m-out); }
+.details.open .drawer { grid-template-rows: 1fr; }
+.drawer > div { overflow: hidden; min-height: 0; }
 .lines { display: grid; gap: 8px; padding: 0 0 12px; font-size: 13.5px; }
+.lines > div { opacity: 0; transform: translateY(-6px); transition: opacity .18s ease, transform .3s var(--m-in); }
+.details.open .lines > div { opacity: 1; transform: none; transition: opacity .32s ease, transform .5s var(--m-out); transition-delay: calc(70ms + var(--i) * 40ms); }
 .lines div { display: flex; justify-content: space-between; gap: 12px; color: var(--s-muted); }
 .lines div span:first-child { min-width: 0; }
 .lines .g { color: var(--s-save); font-weight: 600; }
@@ -118,10 +132,13 @@ header p { margin: 0; color: var(--muted); max-width: 66ch; font-size: 16px; }
 .dock { flex: none; padding: 12px 16px 14px; display: grid; gap: 8px; background: linear-gradient(to top, var(--s-paper) 75%, transparent); }
 .timer { display: flex; justify-content: center; align-items: center; gap: 6px; font-size: 12px; color: var(--s-muted); }
 .timer .icon { width: 14px; height: 14px; }
-.cta { height: 54px; border-radius: var(--s-r-md); border: 0; background: var(--s-ink); color: #fff; font-weight: 700; font-size: 16.5px; display: flex; align-items: center; justify-content: center; gap: 10px; transition: transform .08s, background .2s; position: relative; overflow: hidden; width: 100%; }
-.cta:active { transform: scale(.985); }
+.cta { height: 54px; border-radius: var(--s-r-md); border: 0; background: var(--s-ink); color: #fff; font-weight: 700; font-size: 16.5px; display: flex; align-items: center; justify-content: center; gap: 10px; transition: transform .5s var(--m-spring), background-color .25s ease, box-shadow .3s ease; position: relative; overflow: hidden; width: 100%; box-shadow: 0 8px 18px -12px rgba(14,17,16,.6); }
+.cta:not([disabled]):active { transform: scale(.97); transition-duration: .12s, .25s, .3s; }
+.back, .mini, .proof, .linkish { transition: transform .45s var(--m-spring), opacity .2s ease; }
+.back:active, .mini:active, .proof:active, .linkish:active { transform: scale(.94); opacity: .7; transition-duration: .12s, .12s; }
 .cta[disabled] { background: #3A403D; cursor: default; }
-.cta.ghost { background: transparent; color: var(--s-ink); border: 1px solid var(--s-line); }
+.cta.ghost { background: transparent; color: var(--s-ink); border: 1px solid var(--s-line); box-shadow: none; }
+.cta.ghost:not([disabled]):active { background: var(--s-surface); }
 .cta > span { position: relative; display: inline-flex; align-items: center; gap: 10px; }
 .spin { width: 18px; height: 18px; border-radius: 50%; border: 2.5px solid rgba(255,255,255,.3); border-top-color: #fff; animation: spin .8s linear infinite; }
 @keyframes spin { to { transform: rotate(360deg); } }
@@ -129,17 +146,22 @@ header p { margin: 0; color: var(--muted); max-width: 66ch; font-size: 16px; }
 
 /* hold to pay */
 .hold { touch-action: none; }
-.hold .fill { position: absolute; inset: 0 auto 0 0; width: 0; background: var(--s-save); }
+.hold .fill { position: absolute; inset: 0 auto 0 0; width: 0; background: var(--s-save); transition: width .45s var(--m-out); }
 .hold.holding .fill { width: 100%; transition: width .9s linear; }
+.hold.holding { transform: scale(.98); transition-duration: .2s; }
 .hold.done .fill { width: 100%; }
 .hold-hint { text-align: center; font-size: 12.5px; color: var(--s-ink); font-weight: 600; min-height: 18px; }
+.hold-hint.swap { animation: fade .3s ease; }
 
 .skel { border-radius: 8px; background: linear-gradient(90deg, #ECEFED 0%, #F6F7F6 50%, #ECEFED 100%); background-size: 200% 100%; animation: shimmer 1.2s infinite; }
 @keyframes shimmer { to { background-position: -200% 0; } }
 
 /* sheets */
-.scrim { position: absolute; inset: 0; background: rgba(14,17,16,.42); display: flex; align-items: flex-end; animation: fade .2s ease-out; z-index: 5; }
-.sheet { width: 100%; background: var(--s-surface); border-radius: 26px 26px 0 0; padding: 10px 20px 22px; display: grid; gap: 12px; animation: up .32s cubic-bezier(.16,1,.3,1); }
+.scrim { position: absolute; inset: 0; background: rgba(14,17,16,.42); display: flex; align-items: flex-end; animation: fade .3s ease-out; z-index: 5; }
+.sheet { width: 100%; background: var(--s-surface); border-radius: 26px 26px 0 0; padding: 10px 20px 22px; display: grid; gap: 12px; animation: up .52s var(--m-out); box-shadow: 0 -12px 40px -20px rgba(14,17,16,.35); }
+.scrim.static, .scrim.static .sheet { animation: none; }
+.scrim.closing { animation: fade-out .26s ease forwards; }
+.scrim.closing .sheet { animation: down .26s var(--m-in) forwards; }
 .grab { width: 38px; height: 5px; border-radius: 3px; background: var(--s-line); margin: 0 auto 4px; }
 .sheet h3 { margin: 0; font-weight: 800; font-size: 24px; letter-spacing: -0.02em; }
 .sheet p { margin: 0; color: var(--s-muted); font-size: 14px; }
@@ -156,14 +178,38 @@ header p { margin: 0; color: var(--muted); max-width: 66ch; font-size: 16px; }
 .record span:first-child { color: var(--s-muted); }
 .record span:last-child { font-weight: 600; text-align: right; }
 @keyframes up { from { transform: translateY(100%); } }
+@keyframes down { to { transform: translateY(100%); } }
 @keyframes fade { from { opacity: 0; } }
+@keyframes fade-out { to { opacity: 0; } }
+
+/* screen changes: a short glide in the direction you're going; content settles, nothing bounces */
+@keyframes in-fwd { from { opacity: 0; transform: translateX(22px); } }
+@keyframes in-back { from { opacity: 0; transform: translateX(-22px); } }
+@keyframes rise { from { opacity: 0; transform: translateY(10px); } }
+#screen.fresh.fwd .scroll, #screen.fresh.fwd .dock { animation: in-fwd .44s var(--m-out) backwards; }
+#screen.fresh.back .scroll, #screen.fresh.back .dock { animation: in-back .44s var(--m-out) backwards; }
+#screen.fresh .dock { animation-delay: 60ms; }
+#screen.fresh .shop, #screen.fresh .item, #screen.fresh .credit-row { animation: rise .5s var(--m-out) backwards; }
+#screen.fresh :is(.shop, .item, .credit-row):nth-child(2) { animation-delay: 50ms; }
+#screen.fresh :is(.shop, .item, .credit-row):nth-child(3) { animation-delay: 100ms; }
+
+/* the price arriving after "Finding you a better price" */
+@keyframes land-in { from { opacity: 0; transform: translateY(16px) scale(.96); } }
+@keyframes pop-in { from { opacity: 0; transform: scale(.7); } }
+.price.reveal .was { animation: rise .4s var(--m-out) backwards; }
+.price.reveal .now { animation: land-in .7s 60ms var(--m-out) backwards; transform-origin: left bottom; }
+.price.reveal .saveline { animation: pop-in .55s 300ms var(--m-spring) backwards; transform-origin: left center; }
+.price.reveal ~ .details { animation: rise .5s 380ms var(--m-out) backwards; }
 
 /* receipt: the one authored moment */
 .rc { padding: 34px 20px 0; display: grid; justify-items: start; }
-.rc .badge { width: 44px; height: 44px; border-radius: 50%; background: var(--s-save); color: #fff; display: grid; place-content: center; animation: pop .5s cubic-bezier(.16,1,.3,1) both; }
+.rc .badge { width: 44px; height: 44px; border-radius: 50%; background: var(--s-save); color: #fff; display: grid; place-content: center; }
+#screen.fresh .rc .badge { animation: pop .6s var(--m-spring) both; }
 .rc .badge .icon { width: 24px; height: 24px; stroke-width: 3; }
 .rc .lbl { margin-top: 18px; font-size: 15px; font-weight: 600; color: var(--s-save); }
-.rc .big { font-weight: 800; font-size: 120px; line-height: .85; letter-spacing: -0.045em; color: var(--s-save); animation: land .7s .1s cubic-bezier(.16,1,.3,1) both; }
+.rc .big { font-weight: 800; font-size: 120px; line-height: .85; letter-spacing: -0.045em; color: var(--s-save); }
+#screen.fresh .rc .big { animation: land-in .75s .12s var(--m-out) backwards; transform-origin: left bottom; }
+#screen.fresh .rc p, #screen.fresh .rcard, #screen.fresh .proof { animation: rise .5s .3s var(--m-out) backwards; }
 .rc p { margin: 14px 0 0; font-size: 15px; color: var(--s-ink); max-width: 30ch; }
 .rcard { margin: 22px 20px 0; background: var(--s-surface); border: 1px solid var(--s-line); border-radius: var(--s-r-md); padding: 4px 14px; font-size: 13.5px; }
 .rcard div { display: flex; justify-content: space-between; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--s-line); }
@@ -172,8 +218,7 @@ header p { margin: 0; color: var(--muted); max-width: 66ch; font-size: 16px; }
 .rcard span:last-child { text-align: right; font-weight: 600; min-width: 0; }
 .proof { display: inline-flex; align-items: center; gap: 6px; margin: 16px 20px 0; color: var(--s-save); font-weight: 600; font-size: 14px; text-decoration: underline; text-underline-offset: 3px; background: none; border: 0; padding: 0; width: fit-content; }
 .proof .icon { width: 15px; height: 15px; }
-@keyframes pop { from { transform: scale(.6); } }
-@keyframes land { from { transform: translateY(14px) scale(.96); } }
+@keyframes pop { from { transform: scale(.5); opacity: 0; } }
 
 /* seller */
 .credit-row { display: flex; gap: 12px; align-items: center; padding: 14px; }
@@ -206,7 +251,7 @@ header p { margin: 0; color: var(--muted); max-width: 66ch; font-size: 16px; }
 .where .built.yes { background: var(--ok-soft); color: var(--ok); }
 .where .built.no { background: var(--warn-soft); color: var(--warn); }
 .seg { display: inline-grid; grid-auto-flow: column; background: var(--chip); border-radius: 10px; padding: 3px; width: fit-content; }
-.seg button { border: 0; background: none; padding: 7px 14px; border-radius: 8px; font-size: 14px; font-weight: 600; color: var(--muted); }
+.seg button { border: 0; background: none; padding: 7px 14px; border-radius: 8px; font-size: 14px; font-weight: 600; color: var(--muted); transition: background-color .25s ease, color .25s ease, box-shadow .25s ease; }
 .seg button[aria-pressed="true"] { background: var(--panel); color: var(--fg); box-shadow: 0 1px 3px rgba(0,0,0,.12); }
 .taps { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
 .taps strong { font-weight: 800; font-size: 44px; line-height: 1; }
@@ -437,15 +482,15 @@ header p { margin: 0; color: var(--muted); max-width: 66ch; font-size: 16px; }
 
   function priceBlock(dim) {
     const s = S.shop;
-    return `<div class="price"><div class="lbl">Your total</div><div class="was">$100.00</div>
+    return `<div class="price${S.reveal && !dim ? ' reveal' : ''}"><div class="lbl">Your total</div><div class="was">$100.00</div>
       <div class="now${dim ? ' dim' : ''}">$88</div>
       ${dim ? '' : `<span class="saveline">${ic('check')}You save $12 with Sway</span>`}</div>
-      <div class="details${S.details ? ' open' : ''}"><button data-act="details" aria-expanded="${S.details}">Price details${ic('down')}</button>
-      ${S.details ? `<div class="lines">
-        ${s.items.map(([n, , p]) => `<div><span>${n}</span><span>${p}</span></div>`).join('')}
-        <div class="g"><span>Store credit discount</span><span>−$12.00</span></div>
-        <div class="tot"><span>You pay</span><span>$88.00</span></div>
-        <div class="fee"><span>Includes $3 Sway service fee</span><span></span></div></div>` : ''}</div>`;
+      <div class="details${S.details ? ' open' : ''}"><button data-act="details" aria-expanded="${S.details}" aria-controls="pdrawer">Price details${ic('down')}</button>
+      <div class="drawer" id="pdrawer"${S.details ? '' : ' inert'}><div><div class="lines">
+        ${s.items.map(([n, , p], i) => `<div style="--i:${i}"><span>${n}</span><span>${p}</span></div>`).join('')}
+        <div class="g" style="--i:2"><span>Store credit discount</span><span>−$12.00</span></div>
+        <div class="tot" style="--i:3"><span>You pay</span><span>$88.00</span></div>
+        <div class="fee" style="--i:4"><span>Includes $3 Sway service fee</span><span></span></div></div></div></div></div>`;
   }
 
   const holdBtn = (label) => `<button class="cta hold" id="hold" aria-describedby="holdhint"><i class="fill"></i><span>${label}</span></button>
@@ -638,10 +683,32 @@ header p { margin: 0; color: var(--muted); max-width: 66ch; font-size: 16px; }
     document.querySelectorAll('[data-mode]').forEach(b => b.setAttribute('aria-pressed', b.dataset.mode === S.mode));
   }
 
+  // Motion bookkeeping: which screen we were on decides whether the new one glides in (and from which side),
+  // and whether an open sheet is new (animate) or just being redrawn (stay still).
+  const ORDER = { landing: 0, store: 1, checkout: 2, receipt: 3, home: 0, credit: 1, sell: 2, locking: 3, listed: 4, sold: 5, cancelled: 5 };
+  let lastKey = null, lastSheet = null;
   function render() {
+    const name = S.role === 'seller' ? S.seller.screen : S.screen;
+    const key = `${S.role}:${name}:${S.confirming}`;
+    const prevName = lastKey && lastKey.split(':')[1];
+    const fresh = key !== lastKey;
+    const dir = !lastKey || prevName === name || lastKey.split(':')[0] !== S.role ? 'same' : (ORDER[name] ?? 0) < (ORDER[prevName] ?? 0) ? 'back' : 'fwd';
+    const sheetFresh = S.sheet && S.sheet !== lastSheet;
+    lastKey = key; lastSheet = S.sheet;
     if (S.role === 'seller') screen.innerHTML = sellerScreen();
     else screen.innerHTML = S.screen === 'landing' ? landing() : S.screen === 'store' ? store() : S.screen === 'receipt' ? receipt() : checkout();
+    screen.classList.remove('fresh', 'fwd', 'back', 'same');
+    if (fresh) { void screen.offsetWidth; screen.classList.add('fresh', dir); }
+    if (!sheetFresh) screen.querySelector('.scrim')?.classList.add('static');
+    S.reveal = false;
     panel();
+  }
+  // Sheets leave the way they came in, then the state changes underneath.
+  function closeSheet(then) {
+    const sc = screen.querySelector('.scrim');
+    if (!sc || matchMedia('(prefers-reduced-motion: reduce)').matches) return then();
+    sc.classList.remove('static'); sc.classList.add('closing');
+    setTimeout(() => { lastSheet = null; then(); }, 240);
   }
 
   // ── flow helpers ────────────────────────────
@@ -653,7 +720,7 @@ header p { margin: 0; color: var(--muted); max-width: 66ch; font-size: 16px; }
     render();
   }
   function go(scr, phase) { S.screen = scr; S.phase = phase || null; S.sheet = null; S.hint = ''; render(); }
-  function loadQuote() { S.details = false; go('checkout', 'loading-quote'); after(900, () => { S.secs = 60; go('checkout', S.signedIn ? 'ready' : 'signed-out'); }); }
+  function loadQuote() { S.details = false; go('checkout', 'loading-quote'); after(900, () => { S.secs = 60; S.reveal = true; go('checkout', S.signedIn ? 'ready' : 'signed-out'); }); }
   function startPay() {
     S.sheet = null; S.phase = 'approving'; render();
     after(1000, () => { S.phase = 'pending'; render();
@@ -674,7 +741,7 @@ header p { margin: 0; color: var(--muted); max-width: 66ch; font-size: 16px; }
     if (el) el.classList.remove('holding');
     setHint('Hold the button for a second to pay');
   }
-  function setHint(t) { S.hint = t; const h = document.getElementById('holdhint'); if (h) h.textContent = t; }
+  function setHint(t) { S.hint = t; const h = document.getElementById('holdhint'); if (h && h.textContent !== t) { h.textContent = t; h.classList.remove('swap'); void h.offsetWidth; h.classList.add('swap'); } }
   screen.addEventListener('pointerdown', e => { const h = e.target.closest('#hold'); if (h) { e.preventDefault(); h.setPointerCapture?.(e.pointerId); startHold(h); } });
   ['pointerup', 'pointercancel', 'pointerleave'].forEach(t => screen.addEventListener(t, e => { const h = e.target.closest('#hold'); if (h) cancelHold(h); }));
   screen.addEventListener('keydown', e => { const h = e.target.closest('#hold'); if (h && (e.key === 'Enter' || e.key === ' ') && !e.repeat) { e.preventDefault(); startHold(h); } });
@@ -687,12 +754,25 @@ header p { margin: 0; color: var(--muted); max-width: 66ch; font-size: 16px; }
     if (!el || el.disabled) return;
     const [a, arg] = el.dataset.act.split(':');
     if (a !== 'noop') S.taps++;
+    // Actions taken inside a sheet that also dismiss it: let the sheet slide away first.
+    if (['close', 'cancel', 'signin', 's-signin', 'confirm'].includes(a) && screen.querySelector('.scrim')) return closeSheet(() => act(a, arg));
+    act(a, arg);
+  });
+  function act(a, arg) {
     switch (a) {
       case 'shop': S.shop = SHOPS.find(s => s.slug === arg); go('store'); break;
       case 'home': go('landing'); break;
       case 'store': go('store'); break;
       case 'checkout': case 'retry': loadQuote(); break;
-      case 'details': S.details = !S.details; render(); break;
+      case 'details': {
+        // Toggle in place (no redraw) so the drawer can ease open and closed.
+        S.details = !S.details;
+        const d = screen.querySelector('.details');
+        d?.classList.toggle('open', S.details);
+        d?.querySelector('button').setAttribute('aria-expanded', S.details);
+        d?.querySelector('.drawer').toggleAttribute('inert', !S.details);
+        panel(); break;
+      }
       case 'open-signin': case 's-open-signin': S.sheet = 'signin'; render(); break;
       case 'close': S.sheet = null; render(); break;
       case 'signin': S.signedIn = true; S.sheet = null; S.phase = 'ready'; render(); break;
@@ -708,7 +788,7 @@ header p { margin: 0; color: var(--muted); max-width: 66ch; font-size: 16px; }
       case 's-cancel': S.seller.screen = 'cancelled'; render(); break;
       default: panel();
     }
-  });
+  }
 
   // ── panel controls ──────────────────────────
   document.querySelector('.panel').addEventListener('click', (e) => {
