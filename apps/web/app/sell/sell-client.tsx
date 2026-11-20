@@ -14,9 +14,10 @@ import { Mark } from "@/components/sway/Mark";
 import { Icon } from "@/components/sway/Icon";
 import { groupCardNumber } from "@/lib/format";
 import { copy } from "@/content/copy";
+import { DEMO_FACE_CENTS } from "@/lib/demo";
 
 const deployment = getDeployment();
-const FACE = 10_000n;
+const FACE = DEMO_FACE_CENTS;
 const whole = (c: bigint | string) => formatCents(c).replace(".00", "");
 
 export function SellClient({ merchants }: { merchants: Merchant[] }) {

@@ -1,13 +1,14 @@
-// LANE C. POST /api/demo/cards {merchantId} -> a fresh SIMULATED $100 store gift card (number + PIN).
+// LANE C. POST /api/demo/cards {merchantId} -> a fresh SIMULATED $10 store gift card (number + PIN).
 // Stands in for "you got a gift card for your birthday". Rate-limited per IP.
 import { z } from "zod";
 import { apiError } from "@/server/http";
 import { getMerchantById } from "@/server/seed";
 import { issuePublicCard } from "@/server/giftcards";
 import { kv } from "@/server/kv";
+import { DEMO_FACE_CENTS } from "@/lib/demo";
 
 const Body = z.object({ merchantId: z.number().int().positive() });
-const DEMO_CARD_CENTS = 10_000n;
+const DEMO_CARD_CENTS = DEMO_FACE_CENTS;
 
 export async function POST(req: Request) {
   const b = Body.safeParse(await req.json().catch(() => null));

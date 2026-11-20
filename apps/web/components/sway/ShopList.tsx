@@ -7,10 +7,13 @@ import { api } from "@/lib/api";
 import { Mark } from "./Mark";
 import { Icon } from "./Icon";
 import { copy } from "@/content/copy";
+import { DEMO_FACE_CENTS } from "@/lib/demo";
+
+const FACE = DEMO_FACE_CENTS.toString();
 
 export function ShopList({ merchants }: { merchants: Merchant[] }) {
   const quotes = useQueries({
-    queries: merchants.map((m) => ({ queryKey: ["quote", m.id, "10000"], queryFn: () => api.quote(m.id, "10000"), refetchInterval: 15_000 })),
+    queries: merchants.map((m) => ({ queryKey: ["quote", m.id, FACE], queryFn: () => api.quote(m.id, FACE), refetchInterval: 15_000 })),
   });
   return (
     <div className="shops">
@@ -23,7 +26,7 @@ export function ShopList({ merchants }: { merchants: Merchant[] }) {
             <span className="t">
               <b>{m.name}</b>
               {deal ? (
-                <small className="deal">Save {formatCents(deal.grossSavingsCents)} on a $100 gift card</small>
+                <small className="deal">{copy.landing.shopDeal(formatCents(deal.grossSavingsCents))}</small>
               ) : (
                 <small>{quotes[i].isLoading ? m.tagline : copy.landing.shopNoDeal}</small>
               )}

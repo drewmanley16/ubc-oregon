@@ -8,12 +8,12 @@ export const MERCHANTS: Merchant[] = [
   { id: 3, slug: "parkside-market", name: "Parkside Market", tagline: "Your neighborhood grocer", creditTokenId: "3", accentColor: "#3E7B4F" },
 ];
 
-// Sway sells store GIFT CARDS. One $100 eGift card product per store; its price is face value and
-// the Sway discount comes from on-chain listings (quote). $100 == the demo card face value.
+// Sway sells store GIFT CARDS. One $10 eGift card product per store; its price is face value and
+// the Sway discount comes from on-chain listings (quote). Must equal DEMO_FACE_CENTS in lib/demo.ts.
 export const PRODUCTS: Product[] = [
-  { id: "dbc-gc-100", merchantId: 1, name: "Daybreak Coffee $100 gift card", description: "Use in store or online", priceCents: "10000" },
-  { id: "nla-gc-100", merchantId: 2, name: "Northline Apparel $100 gift card", description: "Use in store or online", priceCents: "10000" },
-  { id: "pkm-gc-100", merchantId: 3, name: "Parkside Market $100 gift card", description: "Use in store or online", priceCents: "10000" },
+  { id: "dbc-gc-10", merchantId: 1, name: "Daybreak Coffee $10 gift card", description: "Use in store or online", priceCents: "1000" },
+  { id: "nla-gc-10", merchantId: 2, name: "Northline Apparel $10 gift card", description: "Use in store or online", priceCents: "1000" },
+  { id: "pkm-gc-10", merchantId: 3, name: "Parkside Market $10 gift card", description: "Use in store or online", priceCents: "1000" },
 ];
 
 export const getMerchantById = (id: number) => MERCHANTS.find((m) => m.id === id);

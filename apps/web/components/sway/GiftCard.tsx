@@ -5,6 +5,7 @@ import { formatCents, type Merchant } from "@sway/shared";
 import { brandOf } from "@/lib/brand";
 import { groupCardNumber } from "@/lib/format";
 import { copy } from "@/content/copy";
+import { DEMO_FACE_CENTS } from "@/lib/demo";
 
 const vars = (m: Merchant) => {
   const b = brandOf(m.id);
@@ -12,7 +13,7 @@ const vars = (m: Merchant) => {
 };
 
 /** Front cover: store, value, no number. */
-export function GiftCard({ merchant, valueCents = "10000", className = "" }: { merchant: Merchant; valueCents?: string; className?: string }) {
+export function GiftCard({ merchant, valueCents = DEMO_FACE_CENTS.toString(), className = "" }: { merchant: Merchant; valueCents?: string; className?: string }) {
   return (
     <div className={`gcard ${className}`} style={vars(merchant)}>
       <span className="wm" aria-hidden="true">{merchant.name[0]}</span>

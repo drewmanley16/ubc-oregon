@@ -3,9 +3,9 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { MERCHANTS, getProducts } from "./seed.ts";
 
-test("every demo merchant has a cart totaling exactly $100.00 (exact-cover for the seeded listing)", () => {
+test("every demo merchant has a gift card of exactly the demo face value ($10.00) (exact-cover for the seeded listing)", () => {
   for (const m of MERCHANTS) {
     const total = getProducts(m.id).reduce((s, p) => s + BigInt(p.priceCents), 0n);
-    assert.equal(total, 10_000n, m.slug);
+    assert.equal(total, 1_000n, m.slug);
   }
 });
