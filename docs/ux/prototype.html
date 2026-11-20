@@ -226,6 +226,9 @@ header p { margin: 0; color: var(--muted); max-width: 66ch; font-size: 16px; }
 .gcard::after { content: ""; position: absolute; inset: 0; background: radial-gradient(120% 90% at 100% 0%, rgba(255,255,255,.24), transparent 55%); pointer-events: none; }
 .gcard .top { display: flex; justify-content: space-between; align-items: center; font-weight: 700; font-size: 14px; }
 .gcard .top small { font-weight: 700; font-size: 10.5px; opacity: .85; letter-spacing: .08em; text-transform: uppercase; }
+.gcard > div { position: relative; }
+.gcard .wm { position: absolute; right: -6px; bottom: -42px; font-size: 168px; font-weight: 800; line-height: 1; letter-spacing: -.06em; opacity: .13; pointer-events: none; }
+.gcard .mid { align-self: center; font-size: 12px; font-weight: 600; opacity: .8; letter-spacing: .02em; }
 .gcard .num { align-self: end; font-family: ui-monospace, Menlo, monospace; font-size: 16.5px; letter-spacing: .08em; margin-bottom: 8px; white-space: nowrap; }
 .gcard .num.masked { opacity: .75; letter-spacing: .14em; }
 .gcard .bottom { display: flex; justify-content: space-between; align-items: flex-end; }
@@ -248,9 +251,34 @@ header p { margin: 0; color: var(--muted); max-width: 66ch; font-size: 16px; }
 .textlink { background: none; border: 0; padding: 0; color: var(--s-ink); font-weight: 600; font-size: 13.5px; text-decoration: underline; text-underline-offset: 3px; width: fit-content; transition: transform .45s var(--m-spring), opacity .2s ease; }
 .textlink:active { transform: scale(.96); opacity: .7; transition-duration: .12s, .12s; }
 .fine.left { text-align: left; }
+/* two-sided card: front cover, details on the back, a real turn between them */
+.flip { container-type: inline-size; perspective: 1100px; cursor: pointer; border-radius: 16px; -webkit-tap-highlight-color: transparent; }
+.flip:focus-visible { outline: 2px solid var(--s-ink); outline-offset: 3px; }
+.flip-inner { position: relative; aspect-ratio: 1.586; transform-style: preserve-3d; transition: transform .9s cubic-bezier(.6, .05, .25, 1); } /* eases in, turns, settles */
+.flip.flipped .flip-inner { transform: rotateY(180deg); }
+.flip .face { position: absolute; inset: 0; backface-visibility: hidden; -webkit-backface-visibility: hidden; }
+.flip .face.back { transform: rotateY(180deg); }
+.flip.lifting { animation: lift .9s cubic-bezier(.45, 0, .3, 1); }
+@keyframes lift { 45% { transform: translateY(-10px) scale(1.035); } }
+.gcard.back { padding: 0; grid-template-rows: auto 1fr auto; gap: 0;
+  background: linear-gradient(135deg, var(--c2), var(--c1)); }
+.gcard.back::after { background: radial-gradient(120% 90% at 0% 100%, rgba(255,255,255,.16), transparent 55%); }
+.gcard .stripe { height: 24px; margin-top: 12px; background: rgba(10,12,11,.85); }
+.gcard .panel { margin: 8px 12px 0; background: rgba(255,255,255,.95); color: var(--s-ink); border-radius: 10px; padding: 7px 11px; display: grid; gap: 5px; align-self: start; position: relative; z-index: 1; }
+.gcard .panel small { display: block; font-size: 10px; font-weight: 700; letter-spacing: .07em; text-transform: uppercase; color: var(--s-muted); }
+.gcard .panel b { font-family: ui-monospace, Menlo, monospace; font-size: 14.5px; letter-spacing: .06em; white-space: nowrap; }
+.gcard .panel .two { display: flex; justify-content: space-between; gap: 12px; }
+.gcard .bkfoot { padding: 0 14px 9px; font-size: 10.5px; font-weight: 600; opacity: .85; display: flex; justify-content: space-between; position: relative; z-index: 1; }
+.flip.lifting.flipped .panel b { animation: focus-in .55s .5s var(--m-out) backwards; }
+.flip.lifting.flipped .panel .two div:last-child b { animation-delay: .58s; }
+/* very small phones: drop the back's footer line so nothing gets cut off */
+@container (max-width: 250px) { .gcard .bkfoot { display: none; } .gcard.back { grid-template-rows: auto 1fr; } }
+.card-meta { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; }
+.card-meta .fine { margin: 0; }
+
 @keyframes focus-in { from { opacity: 0; filter: blur(8px); letter-spacing: .3em; } }
 @keyframes card-in { from { opacity: 0; transform: translateY(14px) scale(.97); } }
-#screen.fresh .gcard { animation: card-in .6s 80ms var(--m-out) backwards; }
+#screen.fresh .gcard:not(.face), #screen.fresh .flip { animation: card-in .6s 80ms var(--m-out) backwards; }
 .just .num, .secret.just b { animation: focus-in .7s var(--m-out) backwards; }
 .secret.just > div:nth-child(2) b { animation-delay: 90ms; }
 .secret.just > div:nth-child(3) b { animation-delay: 180ms; }
@@ -467,15 +495,15 @@ header p { margin: 0; color: var(--muted); max-width: 66ch; font-size: 16px; }
   // Seed data mirrors apps/web/server/seed.ts: three fictional shops, one $100 eGift card each.
   // Card numbers use the 7777 prefix like the simulated card system (16 digits, 6-digit PIN).
   const SHOPS = [
-    { slug: 'daybreak', name: 'Daybreak Coffee', tag: 'Small-batch roasts, big mornings', color: '#C8742B', c1: '#D9883F', c2: '#8E4714' },
-    { slug: 'northline', name: 'Northline Apparel', tag: 'Built for the long way home', color: '#2F4A5A', c1: '#46677B', c2: '#1C2F3B' },
-    { slug: 'parkside', name: 'Parkside Market', tag: 'Your neighborhood grocer', color: '#3E7B4F', c1: '#559A67', c2: '#24533A' }
+    { slug: 'daybreak', name: 'Daybreak Coffee', tag: 'Small-batch roasts, big mornings', color: '#C8742B', c1: '#D9883F', c2: '#8E4714', gift: 'A gift for good mornings' },
+    { slug: 'northline', name: 'Northline Apparel', tag: 'Built for the long way home', color: '#2F4A5A', c1: '#46677B', c2: '#1C2F3B', gift: 'A gift for the long way home' },
+    { slug: 'parkside', name: 'Parkside Market', tag: 'Your neighborhood grocer', color: '#3E7B4F', c1: '#559A67', c2: '#24533A', gift: 'A gift for the week ahead' }
   ];
   const BUYER_CARD = { number: '7777 4821 0937 6604', pin: '319482' };
   const SELLER_CARD = { number: '7777 0193 5527 5530', pin: '804217' };
 
   const S = { role: 'shopper', mode: 'first', screen: 'landing', shop: SHOPS[0], phase: null, sheet: null, signedIn: false,
-    details: false, taps: 0, receiptTaps: null, secs: 60, busy: null, hint: '', confirming: false, revealed: false, revealing: false, justRevealed: false,
+    details: false, taps: 0, receiptTaps: null, secs: 60, busy: null, hint: '', confirming: false, revealed: false, revealing: false, flipped: false,
     seller: { signedIn: false, screen: 'home', number: '', pin: '', demo: false, stage: 0, just: -1 } };
   const $ = (id) => document.getElementById(id);
   const screen = $('screen');
@@ -524,10 +552,24 @@ header p { margin: 0; color: var(--muted); max-width: 66ch; font-size: 16px; }
   const mark = (s, size) => `<span class="mark" style="background:${s.color}${size ? `;width:${size}px;height:${size}px` : ''}">${s.name[0]}</span>`;
 
   // The card. `num` is the visible number line: masked until the buyer asks to see it.
-  const giftCard = (s, num, extra = '') => `<div class="gcard${extra}" style="--c1:${s.c1};--c2:${s.c2}">
+  // The card's front cover: shop, value, no number (the number lives on the back).
+  const giftCard = (s, extra = '', attrs = '') => `<div class="gcard${extra}" style="--c1:${s.c1};--c2:${s.c2}"${attrs}>
+      <span class="wm" aria-hidden="true">${s.name[0]}</span>
       <div class="top"><span>${s.name}</span><small>eGift card</small></div>
-      <div class="num${num ? '' : ' masked'}">${num || '•••• •••• •••• ••••'}</div>
+      <div class="mid">${s.gift}</div>
       <div class="bottom"><span class="val">$100</span><small>Use in store or online</small></div></div>`;
+  // The back: number, PIN and balance on a light panel, like the back of a real card.
+  const cardBack = (s, attrs = '') => `<div class="gcard face back" style="--c1:${s.c1};--c2:${s.c2}"${attrs}>
+      <div class="stripe"></div>
+      <div class="panel">
+        <div><small>Card number</small><b>${BUYER_CARD.number}</b></div>
+        <div class="two"><div><small>PIN</small><b>${BUYER_CARD.pin}</b></div><div><small>Balance</small><b>$100.00</b></div></div>
+      </div>
+      <div class="bkfoot"><span>${s.name}</span><span>Tap to flip</span></div></div>`;
+  // Both sides together, turned over when S.flipped.
+  const flipCard = (s) => `<div class="flip${S.flipped ? ' flipped' : ''}" role="button" tabindex="0" data-act="flip"
+      aria-label="${S.flipped ? 'Gift card, back: number and PIN. Tap to see the front.' : 'Gift card, front. Tap to see the number and PIN.'}">
+      <div class="flip-inner">${giftCard(s, ' face front', S.flipped ? ' aria-hidden="true"' : '')}${cardBack(s, S.flipped ? '' : ' aria-hidden="true"')}</div></div>`;
 
   function landing() {
     return `${status()}<div class="scroll">${band()}
@@ -661,15 +703,9 @@ header p { margin: 0; color: var(--muted); max-width: 66ch; font-size: 16px; }
     const s = S.shop;
     if (S.confirming) return `${status()}<div class="scroll"><div class="price" style="padding-top:60px"><div class="lbl">Confirming your payment…</div>
       <div class="skel" style="height:96px;width:160px;margin-top:14px"></div><div class="skel" style="height:18px;width:240px;margin-top:16px"></div></div></div>`;
-    const just = S.justRevealed ? ' just' : '';
     const cardBlock = S.revealed
-      ? `${giftCard(s, BUYER_CARD.number, just)}
-        <div class="secret${just}">
-          <div><span>Card number</span><b>${BUYER_CARD.number}</b></div>
-          <div><span>PIN</span><b>${BUYER_CARD.pin}</b></div>
-          <div><span>Balance</span><b>$100.00</b></div>
-        </div>
-        <button class="textlink" data-act="balance">Check balance at the shop</button>
+      ? `${flipCard(s)}
+        <div class="card-meta"><button class="textlink" data-act="balance">Check balance at the shop</button><p class="fine">Tap the card to flip it</p></div>
         <p class="fine left">Demo card from a pretend shop. In real life this comes from the shop's own gift card system.</p>`
       : `${giftCard(s)}
         <button class="cta" data-act="reveal"${S.revealing ? ' disabled' : ''}><span>${S.revealing ? `<i class="spin"></i>Confirming it's you…` : 'Show my gift card'}</span></button>
@@ -814,7 +850,7 @@ header p { margin: 0; color: var(--muted); max-width: 66ch; font-size: 16px; }
     screen.classList.remove('fresh', 'go-fwd', 'go-back', 'go-same'); // prefixed: .back is already the Back button's style
     if (fresh) { void screen.offsetWidth; screen.classList.add('fresh', dir); }
     if (!sheetFresh) screen.querySelector('.scrim')?.classList.add('static');
-    S.reveal = false; S.justRevealed = false; S.seller.just = -1;
+    S.reveal = false; S.seller.just = -1;
     panel();
   }
   // Sheets leave the way they came in, then the state changes underneath.
@@ -831,7 +867,7 @@ header p { margin: 0; color: var(--muted); max-width: 66ch; font-size: 16px; }
   // ── flow helpers ────────────────────────────
   function reset() {
     clearTimeout(S.busy); cancelHold(); cancelClose();
-    Object.assign(S, { screen: 'landing', phase: null, sheet: null, details: false, taps: 0, receiptTaps: null, secs: 60, hint: '', confirming: false, revealed: false, revealing: false });
+    Object.assign(S, { screen: 'landing', phase: null, sheet: null, details: false, taps: 0, receiptTaps: null, secs: 60, hint: '', confirming: false, revealed: false, revealing: false, flipped: false });
     S.signedIn = S.mode === 'return';
     S.seller = { signedIn: false, screen: 'home', number: '', pin: '', demo: false, stage: 0, just: -1 };
     render();
@@ -841,17 +877,32 @@ header p { margin: 0; color: var(--muted); max-width: 66ch; font-size: 16px; }
   function startPay() {
     S.sheet = null; S.phase = 'approving'; render();
     after(1000, () => { S.phase = 'pending'; render();
-      after(1200, () => { S.confirming = true; S.revealed = false; S.receiptTaps = S.taps; go('receipt'); after(800, () => { S.confirming = false; render(); }); }); });
+      after(1200, () => { S.confirming = true; S.revealed = false; S.flipped = false; S.receiptTaps = S.taps; go('receipt'); after(800, () => { S.confirming = false; render(); }); }); });
   }
 
   // Showing the card: a short "confirming it's you", then the number comes into focus.
   function revealCard() {
     S.revealing = true; render();
     after(900, () => {
-      S.revealing = false; S.revealed = true; S.justRevealed = true; render();
-      const sc = document.getElementById('rscroll'), card = screen.querySelector('.gcard');
-      if (sc && card) sc.scrollTo({ top: card.offsetTop - 70, behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
+      // Show the front first, bring it into view, then turn it over.
+      S.revealing = false; S.revealed = true; S.flipped = false; render();
+      const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+      const sc = document.getElementById('rscroll'), card = screen.querySelector('.flip');
+      if (sc && card) sc.scrollTo({ top: card.offsetTop - 70, behavior: reduce ? 'auto' : 'smooth' });
+      after(reduce ? 0 : 280, () => flipTo(true));
     });
+  }
+  // Turn the card in place (no redraw) so the turn can animate, and keep screen readers on the visible side.
+  function flipTo(on) {
+    S.flipped = on;
+    const f = screen.querySelector('.flip');
+    if (!f) return panel();
+    f.classList.toggle('flipped', on);
+    f.classList.remove('lifting'); void f.offsetWidth; f.classList.add('lifting');
+    f.setAttribute('aria-label', on ? 'Gift card, back: number and PIN. Tap to see the front.' : 'Gift card, front. Tap to see the number and PIN.');
+    f.querySelector('.front').setAttribute('aria-hidden', on);
+    f.querySelector('.back').setAttribute('aria-hidden', !on);
+    panel();
   }
   // Selling: each check finishes in turn, then the listing appears.
   function runChecks() {
@@ -890,7 +941,7 @@ header p { margin: 0; color: var(--muted); max-width: 66ch; font-size: 16px; }
     const el = e.target.closest('[data-act]');
     if (!el || el.disabled || closingT) return; // ignore taps on a sheet that is already leaving
     const [a, arg] = el.dataset.act.split(':');
-    if (a !== 'noop') S.taps++;
+    if (a !== 'noop' && a !== 'flip') S.taps++; // flipping the card is play, not a step
     // Actions taken inside a sheet that also dismiss it: let the sheet slide away first.
     if (['close', 'cancel', 'signin', 's-signin', 'confirm'].includes(a) && screen.querySelector('.scrim')) return closeSheet(() => act(a, arg));
     act(a, arg);
@@ -919,6 +970,7 @@ header p { margin: 0; color: var(--muted); max-width: 66ch; font-size: 16px; }
       case 'topup': case 'switch': S.phase = 'ready'; render(); break;
       case 'record': S.sheet = 'record'; render(); break;
       case 'reveal': if (!S.revealing && !S.revealed) revealCard(); break;
+      case 'flip': flipTo(!S.flipped); break;
       case 'balance': S.sheet = 'balance'; render(); break;
       case 's-signin': S.seller.signedIn = true; S.sheet = null; S.seller.screen = 'enter'; render(); break;
       case 's-demo': Object.assign(S.seller, { number: SELLER_CARD.number, pin: SELLER_CARD.pin, demo: true }); render(); break;
@@ -929,6 +981,11 @@ header p { margin: 0; color: var(--muted); max-width: 66ch; font-size: 16px; }
       default: panel();
     }
   }
+
+  screen.addEventListener('keydown', (e) => {
+    const el = e.target.closest('[role="button"][data-act]');
+    if (el && (e.key === 'Enter' || e.key === ' ') && !e.repeat) { e.preventDefault(); el.click(); }
+  });
 
   // Typing a card in: keep the state, tidy the number into groups of 4, and enable the button once it looks complete.
   screen.addEventListener('input', (e) => {
@@ -972,7 +1029,7 @@ header p { margin: 0; color: var(--muted); max-width: 66ch; font-size: 16px; }
     if (id === 'landing' || id === 'store') return go(id);
     if (['receipt', 'reveal', 'balance', 'record'].includes(id)) {
       S.screen = 'receipt'; S.phase = null; S.receiptTaps = null;
-      S.revealed = id === 'reveal' || id === 'balance';
+      S.revealed = S.flipped = id === 'reveal' || id === 'balance';
       S.sheet = id === 'record' ? 'record' : id === 'balance' ? 'balance' : null;
       render(); return;
     }
