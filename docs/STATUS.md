@@ -37,6 +37,14 @@ Times are Pacific. Deadline **Fri Nov 20, 10:00 a.m.** Feature freeze **Thu Nov 
 
 Deployed Nov 19 at block 73100460. Verified on chain: `issuerOf(1)` = issuer, `merchantRates(1)` = 8800/8500, `previewPrice(1, 10000)` = 88 / 85 / 3 USDC, marketplace holds `REDEEMER_ROLE`, `usdc()` = official. Deploy cost ≈ 0.05 USDC.
 
+**First real sell on Arc (Nov 19):** demo card swapped (old number → $0, `SWAPPED_OUT`) → mint 10000 credit to seller
+[`0x5018…9882`](https://explorer.testnet.arc.io/tx/0x501835674dd488f0e92c39274b90b819aa1126db88eec7c97e27d91733d59882) →
+seller gas top-up 0 → 0.2 USDC [`0xad39…e7fe`](https://explorer.testnet.arc.io/tx/0xad3909154d2c956bdaaad24562507130e739f3e3e6741bbcbba68f7c8a65e7fe) →
+approve [`0xa0fc…3dbe`](https://explorer.testnet.arc.io/tx/0xa0fcf5d9143a41edcc4698814eb5a882c3fd1b5686da2b859750e16062a13dbe) →
+listing #1 [`0x04c5…355e`](https://explorer.testnet.arc.io/tx/0x04c59cf0a95894505db1a5cb4fdc95d5bc9573060efffafc22d07a1ad4e0355e) (88 / 85 USDC).
+Live site `GET /api/quote?merchantId=1&amountCents=10000` returns listing 1, saves $12.00. Buy pending a funded buyer.
+⚠️ Listing #1's vault card is in Drew's **local** KV (no Upstash yet) → reveal it via `localhost:3000`, not the live site.
+
 ## Contract changes log
 | Date | Change | Lanes affected | PR |
 |---|---|---|---|
