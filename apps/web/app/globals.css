@@ -277,32 +277,16 @@ main a.block.rounded {
   box-shadow: var(--shadow-1);
 }
 
-/* Shop cards lift toward you and pick up an accent edge on hover */
+/* Shop cards lift toward you on hover; the lift and deeper shadow are the whole effect */
 main a.block.rounded {
-  position: relative;
-  overflow: hidden;
   transition:
     transform 260ms var(--ease-out),
     box-shadow 260ms var(--ease-out),
     border-color 200ms ease;
 }
-main a.block.rounded::before {
-  content: "";
-  position: absolute;
-  inset: 0 auto 0 0;
-  width: 3px;
-  background: var(--color-accent);
-  transform: scaleY(0);
-  transform-origin: bottom;
-  transition: transform 260ms var(--ease-out);
-}
 main a.block.rounded:hover {
   transform: translateY(-2px);
   box-shadow: var(--shadow-2);
-}
-main a.block.rounded:hover::before,
-main a.block.rounded:focus-visible::before {
-  transform: scaleY(1);
 }
 main a.block.rounded:active {
   transform: translateY(0) scale(0.99);
