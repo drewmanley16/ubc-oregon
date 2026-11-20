@@ -144,7 +144,7 @@ export function CheckoutClient({ orderId, token }: { orderId: Hex; token: string
   return (
     <>
       <div className="scroll fresh">
-        <TopBar back="/" chip="Demo card" />
+        <TopBar back="/" />
         {showPrice && payCents ? (
           <>
             <div className="price reveal">

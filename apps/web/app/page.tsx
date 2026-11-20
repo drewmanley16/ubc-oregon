@@ -3,6 +3,7 @@ import Link from "next/link";
 import { MERCHANTS } from "@/server/seed";
 import { TopBar } from "@/components/sway/TopBar";
 import { ShopList } from "@/components/sway/ShopList";
+import { Icon } from "@/components/sway/Icon";
 import { copy } from "@/content/copy";
 
 export default function Home() {
@@ -14,19 +15,17 @@ export default function Home() {
         <p className="sub">{copy.landing.sub}</p>
       </div>
       <ShopList merchants={MERCHANTS} />
-      <div className="note calm">
-        <b>{copy.landing.howTitle}</b>
-        <ol style={{ margin: "4px 0 0", paddingLeft: 18, color: "var(--s-muted)" }}>
-          {copy.landing.how.map((s) => (
-            <li key={s}>{s}</li>
-          ))}
-        </ol>
+      <div className="pills">
+        {copy.landing.how.map((line, i) => (
+          <div key={line} className="pill-row">
+            <Icon name={(["lock", "check", "clock"] as const)[i] ?? "check"} />
+            <span>{line}</span>
+          </div>
+        ))}
       </div>
-      <div className="pad" style={{ marginTop: 16 }}>
-        <Link href="/sell" className="cta ghost" style={{ textDecoration: "none" }}>
-          <span>{copy.landing.sellCta}</span>
-        </Link>
-      </div>
+      <Link href="/sell" className="secondary-link">
+        <span>Have a card you won&apos;t use?</span> {copy.landing.sellCta} →
+      </Link>
       <div className="footer-note">Payments are recorded on Arc, a public ledger.</div>
     </div>
   );

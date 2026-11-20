@@ -140,7 +140,7 @@ export function SellClient({ merchants }: { merchants: Merchant[] }) {
     return (
       <>
         <div className="scroll fresh">
-          <TopBar chip="Demo card" />
+          <TopBar />
           <div className="pad">
             <h1 className="h-page">Checking your card</h1>
             <p className="sub">This takes a few seconds. Keep this screen open.</p>
@@ -230,7 +230,7 @@ export function SellClient({ merchants }: { merchants: Merchant[] }) {
   return (
     <>
       <div className="scroll fresh">
-        <TopBar chip="Demo card" />
+        <TopBar />
         <div className="pad">
           <h1 className="h-page">{copy.sell.title}</h1>
           <p className="sub">{copy.sell.sub}</p>

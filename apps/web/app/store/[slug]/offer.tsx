@@ -7,7 +7,6 @@ import { useQuery } from "@tanstack/react-query";
 import { formatCents, getDeployment, usdcUnitsToCentsExact, type Merchant, type Product } from "@sway/shared";
 import { api } from "@/lib/api";
 import { TopBar } from "@/components/sway/TopBar";
-import { Mark } from "@/components/sway/Mark";
 import { GiftCard } from "@/components/sway/GiftCard";
 import { Icon } from "@/components/sway/Icon";
 import { copy } from "@/content/copy";
@@ -43,19 +42,15 @@ export function GiftCardOffer({ merchant, product }: { merchant: Merchant; produ
   return (
     <>
       <div className="scroll fresh">
-        <TopBar back="/" chip="Demo shop" />
-        <div className="store-head">
-          <Mark merchant={merchant} size={48} />
-          <div>
-            <h2>{merchant.name}</h2>
-            <p>{merchant.tagline}</p>
-          </div>
+        <TopBar back="/" />
+        <div className="store-title">
+          <h2>{merchant.name}</h2>
+          <p>{merchant.tagline}</p>
         </div>
         <div className="gwrap">
           <GiftCard merchant={merchant} valueCents={product.priceCents} />
         </div>
         <div className="offer">
-          <div className="lbl">{product.name}</div>
           {q.isLoading ? (
             <>
               <div className="skel" style={{ height: 20, width: 80, marginTop: 8 }} />

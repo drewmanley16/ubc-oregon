@@ -31,7 +31,7 @@ export function BalanceClient() {
   return (
     <>
       <div className="scroll fresh">
-        <TopBar back="/" chip="Demo shop" />
+        <TopBar back="/" />
         <div className="pad">
           <h1 className="h-page">{copy.balance.title}</h1>
           <p className="sub">{copy.balance.sub}</p>

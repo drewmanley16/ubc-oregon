@@ -310,3 +310,40 @@ a { color: inherit; }
 .status-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--s-save); display: inline-block; margin-right: 6px; animation: breathe 2s ease-in-out infinite; }
 @keyframes breathe { 50% { opacity: .35; } }
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } }
+
+
+/* ── sleek pass (Nov 20): quieter chrome, fewer boxes, more air ─────────────── */
+.app { box-shadow: none; }
+html { background: var(--s-paper); }
+.demo-band { font-size: 10.5px; letter-spacing: .02em; opacity: .75; padding: 6px 16px 0; }
+.topbar { padding: 10px 20px 2px; min-height: 52px; }
+.logo { font-size: 22px; letter-spacing: -0.045em; }
+.chip { border-color: transparent; background: rgba(14,17,16,.05); font-size: 12px; padding: 5px 11px; }
+.h-land { font-size: 44px; line-height: .98; letter-spacing: -0.045em; margin: 22px 0 12px; }
+.sub { font-size: 15px; line-height: 1.45; }
+.shops { border: 0; background: transparent; margin-top: 28px; gap: 2px; }
+.shop { border: 0 !important; border-radius: 16px; padding: 12px; margin: 0 -12px; width: calc(100% + 24px); }
+.shop:hover { background: rgba(14,17,16,.035); }
+.mark { border-radius: 12px; }
+.note { background: transparent; border: 0; padding: 0; margin-top: 22px; }
+.note.alert { background: var(--s-alert-soft); padding: 14px; }
+.note.good b, .note.calm b { font-size: 14px; }
+.pills { display: grid; gap: 14px; margin: 30px 20px 0; padding-top: 22px; border-top: 1px solid var(--s-line); }
+.pill-row { display: flex; gap: 12px; align-items: flex-start; font-size: 14px; color: var(--s-muted); }
+.pill-row .icon { color: var(--s-save); margin-top: 2px; }
+.pill-row b { color: var(--s-ink); font-weight: 600; display: block; }
+.dock { background: rgba(247,248,246,.82); -webkit-backdrop-filter: saturate(1.6) blur(18px); backdrop-filter: saturate(1.6) blur(18px); border-top: 1px solid rgba(14,17,16,.06); }
+.cta { border-radius: 16px; height: 56px; letter-spacing: -0.01em; }
+.cta.ghost { border-color: transparent; background: rgba(14,17,16,.05); }
+.gcard { border-radius: 20px; }
+.gwrap { margin-top: 6px; }
+.offer { padding-top: 22px; }
+.offer .now { font-size: 54px; }
+.store-title { padding: 6px 20px 16px; }
+.store-title h2 { margin: 0; font-weight: 800; font-size: 30px; letter-spacing: -0.035em; line-height: 1.05; }
+.store-title p { margin: 4px 0 0; color: var(--s-muted); font-size: 14px; }
+.rcard, .record, .split, .steps, .items { border: 0; background: rgba(14,17,16,.035); }
+.details { border-top-color: transparent; }
+.footer-note { opacity: .7; }
+.secondary-link { display: block; text-align: center; margin: 22px 20px 0; font-weight: 600; font-size: 14.5px; color: var(--s-ink); text-decoration: none; }
+.secondary-link span { color: var(--s-muted); font-weight: 500; }
