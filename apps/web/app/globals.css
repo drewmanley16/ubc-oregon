@@ -28,6 +28,17 @@
   --color-amber-900: #5f4a14;
 
   --font-sans: "Figtree", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+
+  /* Brand accent: Sway's personality, for interaction and brand moments only.
+     Never on prices or savings (green owns money). Not used for text, so contrast stays safe. */
+  --color-accent: #ee5a2c;
+  --color-accent-soft: #fdebe4;
+  --color-accent-ink: #c2410c; /* the accent dark enough for small text: 5.2:1 on white */
+
+  /* Layering: two soft shadows per level, like paper stacked on paper */
+  --shadow-1: 0 1px 2px rgb(14 17 16 / 0.04), 0 4px 14px -6px rgb(14 17 16 / 0.08);
+  --shadow-2: 0 2px 4px rgb(14 17 16 / 0.05), 0 16px 32px -14px rgb(14 17 16 / 0.18);
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 @layer base {
@@ -206,6 +217,190 @@ main textarea {
   main .rounded.border.p-5 {
     padding: 16px;
   }
+}
+
+/* ── Accent, layering, motion ─────────────────────────────────────
+   One accent, two shadow levels, one easing curve. Everything moves
+   once, on arrival, and never loops. */
+
+/* Accent: focus, caret, selection and link underlines are the "Sway" color,
+   so green is left to mean money only */
+:focus-visible {
+  outline-color: var(--color-accent);
+}
+input,
+select {
+  caret-color: var(--color-accent);
+}
+::selection {
+  background: var(--color-accent-soft);
+}
+main a.underline,
+main .underline {
+  text-decoration-color: var(--color-accent);
+  text-decoration-thickness: 2px;
+  text-underline-offset: 3px;
+}
+
+/* A soft warm light at the top of the page: depth without decoration */
+body {
+  background-image: radial-gradient(
+    120% 460px at 50% -110px,
+    var(--color-accent-soft) 0%,
+    transparent 75%
+  );
+  background-repeat: no-repeat;
+}
+
+/* Small uppercase labels ("Gift card") carry the accent, led by a dot */
+main .uppercase {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  color: var(--color-accent-ink);
+  opacity: 1;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+}
+main .uppercase::before {
+  content: "";
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--color-accent);
+}
+
+/* Cards float one level above the paper */
+main div.rounded.border,
+main section.rounded.border,
+main a.block.rounded {
+  box-shadow: var(--shadow-1);
+}
+
+/* Shop cards lift toward you and pick up an accent edge on hover */
+main a.block.rounded {
+  position: relative;
+  overflow: hidden;
+  transition:
+    transform 260ms var(--ease-out),
+    box-shadow 260ms var(--ease-out),
+    border-color 200ms ease;
+}
+main a.block.rounded::before {
+  content: "";
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 3px;
+  background: var(--color-accent);
+  transform: scaleY(0);
+  transform-origin: bottom;
+  transition: transform 260ms var(--ease-out);
+}
+main a.block.rounded:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-2);
+}
+main a.block.rounded:hover::before,
+main a.block.rounded:focus-visible::before {
+  transform: scaleY(1);
+}
+main a.block.rounded:active {
+  transform: translateY(0) scale(0.99);
+}
+
+/* Primary ink buttons sit on their own soft shadow and lift slightly on hover */
+main .bg-black {
+  box-shadow: 0 1px 0 rgb(255 255 255 / 0.08) inset, 0 8px 20px -10px rgb(14 17 16 / 0.55);
+  transition:
+    transform 160ms var(--ease-out),
+    box-shadow 200ms ease,
+    opacity 200ms ease;
+}
+main .bg-black:not(:disabled):hover {
+  transform: translateY(-1px);
+  box-shadow: 0 1px 0 rgb(255 255 255 / 0.08) inset, 0 12px 26px -10px rgb(14 17 16 / 0.6);
+}
+main .bg-black:not(:disabled):active {
+  transform: translateY(0) scale(0.985);
+}
+main a.rounded.border:not(.block),
+.rounded-full.border {
+  background: var(--color-surface);
+  transition:
+    border-color 200ms ease,
+    transform 160ms var(--ease-out);
+}
+main a.rounded.border:not(.block):hover,
+.rounded-full.border:hover {
+  border-color: var(--color-ink);
+}
+
+/* Inputs: the border warms to the accent with a soft ring on focus */
+main input,
+main select {
+  transition:
+    border-color 160ms ease,
+    box-shadow 160ms ease;
+}
+main input:focus,
+main select:focus {
+  outline: none;
+  border-color: var(--color-accent);
+  box-shadow: 0 0 0 4px var(--color-accent-soft);
+}
+
+/* Arrival: each page's blocks rise in, one after another */
+@keyframes sway-rise {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+}
+main > *,
+#stores > * {
+  animation: sway-rise 520ms var(--ease-out) backwards;
+}
+main > :nth-child(2) { animation-delay: 50ms; }
+main > :nth-child(3) { animation-delay: 100ms; }
+main > :nth-child(4) { animation-delay: 150ms; }
+main > :nth-child(5) { animation-delay: 200ms; }
+main > :nth-child(n + 6) { animation-delay: 250ms; }
+#stores > :nth-child(1) { animation-delay: 180ms; }
+#stores > :nth-child(2) { animation-delay: 240ms; }
+#stores > :nth-child(3) { animation-delay: 300ms; }
+
+/* The price lands, then the savings pill pops in after it */
+@keyframes sway-land {
+  from {
+    opacity: 0;
+    transform: translateY(12px) scale(0.97);
+  }
+}
+@keyframes sway-pop {
+  from {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+}
+[data-size="xl"],
+main span.text-2xl.font-semibold {
+  animation: sway-land 640ms 120ms var(--ease-out) backwards;
+}
+main span.text-green-700 {
+  display: inline-block;
+  animation: sway-pop 420ms 380ms var(--ease-out) backwards;
+}
+
+/* The revealed card number comes into focus instead of just appearing */
+@keyframes sway-focus {
+  from {
+    opacity: 0;
+    filter: blur(8px);
+    letter-spacing: 0.2em;
+  }
+}
+main .font-mono.text-2xl {
+  animation: sway-focus 700ms var(--ease-out) backwards;
 }
 
 @media (prefers-reduced-motion: reduce) {
