@@ -10,7 +10,7 @@
 //   4. When a buyer pays on chain, claimForOrder() assigns one vaulted card of that exact value
 //      to the order and only the buyer (wallet signature) can reveal its number + PIN.
 import "server-only";
-import { createCipheriv, createDecipheriv, createHash, randomBytes, randomInt, timingSafeEqual } from "node:crypto";
+import { createCipheriv, createDecipheriv, createHash, createHmac, randomBytes, randomInt, timingSafeEqual } from "node:crypto";
 import { kv } from "./kv.ts";
 
 export type CardStatus = "ACTIVE" | "SWAPPED_OUT";
@@ -112,7 +112,9 @@ async function loadVerified(numberRaw: string, pin: string) {
 }
 
 /** Retailer balance check (public page). */
-export async function checkBalance(number: string, pin: string): Promise<CardView> {
+export async function checkBalance(number: string, pin: string, derivedFaceCents = "100"): Promise<CardView> {
+  const d = checkDerived(number, pin, derivedFaceCents);
+  if (d) return d;
   return view(await loadVerified(number, pin));
 }
 
@@ -186,4 +188,27 @@ export async function revealCard(vaultNumber: string) {
   const c = await kv().get<StoredCard>(K.card(vaultNumber));
   if (!c) throw new GiftCardError("CARD_NOT_FOUND", "Card missing.");
   return { number: c.number, pin: open(c.pinEnc), merchantId: c.merchantId, balanceCents: c.balanceCents };
+}
+
+// ── Stateless issue-to-buyer (no database) ─────────────────────
+// The simulated store issues the buyer a fresh card for a PAID order. Number + PIN are derived with the
+// server secret, so they're stable across reloads/instances and only the server can produce them.
+const hmacDigits = (label: string, len: number) => {
+  const h = createHmac("sha256", vaultKey()).update(label).digest();
+  let out = "";
+  for (let i = 0; out.length < len; i++) out += (h[i % h.length] % 10).toString();
+  return out;
+};
+const derivedPin = (number: string) => hmacDigits(`pin:${number}`, 6);
+
+export function cardForOrder(orderId: string, merchantId: number, cents: string) {
+  const number = `7778${hmacDigits(`card:${orderId.toLowerCase()}:${merchantId}`, 12)}`;
+  return { number, pin: derivedPin(number), merchantId, balanceCents: cents };
+}
+
+/** Balance check for derived (7778…) cards: valid only with the server-derived PIN. */
+export function checkDerived(number: string, pin: string, faceCents: string): CardView | null {
+  const n = normalizeNumber(number);
+  if (!/^7778\d{12}$/.test(n) || !sameSecret(derivedPin(n), pin.trim())) return null;
+  return { last4: n.slice(-4), merchantId: 0, balanceCents: faceCents, status: "ACTIVE" };
 }

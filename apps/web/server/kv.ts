@@ -133,7 +133,7 @@ export function kv(): KV {
   const url = process.env.UPSTASH_REDIS_REST_URL ?? process.env.KV_REST_API_URL;
   const token = process.env.UPSTASH_REDIS_REST_TOKEN ?? process.env.KV_REST_API_TOKEN;
   if (url && token) instance = new UpstashKV(url, token);
-  else if (process.env.VERCEL) throw new Error("Set UPSTASH_REDIS_REST_URL / UPSTASH_REDIS_REST_TOKEN on Vercel.");
+  else if (process.env.VERCEL) instance = new FileKV("/tmp/sway-kv.json"); // best effort; buyer reveal doesn't need it
   else instance = new FileKV(process.env.SWAY_KV_FILE ?? join(process.cwd(), ".data", "kv.json"));
   return instance;
 }

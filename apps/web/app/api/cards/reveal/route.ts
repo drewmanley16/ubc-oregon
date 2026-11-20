@@ -7,7 +7,7 @@ import type { Hex } from "@sway/shared";
 import { apiError } from "@/server/http";
 import { verifyOrderToken } from "@/server/orders";
 import { findCheckoutReceipt } from "@/server/chain";
-import { claimForOrder, GiftCardError, revealCard } from "@/server/giftcards";
+import { cardForOrder, claimForOrder, GiftCardError, revealCard } from "@/server/giftcards";
 import { getMerchantById } from "@/server/seed";
 import { revealMessage } from "@/server/reveal-message";
 
@@ -25,8 +25,13 @@ export async function POST(req: Request) {
     if (!receipt) return apiError(402, "NOT_PAID", "We can't see a confirmed payment for this order yet.");
     const ok = await verifyMessage({ address: receipt.buyer, message: revealMessage(order.orderId), signature: signature as Hex }).catch(() => false);
     if (!ok) return apiError(403, "NOT_BUYER", "Only the account that paid can view this card.");
-    const vaultNumber = await claimForOrder(order.orderId, receipt.merchantId, receipt.creditCents);
-    const card = await revealCard(vaultNumber);
+    let card: { number: string; pin: string; merchantId: number; balanceCents: string };
+    try {
+      card = await revealCard(await claimForOrder(order.orderId, receipt.merchantId, receipt.creditCents));
+    } catch (e) {
+      if (!(e instanceof GiftCardError) || e.code !== "NO_VAULT_CARD") throw e;
+      card = cardForOrder(order.orderId, receipt.merchantId, receipt.creditCents); // stateless, no DB
+    }
     return Response.json(
       { ...card, merchantName: getMerchantById(card.merchantId)?.name ?? "", simulated: true },
       { headers: { "cache-control": "no-store" } },
