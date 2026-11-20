@@ -56,6 +56,19 @@ Live site `GET /api/quote?merchantId=1&amountCents=10000` returns listing 1, sav
 
 ## Blockers / cross-lane requests
 - (lane D) Need Privy App ID → `NEXT_PUBLIC_PRIVY_APP_ID`.
-- (lane D) Waiting on Arc faucet funding: **deployer ~2 USDC, issuer ~5 USDC** (it mints for every sale and tops up each new seller with 0.2 USDC gas). Buyer = a Privy account with ~90 USDC at demo time.
-- (lane D) Need Upstash Redis REST URL + token for Vercel (local dev uses a file).
+- ~~(lane D) Arc faucet funding~~ — done, deployed Nov 19 (see Deployments).
+- (lane D) Upstash for Vercel: deferred by Drew. Live site can't sell/reveal until it's added; local dev uses a file.
 - ~~(lane D → C) Buyer flow E2E needs orders/quote/receipt endpoints~~ — done by D on `lane-d/critical-path-api`. Lane C: review it, then take the remaining items in your lane file.
+- (lane D → lane A) Merged `lane-a/flows` Nov 19. Your copy.ts was kept as the base; for the gift card pivot D rewrote `landing`, `store` (new keys `giftCard`, `withSway`, `youSave`, `noOffer`, `buy`, `starting`, `checking`), `sell`, and added `card`, `balance` in your voice. Please review + reword.
+- (lane A → lane D) Four UX questions from `docs/ux/journeys.md`: Q1 approve a larger USDC cap once so "Enable payment" is truly one time (per-order approval breaks the 5-tap returning path); Q2 can Privy skip its extra confirm popup for embedded accounts; Q3 how a brand-new buyer gets USDC without visiting a faucet; Q4 lock the demo cart at $100 so it always matches the listing.
+  - Q1 update (Nov 19, lane A): `use-checkout.ts` approves exactly the ask inside the Pay tap, so it's per order. Copy now says so honestly (`copy.checkout.twoConfirmations`, `copy.tx.needsApproval`). If you switch to a one-time larger cap, tell lane A and the copy goes back to "one time".
+
+### Copy wiring (lane A → lanes D and B)
+`apps/web/content/copy.ts` is rewritten (Nov 19). Every key lane D already uses is unchanged, and `pnpm --filter @sway/web typecheck` passes on `lane-d/critical-path-api` with the new file. These strings are still typed into code; swap them for the keys below:
+- `components/sway/TxProgress.tsx` (B, D): shows the raw phase name. Map each `CheckoutPhase` to `copy.tx.*` (`loadingQuote`, `signedOut`, `needsApproval`, `ready`, `approving`, `awaitingSignature`, `pending`, `confirmed`, `rejected`, `failed`, `wrongNetwork`), `quote-stale` → `copy.checkout.quoteStale`, `no-offer` → `copy.checkout.noOffer`, `insufficient-funds` → `copy.tx.insufficientFundsDetail(need, have)`. Use `copy.tx.failedTaken` when the revert is `ListingNotActive`.
+- `app/checkout/[orderId]/checkout-client.tsx` (D): `"Pay"` → `copy.checkout.cta.payFallback`; `"Try again"` → `copy.checkout.cta.retry` (and `copy.checkout.cta.findAnother` for `failed`); signed-out with a known price → `copy.checkout.cta.signInToPay(amount)`; missing token / load error → `copy.errors.missingOrderToken` / `copy.errors.orderLoad`.
+- `components/sway/QuoteCard.tsx` (B): replace `Listing #N · held Ns` with `copy.checkout.quoteExpires(secondsLeft)` (no listing number in the main UI); `You save` → `copy.checkout.savingsLine(amount)`; add `copy.checkout.feeIncluded(fee)` under price details.
+- `components/sway/ReceiptCard.tsx` (B): `You saved` → `copy.receipt.title`; `Retail` / `Paid` → `copy.receipt.retailValue` / `copy.receipt.paid`; `View transaction` → `copy.receipt.viewOnExplorer`; add a `copy.receipt.swayFee` row.
+- `app/receipt/[orderId]/receipt-client.tsx` (D): waiting state → `copy.tx.confirmingReceipt`; `Missing order token.` → `copy.errors.missingReceiptToken`.
+- ~~`app/store/[slug]/cart.tsx`~~ — removed in the gift card pivot; the store page is now `app/store/[slug]/offer.tsx` and already uses `copy.store.*`.
+- `components/sway/AccountChip.tsx` (B, D): `Sign in` / `Sign out` → `copy.account.signIn` / `copy.account.signOut`.

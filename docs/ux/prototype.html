@@ -1,0 +1,589 @@
+<meta charset="utf-8">
+<title>Sway Buyer Prototype</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Figtree:wght@400..900&display=swap">
+<style>
+/* Layout: phone on the left is the product; the panel on the right explains where you are in the journey, counts taps, and jumps to any state. Design system sheet below. */
+:root {
+  /* page chrome (follows the viewer's theme) */
+  --bg: #F3F4F2; --panel: #FFFFFF; --fg: #141816; --muted: #5B6560; --line: #DFE3E0; --chip: #EEF1EF;
+  --ok: #0A7A45; --ok-soft: #E2F2E9; --warn: #8A5A00; --warn-soft: #FBF0D9;
+  --f-display: "Figtree", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; --display-width: 100%;
+  --f-body: "Figtree", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+
+  /* product tokens: Sway checkout, fixed light (this is the app) */
+  --s-paper: #F7F8F6; --s-surface: #FFFFFF; --s-ink: #0E1110; --s-muted: #5D6662; --s-line: #E3E7E4;
+  --s-save: #0A7A45; --s-save-soft: #E3F3EA; --s-alert: #B42318; --s-alert-soft: #FCEBE9;
+  --s-r-sm: 10px; --s-r-md: 14px; --s-r-lg: 22px;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #0F1211; --panel: #181C1A; --fg: #E9EDEB; --muted: #9AA49F; --line: #2A302D; --chip: #212624;
+  --ok: #5FD497; --ok-soft: #173126; --warn: #F2C46B; --warn-soft: #3A2D12; color-scheme: dark } }
+:root[data-theme="dark"] {
+  --bg: #0F1211; --panel: #181C1A; --fg: #E9EDEB; --muted: #9AA49F; --line: #2A302D; --chip: #212624;
+  --ok: #5FD497; --ok-soft: #173126; --warn: #F2C46B; --warn-soft: #3A2D12; color-scheme: dark }
+
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--fg); font-family: var(--f-body); font-size: 15px; line-height: 1.5; }
+::selection { background: var(--ok-soft); color: var(--fg); }
+:focus-visible { outline: 2px solid var(--ok); outline-offset: 2px; border-radius: 6px; }
+button { font: inherit; color: inherit; cursor: pointer; }
+.wrap { max-width: 1080px; margin: 0 auto; padding-block: 36px 72px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
+  display: grid; gap: 48px; }
+header h1 { font-family: var(--f-display); font-stretch: var(--display-width); font-weight: 800; font-size: clamp(28px, 4.4vw, 42px); line-height: 1.05; letter-spacing: -0.03em; margin: 0 0 10px; text-wrap: balance; }
+header p { margin: 0; color: var(--muted); max-width: 64ch; font-size: 16px; }
+
+.stage { display: grid; grid-template-columns: 380px minmax(0, 1fr); gap: 32px; align-items: start; }
+@media (max-width: 860px) { .stage { grid-template-columns: minmax(0, 1fr); justify-items: center; } .panel { width: 100%; } }
+
+/* ── phone ───────────────────────────────── */
+.phone { width: 380px; max-width: 100%; height: 760px; border-radius: 44px; padding: 11px; background: #0B0C0C;
+  box-shadow: 0 1px 0 rgba(255,255,255,.07) inset, 0 30px 60px -28px rgba(0,0,0,.5); }
+.screen { height: 100%; border-radius: 34px; overflow: hidden; position: relative; background: var(--s-paper); color: var(--s-ink);
+  font-family: var(--f-body); display: flex; flex-direction: column; }
+.screen ::selection { background: var(--s-save-soft); color: var(--s-ink); }
+.scroll { flex: 1; overflow-y: auto; display: flex; flex-direction: column; scrollbar-width: none; }
+.scroll::-webkit-scrollbar { display: none; }
+.statusbar { height: 40px; flex: none; display: flex; justify-content: space-between; align-items: center; padding: 0 26px; font-size: 13px; font-weight: 600; }
+.statusbar .isl { width: 92px; height: 26px; border-radius: 14px; background: #0B0C0C; }
+.demo-band { flex: none; font-size: 11px; text-align: center; color: var(--s-muted); padding: 4px 16px 8px; }
+
+.icon { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; flex: none; }
+.navrow { display: flex; align-items: center; gap: 8px; padding: 6px 14px 4px; font-size: 13px; color: var(--s-muted); min-height: 36px; }
+.back { display: inline-flex; align-items: center; gap: 2px; background: none; border: 0; color: var(--s-ink); font-weight: 600; padding: 6px 6px 6px 0; }
+.navrow .chip { margin-left: auto; }
+.chip { font-size: 11px; font-weight: 600; color: var(--s-muted); background: var(--s-surface); border: 1px solid var(--s-line); border-radius: 999px; padding: 3px 9px; white-space: nowrap; }
+
+.pad { padding: 0 20px; }
+.h-land { font-family: var(--f-display); font-stretch: var(--display-width); font-weight: 800; font-size: 40px; line-height: 1; letter-spacing: -0.035em; margin: 18px 0 10px; text-wrap: balance; }
+.h-land em { font-style: normal; color: var(--s-save); }
+.sub { color: var(--s-muted); font-size: 14.5px; margin: 0; }
+
+.shops { display: grid; margin: 26px 20px 0; background: var(--s-surface); border: 1px solid var(--s-line); border-radius: var(--s-r-md); }
+.shop { display: flex; align-items: center; gap: 12px; padding: 14px; background: none; border: 0; border-bottom: 1px solid var(--s-line); text-align: left; width: 100%; }
+.shop:last-child { border-bottom: 0; }
+.shop:hover { background: #FAFBFA; }
+.mark { width: 40px; height: 40px; border-radius: 10px; display: grid; place-content: center; color: #fff; font-family: var(--f-display); font-stretch: var(--display-width); font-weight: 800; font-size: 18px; flex: none; }
+.shop .t { display: grid; min-width: 0; flex: 1; }
+.shop b { font-size: 15px; }
+.shop small { color: var(--s-muted); font-size: 12.5px; }
+.shop .deal { color: var(--s-save); font-weight: 600; }
+.shop .icon { color: var(--s-muted); }
+
+.store-head { display: flex; gap: 12px; align-items: center; padding: 8px 20px 18px; }
+.store-head h2 { margin: 0; font-family: var(--f-display); font-stretch: var(--display-width); font-weight: 800; font-size: 26px; letter-spacing: -0.02em; line-height: 1.1; }
+.store-head p { margin: 0; color: var(--s-muted); font-size: 13px; }
+.items { margin: 0 20px; background: var(--s-surface); border: 1px solid var(--s-line); border-radius: var(--s-r-md); }
+.item { display: flex; gap: 12px; padding: 14px; border-bottom: 1px solid var(--s-line); align-items: center; }
+.item:last-child { border-bottom: 0; }
+.thumb { width: 52px; height: 52px; border-radius: 10px; flex: none; background: linear-gradient(140deg, #E9D9C6, #C8742B); }
+.thumb.two { background: linear-gradient(140deg, #EFEAE3, #9C8F80); }
+.item .t { flex: 1; min-width: 0; display: grid; }
+.item b { font-size: 14px; font-weight: 600; }
+.item small { color: var(--s-muted); font-size: 12px; }
+.item .p { font-weight: 600; font-size: 14px; }
+.hint { display: flex; gap: 8px; align-items: center; margin: 14px 20px 0; font-size: 13px; color: var(--s-save); font-weight: 500; }
+
+/* the price moment */
+.price { padding: 10px 20px 0; }
+.price .lbl { font-size: 13px; color: var(--s-muted); }
+.price .was { font-size: 20px; font-weight: 600; color: var(--s-muted); text-decoration: line-through; text-decoration-thickness: 2px; margin-top: 2px; }
+.price .now { font-family: var(--f-display); font-stretch: var(--display-width); font-weight: 800; font-size: 96px; line-height: .9; letter-spacing: -0.04em; margin: 2px 0 12px; transition: opacity .3s; }
+.price .now.dim { opacity: .28; }
+.saveline { display: inline-flex; align-items: center; gap: 6px; background: var(--s-save-soft); color: var(--s-save); font-weight: 700; font-size: 14px; border-radius: 999px; padding: 6px 12px 6px 8px; }
+.saveline .icon { width: 16px; height: 16px; stroke-width: 2.6; }
+
+.details { margin: 22px 20px 0; border-top: 1px solid var(--s-line); }
+.details > button { width: 100%; display: flex; justify-content: space-between; align-items: center; background: none; border: 0; padding: 12px 0; font-size: 14px; font-weight: 600; color: var(--s-ink); }
+.details > button .icon { transition: transform .2s; color: var(--s-muted); }
+.details.open > button .icon { transform: rotate(180deg); }
+.lines { display: grid; gap: 8px; padding: 0 0 12px; font-size: 13.5px; }
+.lines div { display: flex; justify-content: space-between; gap: 12px; color: var(--s-muted); }
+.lines div span:first-child { min-width: 0; }
+.lines .g { color: var(--s-save); font-weight: 600; }
+.lines .tot { color: var(--s-ink); font-weight: 700; border-top: 1px solid var(--s-line); padding-top: 8px; }
+
+.note { margin: 16px 20px 0; border-radius: var(--s-r-md); padding: 14px; display: grid; gap: 4px; font-size: 13.5px; background: var(--s-surface); border: 1px solid var(--s-line); }
+.note b { display: flex; align-items: center; gap: 8px; font-size: 14.5px; }
+.note p { margin: 0; color: var(--s-muted); }
+.note.alert { background: var(--s-alert-soft); border-color: #F4C7C1; }
+.note.alert b { color: var(--s-alert); }
+.note.calm b .icon { color: var(--s-muted); }
+.note.done { padding: 10px 14px; }
+.note.done b { color: var(--s-save); font-size: 13.5px; }
+
+.dock { flex: none; padding: 12px 16px 14px; display: grid; gap: 8px; background: linear-gradient(to top, var(--s-paper) 75%, transparent); }
+.timer { display: flex; justify-content: center; align-items: center; gap: 6px; font-size: 12px; color: var(--s-muted); }
+.timer .icon { width: 14px; height: 14px; }
+.cta { height: 54px; border-radius: var(--s-r-md); border: 0; background: var(--s-ink); color: #fff; font-weight: 700; font-size: 16.5px; display: flex; align-items: center; justify-content: center; gap: 10px; transition: transform .08s, background .2s; }
+.cta:active { transform: scale(.985); }
+.cta[disabled] { background: #3A403D; cursor: default; }
+.cta.ghost { background: transparent; color: var(--s-ink); border: 1px solid var(--s-line); }
+.spin { width: 18px; height: 18px; border-radius: 50%; border: 2.5px solid rgba(255,255,255,.3); border-top-color: #fff; animation: spin .8s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.skel { border-radius: 8px; background: linear-gradient(90deg, #ECEFED 0%, #F6F7F6 50%, #ECEFED 100%); background-size: 200% 100%; animation: shimmer 1.2s infinite; }
+@keyframes shimmer { to { background-position: -200% 0; } }
+
+/* sheets */
+.scrim { position: absolute; inset: 0; background: rgba(14,17,16,.42); display: flex; align-items: flex-end; animation: fade .2s ease-out; z-index: 5; }
+.sheet { width: 100%; background: var(--s-surface); border-radius: 26px 26px 0 0; padding: 10px 20px 22px; display: grid; gap: 12px; animation: up .32s cubic-bezier(.16,1,.3,1); }
+.grab { width: 38px; height: 5px; border-radius: 3px; background: var(--s-line); margin: 0 auto 4px; }
+.sheet h3 { margin: 0; font-family: var(--f-display); font-stretch: var(--display-width); font-weight: 800; font-size: 24px; letter-spacing: -0.02em; }
+.sheet p { margin: 0; color: var(--s-muted); font-size: 14px; }
+.field { display: grid; gap: 6px; font-size: 12.5px; color: var(--s-muted); font-weight: 600; }
+.field input { height: 48px; border-radius: var(--s-r-sm); border: 1px solid var(--s-line); padding: 0 14px; font: inherit; font-size: 15px; color: var(--s-ink); background: var(--s-paper); caret-color: var(--s-save); }
+.or { display: flex; align-items: center; gap: 10px; font-size: 12px; color: var(--s-muted); }
+.or::before, .or::after { content: ""; height: 1px; background: var(--s-line); flex: 1; }
+.fine { font-size: 11.5px; color: var(--s-muted); text-align: center; }
+.confirm-amt { font-family: var(--f-display); font-stretch: var(--display-width); font-weight: 800; font-size: 52px; letter-spacing: -0.04em; line-height: 1; }
+@keyframes up { from { transform: translateY(100%); } }
+@keyframes fade { from { opacity: 0; } }
+
+/* receipt: the one authored moment */
+.rc { padding: 34px 20px 0; display: grid; justify-items: start; }
+.rc .badge { width: 44px; height: 44px; border-radius: 50%; background: var(--s-save); color: #fff; display: grid; place-content: center; animation: pop .5s cubic-bezier(.16,1,.3,1) both; }
+.rc .badge .icon { width: 24px; height: 24px; stroke-width: 3; }
+.rc .lbl { margin-top: 18px; font-size: 15px; font-weight: 600; color: var(--s-save); }
+.rc .big { font-family: var(--f-display); font-stretch: var(--display-width); font-weight: 800; font-size: 120px; line-height: .85; letter-spacing: -0.045em; color: var(--s-save); animation: land .7s .1s cubic-bezier(.16,1,.3,1) both; }
+.rc p { margin: 14px 0 0; font-size: 15px; color: var(--s-ink); max-width: 30ch; }
+.rcard { margin: 24px 20px 0; background: var(--s-surface); border: 1px solid var(--s-line); border-radius: var(--s-r-md); padding: 4px 14px; font-size: 13.5px; }
+.rcard div { display: flex; justify-content: space-between; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--s-line); }
+.rcard div:last-child { border-bottom: 0; }
+.rcard span:first-child { color: var(--s-muted); }
+.rcard span:last-child { text-align: right; font-weight: 600; min-width: 0; }
+.proof { display: inline-flex; align-items: center; gap: 6px; margin: 16px 20px 0; color: var(--s-save); font-weight: 600; font-size: 14px; text-decoration: underline; text-underline-offset: 3px; background: none; border: 0; padding: 0; }
+.proof .icon { width: 15px; height: 15px; }
+@keyframes pop { from { transform: scale(.6); } }
+@keyframes land { from { transform: translateY(14px) scale(.96); } }
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } }
+
+/* ── panel ───────────────────────────────── */
+.panel { display: grid; gap: 16px; min-width: 0; }
+.box { background: var(--panel); border: 1px solid var(--line); border-radius: 16px; padding: 18px; display: grid; gap: 12px; min-width: 0; }
+.box h2 { margin: 0; font-size: 13px; font-weight: 600; color: var(--muted); }
+.where { display: grid; gap: 6px; }
+.where .step { font-family: var(--f-display); font-stretch: var(--display-width); font-weight: 800; font-size: 24px; letter-spacing: -0.02em; line-height: 1.15; }
+.where code { font-family: ui-monospace, Menlo, monospace; font-size: 12.5px; background: var(--chip); border-radius: 6px; padding: 2px 7px; width: fit-content; }
+.where .chain { display: grid; gap: 2px; font-size: 14px; }
+.where .chain span { color: var(--muted); font-size: 12.5px; font-weight: 600; }
+.seg { display: inline-grid; grid-auto-flow: column; background: var(--chip); border-radius: 10px; padding: 3px; width: fit-content; }
+.seg button { border: 0; background: none; padding: 7px 14px; border-radius: 8px; font-size: 14px; font-weight: 600; color: var(--muted); }
+.seg button[aria-pressed="true"] { background: var(--panel); color: var(--fg); box-shadow: 0 1px 3px rgba(0,0,0,.12); }
+.taps { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+.taps strong { font-family: var(--f-display); font-stretch: var(--display-width); font-weight: 800; font-size: 44px; line-height: 1; }
+.taps span { color: var(--muted); font-size: 14px; }
+.meter { display: grid; grid-template-columns: repeat(9, 1fr); gap: 4px; }
+.meter i { height: 8px; border-radius: 3px; background: var(--chip); }
+.meter i.on { background: var(--fg); }
+.meter i.over { background: var(--warn); }
+.meter i.goal { box-shadow: inset 0 -3px 0 var(--ok); }
+.verdict { font-size: 13.5px; border-radius: 10px; padding: 9px 12px; }
+.verdict.good { background: var(--ok-soft); color: var(--ok); font-weight: 600; }
+.verdict.meh { background: var(--warn-soft); color: var(--warn); }
+.jumps { display: grid; gap: 10px; }
+.jumps h3 { margin: 0; font-size: 12.5px; color: var(--muted); font-weight: 600; }
+.jl { display: flex; flex-wrap: wrap; gap: 6px; }
+.jl button { border: 1px solid var(--line); background: var(--panel); color: var(--fg); border-radius: 8px; padding: 6px 10px; font-size: 13px; }
+.jl button:hover { border-color: var(--fg); }
+.jl button[aria-current="true"] { background: var(--fg); color: var(--bg); border-color: var(--fg); }
+.row2 { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; justify-content: space-between; }
+.link { background: none; border: 0; color: var(--muted); text-decoration: underline; text-underline-offset: 3px; font-size: 13.5px; padding: 0; }
+
+/* ── design system ───────────────────────── */
+.ds { display: grid; gap: 22px; }
+.ds > h2 { font-family: var(--f-display); font-stretch: var(--display-width); font-weight: 800; font-size: 28px; letter-spacing: -0.02em; margin: 0; }
+.ds > p { margin: -12px 0 0; color: var(--muted); max-width: 64ch; }
+.ds-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 400px), 1fr)); gap: 16px; }
+.sw { display: grid; grid-template-columns: repeat(auto-fill, minmax(92px, 1fr)); gap: 10px; }
+.sw div { display: grid; gap: 6px; font-size: 12px; min-width: 0; }
+.sw i { display: block; height: 48px; border-radius: 10px; border: 1px solid var(--line); }
+.sw b { font-weight: 600; }
+.sw span { color: var(--muted); font-family: ui-monospace, Menlo, monospace; font-size: 11px; }
+.type-row { display: grid; grid-template-columns: 92px minmax(0, 1fr); gap: 12px; align-items: baseline; padding: 8px 0; border-bottom: 1px solid var(--line); }
+.type-row:last-child { border-bottom: 0; }
+.type-row span { color: var(--muted); font-size: 12px; }
+.type-row div { min-width: 0; overflow-wrap: anywhere; }
+.rules { margin: 0; padding-left: 18px; display: grid; gap: 6px; font-size: 14px; }
+.rules li::marker { color: var(--ok); }
+.btn-demo { display: grid; gap: 8px; max-width: 320px; background: var(--s-paper); color: var(--s-ink); padding: 14px; border-radius: 14px; }
+.btn-demo .cta { font-family: var(--f-body); }
+</style>
+
+<div class="wrap">
+  <header>
+    <h1>Sway buyer prototype</h1>
+    <p>Tap through checkout on the phone like a real shopper. The panel shows where you are in the journey, what happens on-chain, and how many taps it took. Jump to any state, including the ones that go wrong.</p>
+  </header>
+
+  <section class="stage">
+    <div class="phone"><div class="screen" id="screen"></div></div>
+
+    <aside class="panel">
+      <div class="box">
+        <div class="row2">
+          <div class="seg" role="group" aria-label="Visitor type">
+            <button id="m-first" aria-pressed="true" data-mode="first">First visit</button>
+            <button id="m-return" aria-pressed="false" data-mode="return">Returning</button>
+          </div>
+          <button class="link" id="restart">Start over</button>
+        </div>
+      </div>
+
+      <div class="box">
+        <h2>Where you are</h2>
+        <div class="where" id="where"></div>
+      </div>
+
+      <div class="box">
+        <h2>Taps from landing</h2>
+        <div class="taps"><strong id="tapn">0</strong><span id="tapnote">Target: 5 or fewer for a returning shopper</span></div>
+        <div class="meter" id="meter" aria-hidden="true"></div>
+        <div id="verdict"></div>
+      </div>
+
+      <div class="box jumps">
+        <h2>Jump to a state</h2>
+        <h3>Main path</h3>
+        <div class="jl" id="j-main"></div>
+        <h3>When something goes wrong</h3>
+        <div class="jl" id="j-detour"></div>
+      </div>
+    </aside>
+  </section>
+
+  <section class="ds" aria-labelledby="ds-h">
+    <h2 id="ds-h">Design system, v0</h2>
+    <p>Everything on the phone is built from these. One bold move (the giant price), one accent (green means money you keep), everything else quiet. This is Lane A's proposal for Lane B to adopt or adjust.</p>
+    <div class="ds-grid">
+      <div class="box">
+        <h2>Color</h2>
+        <div class="sw">
+          <div><i style="background:#F7F8F6"></i><b>Paper</b><span>#F7F8F6</span></div>
+          <div><i style="background:#FFFFFF"></i><b>Surface</b><span>#FFFFFF</span></div>
+          <div><i style="background:#0E1110"></i><b>Ink</b><span>#0E1110</span></div>
+          <div><i style="background:#5D6662"></i><b>Muted</b><span>#5D6662</span></div>
+          <div><i style="background:#E3E7E4"></i><b>Line</b><span>#E3E7E4</span></div>
+          <div><i style="background:#0A7A45"></i><b>Savings</b><span>#0A7A45</span></div>
+          <div><i style="background:#E3F3EA"></i><b>Savings soft</b><span>#E3F3EA</span></div>
+          <div><i style="background:#B42318"></i><b>Alert</b><span>#B42318</span></div>
+        </div>
+      </div>
+      <div class="box">
+        <h2>Type</h2>
+        <div>
+          <div class="type-row"><span>Price 96</span><div style="font-family:var(--f-display);font-stretch:var(--display-width);font-weight:800;font-size:56px;line-height:1;letter-spacing:-0.04em">$88</div></div>
+          <div class="type-row"><span>Title 26</span><div style="font-family:var(--f-display);font-stretch:var(--display-width);font-weight:800;font-size:26px;letter-spacing:-0.02em;line-height:1.1">Daybreak Coffee</div></div>
+          <div class="type-row"><span>Body 15</span><div>You save $12 with Sway.</div></div>
+          <div class="type-row"><span>Small 13</span><div style="font-size:13px;color:var(--muted)">Price held for 0:58</div></div>
+        </div>
+        <p style="margin:0;font-size:13px;color:var(--muted)">One family, Figtree (free on Google Fonts). Extra bold for prices and titles, regular and semibold for everything else.</p>
+      </div>
+      <div class="box">
+        <h2>Buttons and shape</h2>
+        <div class="btn-demo">
+          <button class="cta" type="button" tabindex="-1">Pay $88</button>
+          <button class="cta" type="button" tabindex="-1" disabled><span class="spin"></span>Paying</button>
+          <button class="cta ghost" type="button" tabindex="-1">Back to store</button>
+        </div>
+        <p style="margin:0;font-size:13px;color:var(--muted)">Radius 10 for inputs, 14 for buttons and cards, 22 for sheets. One main button per screen, always at the bottom within thumb reach.</p>
+      </div>
+      <div class="box">
+        <h2>Rules</h2>
+        <ul class="rules">
+          <li>One number gets the spotlight per screen. Everything else hides under "Price details".</li>
+          <li>Green only ever means money the shopper keeps. Never on buttons.</li>
+          <li>Buttons say exactly what happens and how much: "Pay $88", not "Continue".</li>
+          <li>Errors say what happened, that you weren't charged (only when true), and what to do next.</li>
+          <li>No crypto words in the main UI. "Sign in", "Enable payment", "View proof".</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+</div>
+
+<script>
+(() => {
+  const I = {
+    right: '<path d="m9 18 6-6-6-6"/>', left: '<path d="m15 18-6-6 6-6"/>', down: '<path d="m6 9 6 6 6-6"/>',
+    check: '<path d="M20 6 9 17l-5-5"/>', lock: '<rect width="18" height="11" x="3" y="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>',
+    clock: '<circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/>', alert: '<circle cx="12" cy="12" r="10"/><path d="M12 8v4"/><path d="M12 16h.01"/>',
+    ext: '<path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>',
+    x: '<path d="M18 6 6 18"/><path d="m6 6 12 12"/>', refresh: '<path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M8 16H3v5"/>',
+    info: '<circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/>'
+  };
+  const ic = (n) => `<svg class="icon" viewBox="0 0 24 24" aria-hidden="true">${I[n]}</svg>`;
+
+  const SHOPS = [
+    { slug: 'daybreak', name: 'Daybreak Coffee', tag: 'Small-batch roasts, big mornings', color: '#C8742B', deal: true },
+    { slug: 'northline', name: 'Northline Apparel', tag: 'Built for the long way home', color: '#2F4A5A', deal: false },
+    { slug: 'parkside', name: 'Parkside Market', tag: 'Your neighborhood grocer', color: '#3E7B4F', deal: false }
+  ];
+
+  // Journey annotations: what each moment is, mapped to journeys.md and CheckoutPhase.
+  const INFO = {
+    landing:            { step: '1 · Landing', phase: null, chain: 'Nothing.' },
+    store:              { step: '2 · Store', phase: null, chain: 'Nothing. Tapping Check out makes the server sign an order. No database, no chain.' },
+    'loading-quote':    { step: '3 · Finding a price', phase: 'loading-quote', chain: 'Read only. Server finds the best listing; the app re-checks it on-chain.' },
+    'signed-out':       { step: '4 · The offer', phase: 'signed-out', chain: 'Nothing.' },
+    signin:             { step: '5 · Sign in', phase: 'signed-out', chain: 'Nothing on-chain. Privy quietly creates an account.' },
+    'needs-approval':   { step: '6 · Enable payment', phase: 'needs-approval', chain: 'Next tap sends transaction 1: usdc.approve. Permission only, no money moves.' },
+    approving:          { step: '6 · Enabling payment', phase: 'approving', chain: 'Transaction 1 is confirming on Arc.' },
+    ready:              { step: '7 · Ready to pay', phase: 'ready', chain: 'Nothing yet. Next tap asks for confirmation.' },
+    'awaiting-signature': { step: '7 · Confirm', phase: 'awaiting-signature', chain: 'Waiting for the shopper to confirm.' },
+    pending:            { step: '7 · Paying', phase: 'pending', chain: 'Transaction 2: checkout. $88 to the seller, $100 credit burned, receipt emitted. All or nothing.' },
+    confirmed:          { step: '8 · Receipt', phase: 'confirmed', chain: 'Read only. Receipt is rebuilt from the CheckoutCompleted event. Shown only after a confirmed success.' },
+    'no-offer':         { step: 'Detour · No deal', phase: 'no-offer', chain: 'Nothing. Sway never invents a price.' },
+    'quote-stale':      { step: 'Detour · Price expired', phase: 'quote-stale', chain: 'Nothing. Refreshing re-reads the listings.' },
+    'insufficient-funds': { step: 'Detour · Not enough balance', phase: 'insufficient-funds', chain: 'Nothing. Checked before Pay is allowed. How a new shopper adds money is open question Q3.' },
+    'wrong-network':    { step: 'Detour · Wrong network', phase: 'wrong-network', chain: 'App asks to switch to Arc testnet. Rare with a Privy account.' },
+    rejected:           { step: 'Detour · Cancelled', phase: 'rejected', chain: 'Nothing was sent. Back to ready, calm tone.' },
+    failed:             { step: 'Detour · Deal taken', phase: 'failed', chain: 'Transaction 2 reverted, so no money moved and no credit burned.' }
+  };
+
+  const S = { mode: 'first', screen: 'landing', shop: SHOPS[0], phase: null, sheet: null, signedIn: false, approved: false,
+              details: false, taps: 0, secs: 60, note: null, timer: null, busy: null };
+
+  const $ = (id) => document.getElementById(id);
+  const screen = $('screen');
+  const QUOTE = ['signed-out', 'needs-approval', 'ready', 'rejected', 'insufficient-funds', 'wrong-network'];
+
+  function reset(mode) {
+    clearTimeout(S.busy);
+    Object.assign(S, { mode: mode || S.mode, screen: 'landing', phase: null, sheet: null, details: false, taps: 0, secs: 60, note: null });
+    S.signedIn = S.approved = S.mode === 'return';
+    render();
+  }
+  function after(ms, fn) { clearTimeout(S.busy); S.busy = setTimeout(fn, ms); }
+  function quotePhase() { return !S.signedIn ? 'signed-out' : !S.approved ? 'needs-approval' : 'ready'; }
+  function go(screenName, phase) { S.screen = screenName; S.phase = phase || null; S.sheet = null; render(); }
+  function loadQuote() {
+    go('checkout', 'loading-quote');
+    after(900, () => { S.secs = 60; S.note = null; go('checkout', S.shop.deal ? quotePhase() : 'no-offer'); });
+  }
+
+  // ── screens ─────────────────────────────
+  const status = () => `<div class="statusbar"><span>9:41</span><span class="isl"></span><span>100%</span></div>`;
+  const band = () => `<div class="demo-band">Demo on Arc testnet. Shops and credit are fictional.</div>`;
+  const nav = (backAct, chip) => `<div class="navrow">${backAct ? `<button class="back" data-act="${backAct}">${ic('left')}Back</button>` : ''}${chip ? `<span class="chip">${chip}</span>` : ''}</div>`;
+  const mark = (s, size) => `<span class="mark" style="background:${s.color}${size ? `;width:${size}px;height:${size}px` : ''}">${s.name[0]}</span>`;
+
+  function landing() {
+    return `${status()}<div class="scroll">${band()}
+      <div class="pad"><h1 class="h-land">Your $100 order. $88 with Sway.</h1>
+      <p class="sub">Sway finds unused store credit other shoppers are selling and puts it on your order automatically.</p></div>
+      <div class="shops">${SHOPS.map(s => `<button class="shop" data-act="shop:${s.slug}">${mark(s)}
+        <span class="t"><b>${s.name}</b><small class="${s.deal ? 'deal' : ''}">${s.deal ? 'Save $12 on your order today' : s.tag}</small></span>${ic('right')}</button>`).join('')}</div>
+    </div>`;
+  }
+
+  function store() {
+    const s = S.shop;
+    return `${status()}<div class="scroll">${nav('home', 'Demo shop')}
+      <div class="store-head">${mark(s, 48)}<div><h2>${s.name}</h2><p>${s.tag}</p></div></div>
+      <div class="items">
+        <div class="item"><span class="thumb"></span><span class="t"><b>Roaster's Choice beans</b><small>3-month subscription</small></span><span class="p">$72.00</span></div>
+        <div class="item"><span class="thumb two"></span><span class="t"><b>Ceramic pour-over set</b><small>Qty 1</small></span><span class="p">$28.00</span></div>
+      </div>
+      ${s.deal ? `<div class="hint">${ic('check')}Sway will lower your price at checkout</div>` : ''}
+    </div>
+    <div class="dock"><button class="cta" data-act="checkout">Check out · $100.00</button></div>`;
+  }
+
+  function priceBlock(dim) {
+    return `<div class="price"><div class="lbl">Your total</div><div class="was">$100.00</div>
+      <div class="now${dim ? ' dim' : ''}">$88</div>
+      ${dim ? '' : `<span class="saveline">${ic('check')}You save $12 with Sway</span>`}</div>
+      <div class="details${S.details ? ' open' : ''}"><button data-act="details" aria-expanded="${S.details}">Price details${ic('down')}</button>
+      ${S.details ? `<div class="lines">
+        <div><span>Roaster's Choice beans</span><span>$72.00</span></div>
+        <div><span>Ceramic pour-over set</span><span>$28.00</span></div>
+        <div class="g"><span>Store credit discount</span><span>−$12.00</span></div>
+        <div class="tot"><span>You pay</span><span>$88.00</span></div></div>` : ''}</div>`;
+  }
+
+  function checkout() {
+    const p = S.phase, s = S.shop;
+    const top = `${status()}<div class="scroll">${nav('store', 'Demo credit')}`;
+    if (p === 'loading-quote') {
+      return `${top}<div class="price"><div class="lbl">Finding you a better price</div>
+        <div class="skel" style="height:22px;width:90px;margin-top:8px"></div>
+        <div class="skel" style="height:86px;width:180px;margin:10px 0 12px"></div>
+        <div class="skel" style="height:30px;width:200px;border-radius:999px"></div></div></div>
+        <div class="dock"><button class="cta" disabled><span class="spin"></span>Checking prices</button></div>`;
+    }
+    if (p === 'no-offer') {
+      return `${top}<div class="price"><div class="lbl">Your total</div><div class="now" style="font-size:72px">$100</div></div>
+        <div class="note calm"><b>${ic('info')}No deal for this order right now</b>
+        <p>Nobody is selling ${s.name} store credit at the moment. Check back later, or pay full price at the shop.</p></div></div>
+        <div class="dock"><button class="cta" data-act="retry">${ic('refresh')}Check again</button>
+        <button class="cta ghost" data-act="store">Back to store</button></div>`;
+    }
+    let body = priceBlock(p === 'quote-stale');
+    let dock = '';
+    const timer = `<div class="timer">${ic('clock')}<span id="tick">Price held for ${fmt(S.secs)}</span></div>`;
+
+    if (p === 'signed-out') dock = `${timer}<button class="cta" data-act="open-signin">Sign in to pay $88</button>`;
+    if (p === 'needs-approval' || p === 'approving') {
+      body += `<div class="note"><b>${ic('lock')}One-time setup</b><p>Let Sway charge your balance when you check out. You only do this once.</p></div>`;
+      dock = p === 'approving'
+        ? `${timer}<button class="cta" disabled><span class="spin"></span>Enabling payment</button>`
+        : `${timer}<button class="cta" data-act="approve">Enable payment</button>`;
+    }
+    if (p === 'ready' || p === 'rejected') {
+      if (S.mode === 'first' && S.note === 'enabled') body += `<div class="note done"><b>${ic('check')}Payment enabled</b></div>`;
+      if (p === 'rejected') body += `<div class="note calm"><b>${ic('info')}Payment cancelled</b><p>You weren't charged. Tap Pay when you're ready.</p></div>`;
+      dock = `${timer}<button class="cta" data-act="pay">Pay $88</button>`;
+    }
+    if (p === 'quote-stale') {
+      body += `<div class="note calm"><b>${ic('clock')}This price expired</b><p>Store credit prices can change. Refresh to get the latest price.</p></div>`;
+      dock = `<button class="cta" data-act="retry">${ic('refresh')}Refresh price</button>`;
+    }
+    if (p === 'insufficient-funds') {
+      body += `<div class="note alert"><b>${ic('alert')}Not enough in your balance</b><p>You need $88.00. Your balance is $40.00.</p></div>`;
+      dock = `<button class="cta" data-act="topup">Add $48</button>`;
+    }
+    if (p === 'wrong-network') {
+      body += `<div class="note alert"><b>${ic('alert')}Switch to continue</b><p>Your account is pointed somewhere else. One tap fixes it.</p></div>`;
+      dock = `<button class="cta" data-act="switch">Switch and continue</button>`;
+    }
+    if (p === 'pending' || p === 'awaiting-signature') {
+      dock = `<button class="cta" disabled><span class="spin"></span>${p === 'pending' ? 'Paying $88' : 'Waiting for you to confirm'}</button>`;
+    }
+    if (p === 'failed') {
+      body += `<div class="note alert"><b>${ic('alert')}This deal was just taken</b><p>Someone else bought this store credit a moment ago. You weren't charged.</p></div>`;
+      dock = `<button class="cta" data-act="retry">Find another price</button>`;
+    }
+    return `${top}${body}</div><div class="dock">${dock}</div>${sheet()}`;
+  }
+
+  function sheet() {
+    if (S.sheet === 'signin') return `<div class="scrim"><div class="sheet" role="dialog" aria-label="Sign in">
+      <div class="grab"></div>
+      <div class="row2"><h3>Sign in to pay $88</h3><button class="back" data-act="close" aria-label="Close">${ic('x')}</button></div>
+      <p>No password, no app to download.</p>
+      <button class="cta ghost" data-act="signin">Continue with Google</button>
+      <div class="or">or</div>
+      <label class="field">Email<input id="email" type="email" value="maya@example.com" autocomplete="off"></label>
+      <button class="cta" data-act="signin">Email me a code</button>
+      <div class="fine">Sign-in by Privy</div></div></div>`;
+    if (S.sheet === 'confirm') return `<div class="scrim"><div class="sheet" role="dialog" aria-label="Confirm payment">
+      <div class="grab"></div><p>Confirm payment</p>
+      <div class="confirm-amt">$88.00</div>
+      <p>For your $100 Daybreak Coffee order. Paid from your Sway balance.</p>
+      <button class="cta" data-act="confirm">Confirm</button>
+      <button class="cta ghost" data-act="cancel">Cancel</button></div></div>`;
+    return '';
+  }
+
+  function receipt() {
+    return `${status()}<div class="scroll">
+      <div class="rc"><span class="badge">${ic('check')}</span><div class="lbl">You saved</div><div class="big">$12</div>
+      <p>Paid $88 for your $100 Daybreak Coffee order.</p></div>
+      <div class="rcard">
+        <div><span>Paid</span><span>$88.00</span></div>
+        <div><span>Covered by</span><span>$100 of Daybreak store credit</span></div>
+        <div><span>Seller</span><span>Paid at the same moment</span></div>
+        <div><span>Order</span><span>SW-7F3A</span></div>
+      </div>
+      <button class="proof" data-act="proof">View proof on Arc${ic('ext')}</button>
+    </div>
+    <div class="dock"><button class="cta ghost" data-act="home">Back to shops</button></div>`;
+  }
+
+  const fmt = (n) => { n = Math.max(0, n); return `${Math.floor(n / 60)}:${String(n % 60).padStart(2, '0')}`; };
+
+  // ── panel ───────────────────────────────
+  const MAIN = [['landing', 'Landing'], ['store', 'Store'], ['loading-quote', 'Finding price'], ['signed-out', 'Offer'], ['signin', 'Sign in'],
+    ['needs-approval', 'Enable payment'], ['ready', 'Ready'], ['awaiting-signature', 'Confirm'], ['pending', 'Paying'], ['confirmed', 'Receipt']];
+  const DETOUR = [['no-offer', 'No deal'], ['quote-stale', 'Price expired'], ['insufficient-funds', 'Not enough balance'],
+    ['wrong-network', 'Wrong network'], ['rejected', 'Cancelled'], ['failed', 'Deal taken']];
+  const key = () => S.screen === 'landing' ? 'landing' : S.screen === 'store' ? 'store' : S.screen === 'receipt' ? 'confirmed'
+    : S.sheet === 'signin' ? 'signin' : S.sheet === 'confirm' ? 'awaiting-signature' : S.phase;
+
+  function panel() {
+    const k = key(), info = INFO[k];
+    $('where').innerHTML = `<div class="step">${info.step}</div>
+      ${info.phase ? `<code>CheckoutPhase: ${info.phase}</code>` : ''}
+      <div class="chain"><span>On-chain</span>${info.chain}</div>`;
+    const btn = ([id, label]) => `<button data-jump="${id}" aria-current="${id === k}">${label}</button>`;
+    $('j-main').innerHTML = MAIN.map(btn).join('');
+    $('j-detour').innerHTML = DETOUR.map(btn).join('');
+    $('tapn').textContent = S.taps;
+    $('meter').innerHTML = Array.from({ length: 9 }, (_, i) =>
+      `<i class="${i < S.taps ? (i >= 5 ? 'over' : 'on') : ''}${i === 4 ? ' goal' : ''}"></i>`).join('');
+    let v = '';
+    if (S.screen === 'receipt') {
+      v = S.taps <= 5
+        ? `<div class="verdict good">${S.taps} taps. Under the target of 5.</div>`
+        : `<div class="verdict meh">${S.taps} taps. Fine for a first visit: sign-in and Enable payment happen once. Switch to Returning to test the 5-tap goal.</div>`;
+    }
+    $('verdict').innerHTML = v;
+    document.querySelectorAll('[data-mode]').forEach(b => b.setAttribute('aria-pressed', b.dataset.mode === S.mode));
+  }
+
+  function render() {
+    screen.innerHTML = S.screen === 'landing' ? landing() : S.screen === 'store' ? store() : S.screen === 'receipt' ? receipt() : checkout();
+    panel();
+  }
+
+  // ── actions ─────────────────────────────
+  screen.addEventListener('click', (e) => {
+    const el = e.target.closest('[data-act]');
+    if (!el || el.disabled) return;
+    S.taps++;
+    const [a, arg] = el.dataset.act.split(':');
+    switch (a) {
+      case 'shop': S.shop = SHOPS.find(s => s.slug === arg); go('store'); break;
+      case 'home': go('landing'); break;
+      case 'store': go('store'); break;
+      case 'checkout': case 'retry': S.details = false; loadQuote(); break;
+      case 'details': S.details = !S.details; render(); break;
+      case 'open-signin': S.sheet = 'signin'; render(); break;
+      case 'close': S.sheet = null; render(); break;
+      case 'signin': S.signedIn = true; S.sheet = null; S.phase = quotePhase(); render(); break;
+      case 'approve': S.phase = 'approving'; render(); after(1300, () => { S.approved = true; S.note = 'enabled'; S.phase = 'ready'; render(); }); break;
+      case 'pay': S.note = S.note === 'enabled' ? 'enabled' : null; S.sheet = 'confirm'; render(); break;
+      case 'cancel': S.sheet = null; S.phase = 'rejected'; render(); break;
+      case 'confirm': S.sheet = null; S.phase = 'pending'; render(); after(1600, () => go('receipt')); break;
+      case 'topup': case 'switch': S.phase = quotePhase(); render(); break;
+      case 'proof': break;
+    }
+  });
+
+  document.querySelector('.panel').addEventListener('click', (e) => {
+    const m = e.target.closest('[data-mode]');
+    if (m) { reset(m.dataset.mode); return; }
+    if (e.target.id === 'restart') { reset(); return; }
+    const j = e.target.closest('[data-jump]');
+    if (!j) return;
+    clearTimeout(S.busy);
+    const id = j.dataset.jump;
+    S.shop = id === 'no-offer' ? SHOPS[1] : SHOPS[0];
+    S.secs = 60; S.note = null; S.sheet = null;
+    const order = ['signed-out', 'signin', 'needs-approval', 'ready', 'awaiting-signature', 'pending', 'confirmed'];
+    const at = order.indexOf(id);
+    if (at >= 0) { S.signedIn = at >= 2 || S.mode === 'return'; S.approved = at >= 3 || S.mode === 'return'; }
+    if (['ready', 'rejected', 'failed', 'pending', 'awaiting-signature', 'quote-stale', 'insufficient-funds', 'wrong-network'].includes(id)) { S.signedIn = true; S.approved = id !== 'insufficient-funds' ? true : S.approved; }
+    if (id === 'landing') return go('landing');
+    if (id === 'store') return go('store');
+    if (id === 'confirmed') return go('receipt');
+    if (id === 'loading-quote') { S.screen = 'checkout'; S.phase = 'loading-quote'; render(); return; }
+    if (id === 'signin') { S.screen = 'checkout'; S.phase = 'signed-out'; S.sheet = 'signin'; render(); return; }
+    if (id === 'awaiting-signature') { S.screen = 'checkout'; S.phase = 'ready'; S.sheet = 'confirm'; render(); return; }
+    S.screen = 'checkout'; S.phase = id; render();
+  });
+
+  // price hold countdown
+  setInterval(() => {
+    if (S.screen !== 'checkout' || !QUOTE.includes(S.phase) || S.sheet) return;
+    S.secs--;
+    if (S.secs <= 0) { S.phase = 'quote-stale'; render(); return; }
+    const t = document.getElementById('tick'); if (t) t.textContent = `Price held for ${fmt(S.secs)}`;
+  }, 1000);
+
+  render();
+})();
+</script>
