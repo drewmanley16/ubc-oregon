@@ -1,6 +1,6 @@
 "use client";
-// LANE D. Flow: sign in -> card number + PIN -> POST /api/sell (verify, swap, mint, gas) -> list (2 wallet txs).
-// Nothing is shown as "listed" until createListing's receipt succeeds.
+// LANE D (prototype seller screens). sign in -> card number + PIN -> POST /api/sell (verify, swap, mint, gas)
+// -> list (wallet txs). Nothing is shown as "listed" until createListing's receipt succeeds.
 import { useState } from "react";
 import Link from "next/link";
 import { useReadContract } from "wagmi";
@@ -8,12 +8,16 @@ import { explorerTxUrl, formatCents, getDeployment, swayMarketplaceAbi, usdcUnit
 import { giftcards, type DemoCard, type Sale } from "@/lib/api";
 import { useSwayWallet } from "@/lib/wallet/use-sway-wallet";
 import { useListCredit } from "@/lib/tx/use-list-credit";
-import { AccountChip } from "@/components/sway/AccountChip";
+import { TopBar } from "@/components/sway/TopBar";
+import { GiftCard } from "@/components/sway/GiftCard";
+import { Mark } from "@/components/sway/Mark";
+import { Icon } from "@/components/sway/Icon";
 import { groupCardNumber } from "@/lib/format";
 import { copy } from "@/content/copy";
 
 const deployment = getDeployment();
-const DEMO_FACE_CENTS = 10_000n;
+const FACE = 10_000n;
+const whole = (c: bigint | string) => formatCents(c).replace(".00", "");
 
 export function SellClient({ merchants }: { merchants: Merchant[] }) {
   const wallet = useSwayWallet();
@@ -22,19 +26,23 @@ export function SellClient({ merchants }: { merchants: Merchant[] }) {
   const [pin, setPin] = useState("");
   const [demo, setDemo] = useState<DemoCard | null>(null);
   const [sale, setSale] = useState<Sale | null>(null);
-  const [busy, setBusy] = useState(false);
+  const [checking, setChecking] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const { state: listState, list } = useListCredit(deployment, wallet);
+  const merchant = merchants.find((m) => m.id === merchantId)!;
 
   const preview = useReadContract({
     address: deployment?.marketplace,
     abi: swayMarketplaceAbi,
     functionName: "previewPrice",
-    args: [BigInt(merchantId), DEMO_FACE_CENTS],
+    args: [BigInt(merchantId), FACE],
     query: { enabled: !!deployment },
   });
-  const payoutCents =
-    preview.data && deployment ? usdcUnitsToCentsExact(preview.data[1], deployment.usdcDecimals) : null;
+  const dec = deployment?.usdcDecimals ?? 6;
+  const askCents = preview.data ? usdcUnitsToCentsExact(preview.data[0], dec) : null;
+  const payoutCents = preview.data ? usdcUnitsToCentsExact(preview.data[1], dec) : null;
+  const feeCents = preview.data ? usdcUnitsToCentsExact(preview.data[2], dec) : null;
+  const ready = number.replace(/\D/g, "").length >= 12 && /^\d{4,8}$/.test(pin.trim());
 
   async function getDemoCard() {
     setError(null);
@@ -49,8 +57,8 @@ export function SellClient({ merchants }: { merchants: Merchant[] }) {
   }
 
   async function submit() {
-    if (busy || !wallet.address) return;
-    setBusy(true);
+    if (checking || !wallet.address) return;
+    setChecking(true);
     setError(null);
     try {
       const s = await giftcards.sell({ merchantId, number, pin, seller: wallet.address });
@@ -59,35 +67,187 @@ export function SellClient({ merchants }: { merchants: Merchant[] }) {
     } catch (e) {
       setError((e as Error).message);
     } finally {
-      setBusy(false);
+      setChecking(false);
     }
   }
 
-  const merchantName = merchants.find((m) => m.id === merchantId)?.name ?? "";
-
-  return (
-    <div className="grid gap-5">
-      <header className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-semibold">{copy.sell.title}</h1>
-          <p className="opacity-70">{copy.sell.sub}</p>
+  // ── listed ──
+  if (sale && listState.phase === "listed")
+    return (
+      <>
+        <div className="scroll fresh">
+          <TopBar />
+          <div className="pad">
+            <h1 className="h-page">Listed.</h1>
+            <p className="sub">{payoutCents !== null ? `You'll be paid ${whole(payoutCents)} automatically when someone buys it.` : copy.sell.listed}</p>
+          </div>
+          <div className="items" style={{ marginTop: 22 }}>
+            <div className="credit-row">
+              <Mark merchant={merchant} />
+              <span className="t">
+                <b>{whole(sale.faceCents)} {merchant.name} gift card</b>
+                <small>
+                  <i className="status-dot" />
+                  Waiting for a buyer{payoutCents !== null ? ` · you get ${whole(payoutCents)}` : ""}
+                </small>
+              </span>
+            </div>
+          </div>
+          <div className="note good">
+            <b>
+              <Icon name="check" />
+              Your old card is now $0
+            </b>
+            <p>Its balance moved to a new number only Sway holds, so nobody can spend it twice.</p>
+          </div>
+          <div className="pad" style={{ marginTop: 14, display: "grid", gap: 10 }}>
+            <Link className="textlink" href="/balance">
+              {copy.sell.checkOld}
+            </Link>
+            <a className="textlink" href={explorerTxUrl(listState.txHash)} target="_blank" rel="noreferrer">
+              {copy.sell.mintTx}
+            </a>
+          </div>
+          <div className="footer-note">Payments are recorded on Arc, a public ledger.</div>
         </div>
-        <AccountChip wallet={wallet} />
-      </header>
+        <div className="dock">
+          <button
+            className="cta ghost"
+            onClick={() => {
+              setSale(null);
+              setNumber("");
+              setPin("");
+              setDemo(null);
+              window.location.reload();
+            }}
+          >
+            <span>Sell another card</span>
+          </button>
+        </div>
+      </>
+    );
 
-      {!deployment && <p role="alert">Sway contracts are not deployed on this network yet.</p>}
+  // ── checking (verify + swap on server, then list from wallet) ──
+  if (checking || sale) {
+    const stage = !sale ? 0 : listState.phase === "approving" || listState.phase === "listing" || listState.phase === "idle" ? 2 : 2;
+    const steps: [string, string, string][] = [
+      ["Checking your card with the shop", copy.sell.verified(whole(sale?.faceCents ?? FACE)), ""],
+      ["Moving it to a new card number", "Moved to a new card number", sale ? `Your card ending ${sale.oldLast4} is now $0, so it can't be spent twice.` : ""],
+      ["Listing your card", "Listed", sale?.gasTx ? copy.sell.gasCovered : ""],
+    ];
+    const stuck = !!sale && (listState.phase === "rejected" || listState.phase === "failed");
+    return (
+      <>
+        <div className="scroll fresh">
+          <TopBar chip="Demo card" />
+          <div className="pad">
+            <h1 className="h-page">Checking your card</h1>
+            <p className="sub">This takes a few seconds. Keep this screen open.</p>
+          </div>
+          <div className="steps">
+            {steps.map(([doing, done, note], i) => {
+              const state = i < stage ? "done" : i === stage && !stuck ? "active" : i === stage ? "wait" : "wait";
+              return (
+                <div key={i} className={`stp ${state}${state === "done" ? " just" : ""}`}>
+                  <span className="dot">{state === "done" && <Icon name="check" />}</span>
+                  <span className="txt">
+                    <b>{state === "done" ? done : doing}</b>
+                    {state === "done" && note && <small>{note}</small>}
+                  </span>
+                </div>
+              );
+            })}
+          </div>
+          {listState.phase === "rejected" && (
+            <div className="note calm">
+              <b>
+                <Icon name="info" />
+                Not listed yet
+              </b>
+              <p>{copy.sell.rejected}</p>
+            </div>
+          )}
+          {listState.phase === "failed" && (
+            <div className="note alert" role="alert">
+              <b>
+                <Icon name="alert" />
+                Couldn&apos;t list it
+              </b>
+              <p>{listState.message}</p>
+            </div>
+          )}
+          {error && <p className="err" role="alert">{error}</p>}
+        </div>
+        <div className="dock">
+          {stuck && sale ? (
+            <button className="cta" onClick={() => void list(sale.merchantId, BigInt(sale.faceCents))}>
+              <span>{copy.sell.retryList}</span>
+            </button>
+          ) : (
+            <button className="cta" disabled>
+              <span>
+                <i className="spin" />
+                {!sale ? copy.sell.verifying : listState.phase === "approving" ? copy.sell.approving : copy.sell.listing}
+              </span>
+            </button>
+          )}
+        </div>
+      </>
+    );
+  }
 
-      {!sale && (
+  // ── signed out: seller home ──
+  if (wallet.status !== "signed-in")
+    return (
+      <>
+        <div className="scroll fresh">
+          <TopBar />
+          <div className="pad">
+            <h1 className="h-land">Turn gift cards into cash.</h1>
+            <p className="sub">{copy.sell.sub}</p>
+          </div>
+          <div className="gwrap" style={{ marginTop: 22 }}>
+            <GiftCard merchant={merchant} />
+          </div>
+          <div className="note">
+            <b>
+              <Icon name="lock" />
+              Nobody can spend it twice
+            </b>
+            <p>Sway moves your card&apos;s balance to a new number only Sway holds. Your old number drops to $0.</p>
+          </div>
+        </div>
+        <div className="dock">
+          <button className="cta" onClick={wallet.signIn}>
+            <span>{copy.sell.signIn}</span>
+          </button>
+        </div>
+      </>
+    );
+
+  // ── enter the card ──
+  return (
+    <>
+      <div className="scroll fresh">
+        <TopBar chip="Demo card" />
+        <div className="pad">
+          <h1 className="h-page">{copy.sell.title}</h1>
+          <p className="sub">{copy.sell.sub}</p>
+        </div>
+        <div className="payout">
+          <div className="lbl">You get when it sells</div>
+          <div className="now green">{payoutCents !== null ? whole(payoutCents) : "—"}</div>
+        </div>
         <form
-          className="grid gap-3"
+          className="form"
           onSubmit={(e) => {
             e.preventDefault();
             void submit();
           }}
         >
-          <label className="grid gap-1">
-            <span>{copy.sell.store}</span>
-            <select value={merchantId} onChange={(e) => setMerchantId(Number(e.target.value))} className="rounded border p-2">
+          <label className="field">
+            {copy.sell.store}
+            <select value={merchantId} onChange={(e) => setMerchantId(Number(e.target.value))}>
               {merchants.map((m) => (
                 <option key={m.id} value={m.id}>
                   {m.name}
@@ -95,82 +255,54 @@ export function SellClient({ merchants }: { merchants: Merchant[] }) {
               ))}
             </select>
           </label>
-          <label className="grid gap-1">
-            <span>{copy.sell.number}</span>
-            <input
-              inputMode="numeric"
-              autoComplete="off"
-              value={number}
-              onChange={(e) => setNumber(groupCardNumber(e.target.value))}
-              className="rounded border p-2 font-mono"
-              placeholder="7777 0000 0000 0000"
-              required
-            />
+          <label className="field">
+            {copy.sell.number}
+            <input className="mono" inputMode="numeric" autoComplete="off" placeholder="7777 0000 0000 0000" value={number} onChange={(e) => setNumber(groupCardNumber(e.target.value))} />
           </label>
-          <label className="grid gap-1">
-            <span>{copy.sell.pin}</span>
-            <input inputMode="numeric" autoComplete="off" value={pin} onChange={(e) => setPin(e.target.value)} className="rounded border p-2 font-mono" required />
+          <label className="field">
+            {copy.sell.pin}
+            <input className="mono" inputMode="numeric" autoComplete="off" placeholder="6 digits" value={pin} onChange={(e) => setPin(e.target.value)} />
           </label>
-
-          <div className="text-sm">
+          <div className="demo-line">
             {copy.sell.noCard}{" "}
-            <button type="button" onClick={() => void getDemoCard()} className="underline">
+            <button type="button" className="textlink" onClick={() => void getDemoCard()}>
               {copy.sell.getDemo}
             </button>
-            {demo && <p className="mt-1 opacity-70">{copy.sell.demoIssued}</p>}
           </div>
-
-          {payoutCents !== null && <p className="text-lg font-medium">{copy.sell.payout(formatCents(payoutCents))}</p>}
-
-          {wallet.status !== "signed-in" ? (
-            <button type="button" onClick={wallet.signIn} className="rounded bg-black px-5 py-4 text-lg text-white">
-              {copy.sell.signIn}
-            </button>
-          ) : (
-            <button type="submit" disabled={busy || !deployment} className="rounded bg-black px-5 py-4 text-lg text-white disabled:opacity-50">
-              {busy ? copy.sell.verifying : copy.sell.submit}
-            </button>
+          {demo && (
+            <div className="note good" style={{ margin: 0 }}>
+              <b>
+                <Icon name="check" />
+                Demo card filled in
+              </b>
+              <p>{copy.sell.demoIssued}</p>
+            </div>
           )}
+          <button type="submit" hidden />
         </form>
-      )}
-
-      {sale && (
-        <section className="grid gap-2 rounded border p-4" aria-live="polite">
-          <p>✓ {copy.sell.verified(formatCents(sale.faceCents))} · {merchantName}</p>
-          <p>✓ {copy.sell.swapped(sale.oldLast4)}</p>
-          {sale.gasTx && <p className="text-sm opacity-70">{copy.sell.gasCovered}</p>}
-          {listState.phase === "approving" && <p>{copy.sell.approving}</p>}
-          {listState.phase === "listing" && <p>{copy.sell.listing}</p>}
-          {listState.phase === "listed" && (
-            <>
-              <p className="text-lg font-medium">✓ {copy.sell.listed}</p>
-              {payoutCents !== null && <p>{copy.sell.payout(formatCents(payoutCents))}</p>}
-              <a className="underline" href={explorerTxUrl(listState.txHash)} target="_blank" rel="noreferrer">
-                {copy.receipt.viewOnExplorer}
-              </a>
-            </>
-          )}
-          {(listState.phase === "rejected" || listState.phase === "failed" || listState.phase === "idle") && !busy && (
-            <>
-              {listState.phase === "rejected" && <p role="alert">{copy.sell.rejected}</p>}
-              {listState.phase === "failed" && <p role="alert">{listState.message}</p>}
-              <button onClick={() => void list(sale.merchantId, BigInt(sale.faceCents))} className="rounded bg-black px-5 py-3 text-white">
-                {copy.sell.retryList}
-              </button>
-            </>
-          )}
-          {sale.mintTx && (
-            <a className="text-sm underline opacity-70" href={explorerTxUrl(sale.mintTx)} target="_blank" rel="noreferrer">
-              {copy.sell.mintTx}
-            </a>
-          )}
-          <Link className="text-sm underline" href="/balance">
-            {copy.sell.checkOld}
-          </Link>
-        </section>
-      )}
-
-      {error && <p role="alert" className="text-red-700">{error}</p>}
-    </div>
+        {askCents !== null && payoutCents !== null && feeCents !== null && (
+          <div className="split">
+            <div>
+              <span>Shoppers pay</span>
+              <span>{whole(askCents)}</span>
+            </div>
+            <div>
+              <span>Sway service fee</span>
+              <span>{whole(feeCents)}</span>
+            </div>
+            <div className="you">
+              <span>You get</span>
+              <span>{whole(payoutCents)}</span>
+            </div>
+          </div>
+        )}
+        {error && <p className="err" role="alert">{error}</p>}
+      </div>
+      <div className="dock">
+        <button className="cta" onClick={() => void submit()} disabled={!ready || !deployment}>
+          <span>{copy.sell.submit}</span>
+        </button>
+      </div>
+    </>
   );
 }

@@ -1,27 +1,33 @@
-// LANE D wires (data/flow); LANE B styles; LANE A copy. Landing: buy or sell gift cards.
+// LANE D wires; LANE B styles (prototype "landing"); LANE A copy.
 import Link from "next/link";
 import { MERCHANTS } from "@/server/seed";
-import { MerchantCard } from "@/components/sway/MerchantCard";
+import { TopBar } from "@/components/sway/TopBar";
+import { ShopList } from "@/components/sway/ShopList";
 import { copy } from "@/content/copy";
 
 export default function Home() {
   return (
-    <main className="mx-auto max-w-5xl p-6">
-      <h1 className="text-4xl font-semibold">{copy.landing.headline}</h1>
-      <p className="mt-2 max-w-2xl">{copy.landing.sub}</p>
-      <div className="mt-6 flex gap-3">
-        <a href="#stores" className="rounded bg-black px-5 py-3 text-white">{copy.landing.buyCta}</a>
-        <Link href="/sell" className="rounded border px-5 py-3">{copy.landing.sellCta}</Link>
+    <div className="scroll fresh">
+      <TopBar />
+      <div className="pad">
+        <h1 className="h-land">{copy.landing.headline}</h1>
+        <p className="sub">{copy.landing.sub}</p>
       </div>
-      <div id="stores" className="mt-8 grid gap-4 sm:grid-cols-3">
-        {MERCHANTS.map((m) => <MerchantCard key={m.id} merchant={m} />)}
-      </div>
-      <section className="mt-10 max-w-2xl">
-        <h2 className="text-xl font-medium">{copy.landing.howTitle}</h2>
-        <ol className="mt-2 list-decimal pl-5">
-          {copy.landing.how.map((s) => <li key={s}>{s}</li>)}
+      <ShopList merchants={MERCHANTS} />
+      <div className="note calm">
+        <b>{copy.landing.howTitle}</b>
+        <ol style={{ margin: "4px 0 0", paddingLeft: 18, color: "var(--s-muted)" }}>
+          {copy.landing.how.map((s) => (
+            <li key={s}>{s}</li>
+          ))}
         </ol>
-      </section>
-    </main>
+      </div>
+      <div className="pad" style={{ marginTop: 16 }}>
+        <Link href="/sell" className="cta ghost" style={{ textDecoration: "none" }}>
+          <span>{copy.landing.sellCta}</span>
+        </Link>
+      </div>
+      <div className="footer-note">Payments are recorded on Arc, a public ledger.</div>
+    </div>
   );
 }

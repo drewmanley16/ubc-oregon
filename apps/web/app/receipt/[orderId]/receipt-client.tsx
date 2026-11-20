@@ -1,5 +1,5 @@
 "use client";
-// LANE D. Reload-safe: always re-derived from GET /api/orders/:id, which is chain-confirmed.
+// LANE D. Receipt (prototype "receipt"). Reload-safe: always re-derived from GET /api/orders/:id (chain-confirmed).
 // The gift card number + PIN are revealed only after the buyer signs a free message proving they paid.
 import { useState } from "react";
 import Link from "next/link";
@@ -7,12 +7,16 @@ import { useQuery } from "@tanstack/react-query";
 import { formatCents, getDeployment, usdcUnitsToCentsExact, type Hex } from "@sway/shared";
 import { api, giftcards, type RevealedCard } from "@/lib/api";
 import { useSwayWallet } from "@/lib/wallet/use-sway-wallet";
-import { ReceiptCard } from "@/components/sway/ReceiptCard";
-import { groupCardNumber } from "@/lib/format";
+import { getMerchantById } from "@/lib/merchants";
+import { GiftCard, FlipCard } from "@/components/sway/GiftCard";
+import { TopBar } from "@/components/sway/TopBar";
+import { Icon } from "@/components/sway/Icon";
 import { revealMessage } from "@/server/reveal-message";
 import { copy } from "@/content/copy";
 
 const deployment = getDeployment();
+const dec = deployment?.usdcDecimals ?? 6;
+const whole = (c: bigint | string) => formatCents(c).replace(".00", "");
 
 export function ReceiptClient({ orderId, token, txHash }: { orderId: Hex; token: string; txHash?: Hex }) {
   const wallet = useSwayWallet();
@@ -24,7 +28,6 @@ export function ReceiptClient({ orderId, token, txHash }: { orderId: Hex; token:
     queryKey: ["order", orderId, "receipt"],
     queryFn: () => api.order(orderId, token, txHash),
     enabled: !!token,
-    // RPC can lag a block behind the wallet's receipt: poll until PAID.
     refetchInterval: (query) => (query.state.data?.state === "PAID" ? false : 2_000),
   });
 
@@ -46,47 +49,96 @@ export function ReceiptClient({ orderId, token, txHash }: { orderId: Hex; token:
     }
   }
 
-  if (!token) return <p role="alert">Missing order token.</p>;
-  if (q.error) return <p role="alert">{(q.error as Error).message}</p>;
-  if (!q.data || q.data.state !== "PAID") return <p role="status">{copy.tx.pending}</p>;
+  if (!token) return <p className="err" role="alert">{copy.errors.missingReceiptToken}</p>;
+  if (q.error) return <p className="err" role="alert">{(q.error as Error).message}</p>;
+  if (!q.data || q.data.state !== "PAID")
+    return (
+      <div className="scroll">
+        <div className="price" style={{ paddingTop: 60 }}>
+          <div className="lbl">{copy.tx.confirmingReceipt}</div>
+          <div className="skel" style={{ height: 96, width: 160, marginTop: 14 }} />
+          <div className="skel" style={{ height: 18, width: 240, marginTop: 16 }} />
+        </div>
+      </div>
+    );
 
-  const { receipt, order } = q.data;
-  const paidCents = usdcUnitsToCentsExact(BigInt(receipt.usdcUnits), deployment?.usdcDecimals ?? 6).toString();
+  const { receipt } = q.data;
+  const merchant = getMerchantById(receipt.merchantId)!;
+  const paidCents = usdcUnitsToCentsExact(BigInt(receipt.usdcUnits), dec);
+  const feeCents = usdcUnitsToCentsExact(BigInt(receipt.feeUnits), dec);
+
   return (
-    <div className="grid gap-5">
-      <ReceiptCard receipt={receipt} retailCents={order.totalCents} paidCents={paidCents} />
+    <>
+      <div className="scroll fresh">
+        <TopBar />
+        <div className="rc">
+          <span className="badge">
+            <Icon name="check" />
+          </span>
+          <div className="lbl">{copy.receipt.title}</div>
+          <div className="big">{whole(receipt.grossSavingsCents)}</div>
+          <p>
+            Paid {whole(paidCents)} for a {whole(receipt.creditCents)} {merchant.name} gift card.
+          </p>
+        </div>
 
-      <section className="grid gap-3 rounded border p-4">
-        <h2 className="text-xl font-medium">{copy.card.title}</h2>
-        {!card ? (
-          <>
-            <button onClick={() => void reveal()} disabled={revealing} className="rounded bg-black px-5 py-4 text-lg text-white disabled:opacity-50">
-              {revealing ? copy.card.revealing : copy.card.reveal}
-            </button>
-            <p className="text-sm opacity-70">{copy.card.revealHint}</p>
-          </>
-        ) : (
-          <div className="grid gap-2" aria-live="polite">
-            <div className="text-sm opacity-70">{card.merchantName}</div>
-            <div>
-              <div className="text-xs uppercase opacity-60">{copy.card.number}</div>
-              <div className="font-mono text-2xl">{groupCardNumber(card.number)}</div>
-            </div>
-            <div>
-              <div className="text-xs uppercase opacity-60">{copy.card.pin}</div>
-              <div className="font-mono text-2xl">{card.pin}</div>
-            </div>
-            <div>
-              {copy.card.balance}: {formatCents(card.balanceCents)}
-            </div>
-            <Link href="/balance" className="text-sm underline">
-              {copy.card.checkBalance}
-            </Link>
-            <p className="text-xs opacity-60">{copy.card.simulated}</p>
+        <div className="gsec">
+          <h4>{copy.card.title}</h4>
+          {card ? (
+            <>
+              <FlipCard merchant={merchant} number={card.number} pin={card.pin} balanceCents={card.balanceCents} />
+              <div className="card-meta">
+                <Link className="textlink" href="/balance">
+                  {copy.card.checkBalance}
+                </Link>
+                <p className="fine">Tap the card to flip it</p>
+              </div>
+              <p className="fine left">{copy.card.simulated}</p>
+            </>
+          ) : (
+            <>
+              <GiftCard merchant={merchant} valueCents={receipt.creditCents} />
+              <button className="cta" onClick={() => void reveal()} disabled={revealing}>
+                <span>
+                  {revealing && <i className="spin" />}
+                  {revealing ? copy.card.revealing : copy.card.reveal}
+                </span>
+              </button>
+              <p className="fine">{copy.card.revealHint}</p>
+            </>
+          )}
+          {revealError && <p className="err" style={{ margin: 0 }} role="alert">{revealError}</p>}
+        </div>
+
+        <div className="rcard">
+          <div>
+            <span>{copy.receipt.paid}</span>
+            <span>{formatCents(paidCents)}</span>
           </div>
-        )}
-        {revealError && <p role="alert" className="text-red-700">{revealError}</p>}
-      </section>
-    </div>
+          <div>
+            <span>Gift card value</span>
+            <span>{formatCents(receipt.creditCents)}</span>
+          </div>
+          <div>
+            <span>Sway service fee</span>
+            <span>{formatCents(feeCents)} (included)</span>
+          </div>
+          <div>
+            <span>Card&apos;s seller</span>
+            <span>{copy.receipt.sellerTiming}</span>
+          </div>
+        </div>
+        <a className="proof" href={receipt.explorerUrl} target="_blank" rel="noreferrer">
+          <Icon name="doc" />
+          {copy.receipt.viewOnExplorer}
+        </a>
+        <div className="footer-note">Payments are recorded on Arc, a public ledger.</div>
+      </div>
+      <div className="dock">
+        <Link href="/" className="cta ghost" style={{ textDecoration: "none" }}>
+          <span>{copy.receipt.backToShops}</span>
+        </Link>
+      </div>
+    </>
   );
 }

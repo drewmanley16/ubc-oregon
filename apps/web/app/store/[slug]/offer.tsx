@@ -6,10 +6,14 @@ import { useRouter } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import { formatCents, getDeployment, usdcUnitsToCentsExact, type Merchant, type Product } from "@sway/shared";
 import { api } from "@/lib/api";
-import { Price } from "@/components/sway/Price";
+import { TopBar } from "@/components/sway/TopBar";
+import { Mark } from "@/components/sway/Mark";
+import { GiftCard } from "@/components/sway/GiftCard";
+import { Icon } from "@/components/sway/Icon";
 import { copy } from "@/content/copy";
 
 const deployment = getDeployment();
+const whole = (c: bigint | string) => formatCents(c).replace(".00", "");
 
 export function GiftCardOffer({ merchant, product }: { merchant: Merchant; product: Product }) {
   const router = useRouter();
@@ -37,27 +41,68 @@ export function GiftCardOffer({ merchant, product }: { merchant: Merchant; produ
   }
 
   return (
-    <section className="mt-6 grid gap-4 rounded border p-5">
-      <div className="text-sm uppercase tracking-wide opacity-60">{copy.store.giftCard}</div>
-      <h2 className="text-xl font-medium">{product.name}</h2>
-      {product.description && <p className="opacity-70">{product.description}</p>}
-      <div className="flex items-baseline gap-3">
-        <span className={payCents !== null ? "line-through opacity-60" : ""}>
-          <Price cents={product.priceCents} size="lg" />
-        </span>
-        {payCents !== null && quote && (
-          <>
-            <span className="text-2xl font-semibold">{copy.store.withSway(formatCents(payCents))}</span>
-            <span className="text-green-700">{copy.store.youSave(formatCents(quote.grossSavingsCents))}</span>
-          </>
+    <>
+      <div className="scroll fresh">
+        <TopBar back="/" chip="Demo shop" />
+        <div className="store-head">
+          <Mark merchant={merchant} size={48} />
+          <div>
+            <h2>{merchant.name}</h2>
+            <p>{merchant.tagline}</p>
+          </div>
+        </div>
+        <div className="gwrap">
+          <GiftCard merchant={merchant} valueCents={product.priceCents} />
+        </div>
+        <div className="offer">
+          <div className="lbl">{product.name}</div>
+          {q.isLoading ? (
+            <>
+              <div className="skel" style={{ height: 20, width: 80, marginTop: 8 }} />
+              <div className="skel" style={{ height: 44, width: 200, margin: "8px 0 10px" }} />
+            </>
+          ) : payCents !== null && quote ? (
+            <>
+              <div className="was">{formatCents(product.priceCents)}</div>
+              <div className="now">
+                {whole(payCents)} <span>with Sway</span>
+              </div>
+              <span className="saveline">
+                <Icon name="check" />
+                {copy.store.youSave(whole(quote.grossSavingsCents))}
+              </span>
+            </>
+          ) : (
+            <div className="now">{whole(product.priceCents)}</div>
+          )}
+        </div>
+        {q.data && "reason" in q.data ? (
+          <div className="note calm">
+            <b>
+              <Icon name="info" />
+              No discounted cards right now
+            </b>
+            <p>{q.data.message || copy.store.noOffer}</p>
+          </div>
+        ) : (
+          <div className="note calm">
+            <b>
+              <Icon name="lock" />
+              Can&apos;t be used up before you get it
+            </b>
+            <p>The seller&apos;s card was moved to a new number only Sway holds. After you pay, that number is yours alone.</p>
+          </div>
         )}
+        {error && <p className="err" role="alert">{error}</p>}
       </div>
-      {q.isLoading && <p className="opacity-70">{copy.store.checking}</p>}
-      {q.data && "reason" in q.data && <p className="opacity-70">{q.data.message || copy.store.noOffer}</p>}
-      <button onClick={() => void buy()} disabled={busy || !quote} className="rounded bg-black px-5 py-4 text-lg text-white disabled:opacity-50">
-        {busy ? copy.store.starting : copy.store.buy}
-      </button>
-      {error && <p role="alert" className="text-red-700">{error}</p>}
-    </section>
+      <div className="dock">
+        <button className="cta" onClick={() => void buy()} disabled={busy || !quote}>
+          <span>
+            {busy && <i className="spin" />}
+            {busy ? copy.store.starting : copy.store.buy}
+          </span>
+        </button>
+      </div>
+    </>
   );
 }
