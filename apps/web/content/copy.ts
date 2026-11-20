@@ -1,20 +1,22 @@
 // LANE A (UX) owns. ALL user-facing strings live here. Components import from this file;
 // never hard-code microcopy in JSX.
 //
+// Product (Nov 19): GIFT CARDS. A seller's card is checked, its value moves to a new card number only Sway
+// knows (old number drops to $0), and the buyer gets the new number after paying. The shops' card
+// system is simulated; always say so.
+//
 // Voice rules (docs/ux/prototype.html, "Design system v0"):
 // - Lead with money saved. One number gets the spotlight per screen.
-// - Buttons say exactly what happens and how much: "Pay $88", never "Continue".
+// - Buttons say exactly what happens and how much: "Hold to pay $88", never "Continue".
+// - One honest total: the Sway fee is inside the price and shown in details and on the receipt.
 // - Errors say what happened, "you weren't charged" ONLY when that is true, and what to do next.
-// - No crypto words in the main UI: no wallet, USDC, gas, token, transaction, network names.
-//   Users "Sign in". The explorer link is the one place "Arc" appears, as proof.
+// - No crypto words in the main UI: no wallet, USDC, gas, token, transaction.
+//   Users "Sign in". Arc is named in the footer; links say "record", not "proof on Arc".
+// - There are no pop-ups (Privy showWalletUIs: false), so copy never says "confirm in the pop-up".
 // - Never imply real shops or real value.
 //
-// Key names and function signatures that lane D's code already uses are unchanged.
+// Key names and function signatures that lane D's code uses are unchanged.
 // New keys still need wiring: see "Copy wiring" in docs/STATUS.md.
-//
-// Nov 19 merge (lane D): product is now GIFT CARDS (sell a card -> we swap it to a new number -> buyer
-// gets the new number). landing/store/sell were rewritten for that, and card/balance added, in the voice
-// rules above. Lane A: reword freely; keep the key names/signatures (code uses them).
 
 /** 75 -> "1:15". Used for the price hold countdown. */
 const clock = (secs: number) => {
@@ -27,8 +29,8 @@ export const copy = {
 
   landing: {
     headline: "A $100 gift card. $88 with Sway.",
-    sub: "Buy gift cards other people won't use, for less. Or sell yours and get paid in a minute.",
-    demoBadge: "Demo: fictional shops, test money",
+    sub: "Buy gift cards other people won't use, for less. Or sell yours and get paid the moment it sells.",
+    demoBadge: "Demo: fictional shops and test money.",
     buyCta: "Shop gift cards",
     sellCta: "Sell a gift card",
     howTitle: "Why you can't get a used-up card",
@@ -37,8 +39,12 @@ export const copy = {
       "Only you see the new number and PIN, right after you pay.",
       "The seller is paid at the same moment you pay.",
     ],
-    shopDeal: (savings: string) => `Save ${savings} on your order today`,
+    shopDeal: (savings: string) => `Save ${savings} on a $100 gift card`,
     shopNoDeal: "No deals right now",
+  },
+
+  footer: {
+    ledger: "Payments are recorded on Arc, a public ledger.",
   },
 
   store: {
@@ -63,48 +69,65 @@ export const copy = {
     signedInAs: (label: string) => `Signed in as ${label}`,
   },
 
+  signIn: {
+    toPay: (amt: string) => `Sign in to pay ${amt}`,
+    toSell: "Sign in to sell",
+    reassure: "No password, no app to download.",
+  },
+
   checkout: {
     title: "Checkout",
     yourTotal: "Your total",
     savingsLine: (savings: string) => `You save ${savings} with Sway`,
     youPay: "You pay",
-    orderTotal: "Order total",
+    orderTotal: "Card value",
     creditApplied: "Gift card discount",
     feeIncluded: (fee: string) => `Includes ${fee} Sway service fee`,
     priceDetails: "Price details",
     sourceListing: "A checked card that can't be used up before you get it",
     finding: "Finding you a better price",
     quoteExpires: (secs: number) => `Price held for ${clock(secs)}`,
-    quoteStale: "This price expired. Store credit prices can change, so refresh to get the latest.",
-    noOffer: "No deal for this order right now. Check back soon, or pay full price at the shop.",
-    twoConfirmations: "Paying takes two quick confirmations: one to allow the payment, one to pay.",
+    quoteStale: "This price expired. Gift card prices can change, so refresh to get the latest.",
+    noOffer: "No discounted card for this order right now. Check back soon.",
+    hold: {
+      keepHolding: "Keep holding…",
+      releasedEarly: "Hold the button for a second to pay",
+      altConfirm: "Can't hold? Tap to confirm instead",
+    },
+    confirmSheet: {
+      title: "Confirm payment",
+      body: (total: string, shop: string) => `For a ${total} ${shop} gift card. This can't be undone.`,
+    },
     cta: {
       signIn: "Sign in to pay",
       signInToPay: (amt: string) => `Sign in to pay ${amt}`,
+      holdToPay: (amt: string) => `Hold to pay ${amt}`,
       approve: "Enable payment",
       pay: (amt: string) => `Pay ${amt}`,
       payFallback: "Pay",
       refresh: "Refresh price",
       retry: "Try again",
-      findAnother: "Find another price",
-      backToStore: "Back to store",
+      checkAgain: "Check again",
+      findAnother: "Find another card",
+      backToStore: "Back to shop",
+      cancel: "Cancel",
     },
   },
 
   // One status line per CheckoutPhase (apps/web/lib/tx/types.ts). TxProgress should render these,
-  // not the raw phase name.
+  // not the raw phase name. No pop-ups, so one tap or hold runs approving -> pending -> confirmed.
   tx: {
     loadingQuote: "Finding you a better price",
     signedOut: "Sign in to see your price and pay",
-    needsApproval: "Paying takes two quick confirmations",
+    needsApproval: "Ready when you are",
     ready: "Ready when you are",
     approving: "Allowing this payment…",
-    awaitingSignature: "Confirm in the pop-up to continue",
+    awaitingSignature: "Paying…",
     pending: "Paying…",
     confirmed: "Paid",
     rejected: "Payment cancelled. You weren't charged.",
     failed: "Payment didn't go through. You weren't charged.",
-    failedTaken: "This deal was just taken. You weren't charged.",
+    failedTaken: "This card was just bought by someone else. You weren't charged.",
     wrongNetwork: "Switch to continue",
     insufficientFunds: "Not enough in your balance",
     insufficientFundsDetail: (need: string, have: string) => `You need ${need}. Your balance is ${have}.`,
@@ -114,21 +137,33 @@ export const copy = {
 
   receipt: {
     title: "You saved",
-    summary: (paid: string, total: string, shop: string) => `Paid ${paid} for your ${total} ${shop} order.`,
-    retailValue: "Order total",
+    summary: (paid: string, total: string, shop: string) => `Paid ${paid} for a ${total} ${shop} gift card.`,
+    retailValue: "Card value",
     paid: "You paid",
-    sellerPaid: "Paid to the credit seller",
-    swayFee: "Sway service fee (included)",
-    creditRedeemed: "Store credit used",
-    coveredBy: (amt: string, shop: string) => `${amt} of ${shop} store credit`,
+    sellerPaid: "Card seller",
     sellerTiming: "Paid at the same moment",
+    swayFee: "Sway service fee",
+    swayFeeIncluded: (fee: string) => `${fee} (included)`,
+    creditRedeemed: "Card value used",
+    coveredBy: (amt: string, shop: string) => `${amt} ${shop} gift card`,
     order: "Order",
-    viewOnExplorer: "View proof on Arc",
+    viewOnExplorer: "View payment record",
     backToShops: "Back to shops",
   },
 
+  record: {
+    title: "Payment record",
+    intro: "A permanent public record of this payment. Nobody can edit it, including Sway.",
+    paid: "You paid",
+    creditUsed: "Gift card bought",
+    sellerPaid: "Paid to the card seller",
+    fee: "Sway service fee",
+    recorded: "Recorded",
+    openRaw: "Open the raw record on Arc",
+  },
+
   errors: {
-    missingOrderToken: "This checkout link is incomplete. Start again from the store.",
+    missingOrderToken: "This checkout link is incomplete. Start again from the shop.",
     missingReceiptToken: "This receipt link is incomplete. Open it again from your checkout.",
     orderLoad: "We couldn't load this order. Refresh the page to try again.",
   },
@@ -151,24 +186,33 @@ export const copy = {
     approving: "Allowing Sway to hold your card while it's listed…",
     listing: "Listing your card…",
     listed: "Listed. You'll be paid automatically when it sells.",
-    rejected: "You cancelled in the pop-up. Your card's value is safe in your account, so you can list it again.",
+    rejected: "Listing didn't finish. Your card's value is safe in your account, so you can list it again.",
     retryList: "List my card",
     checkOld: "Check your old card's balance",
     gasCovered: "Sway covered the small processing cost for you.",
-    mintTx: "View proof on Arc",
-    // Earlier drafts (not wired yet):
+    mintTx: "View the record",
+    noDrainTitle: "Can't be drained",
+    noDrainBody:
+      "Your card's value moves to a new number only Sway knows, then goes to the buyer the moment you're paid. Nobody can spend it twice.",
+    whyTitle: (payout: string) => `Why ${payout}?`,
+    whyBody: (shop: string) =>
+      `Sway sets one price for every ${shop} card, at or above what gift card resale sites pay. No haggling, and buyers always see one clear price.`,
+    split: { buyersPay: "Buyers pay", fee: "Sway service fee", youGet: "You get" },
+    // Not wired yet:
     empty: "You don't have any cards to sell yet.",
     status: { active: "Waiting for a buyer", sold: "Sold", cancelled: "Cancelled" },
     cancel: "Cancel listing",
     cancelDone: "Listing cancelled. The card's value is back in your account.",
+    soldTitle: "Your card sold.",
+    soldSub: "A buyer paid for it. The money is already yours.",
     proceeds: (amt: string) => `+${amt} received`,
   },
 
   card: {
     title: "Your gift card",
     reveal: "Show my gift card",
-    revealing: "Confirm it's you in the pop-up…",
-    revealHint: "You'll confirm once to prove you're the buyer. It's free.",
+    revealing: "Checking it's you…",
+    revealHint: "We check it's really you before showing the number and PIN. It's free.",
     number: "Card number",
     pin: "PIN",
     balance: "Balance",
