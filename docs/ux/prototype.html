@@ -220,6 +220,63 @@ header p { margin: 0; color: var(--muted); max-width: 66ch; font-size: 16px; }
 .proof .icon { width: 15px; height: 15px; }
 @keyframes pop { from { transform: scale(.5); opacity: 0; } }
 
+/* the gift card itself: the one object both people care about */
+.gcard { position: relative; aspect-ratio: 1.586; border-radius: 16px; padding: 16px 18px; color: #fff; display: grid; grid-template-rows: auto 1fr auto; overflow: hidden;
+  background: linear-gradient(135deg, var(--c1), var(--c2)); box-shadow: 0 1px 0 rgba(255,255,255,.18) inset, 0 18px 32px -18px rgba(14,17,16,.6); }
+.gcard::after { content: ""; position: absolute; inset: 0; background: radial-gradient(120% 90% at 100% 0%, rgba(255,255,255,.24), transparent 55%); pointer-events: none; }
+.gcard .top { display: flex; justify-content: space-between; align-items: center; font-weight: 700; font-size: 14px; }
+.gcard .top small { font-weight: 700; font-size: 10.5px; opacity: .85; letter-spacing: .08em; text-transform: uppercase; }
+.gcard .num { align-self: end; font-family: ui-monospace, Menlo, monospace; font-size: 16.5px; letter-spacing: .08em; margin-bottom: 8px; white-space: nowrap; }
+.gcard .num.masked { opacity: .75; letter-spacing: .14em; }
+.gcard .bottom { display: flex; justify-content: space-between; align-items: flex-end; }
+.gcard .val { font-weight: 800; font-size: 30px; letter-spacing: -.03em; line-height: 1; }
+.gcard .bottom small { font-size: 11px; opacity: .85; font-weight: 600; }
+.gwrap { margin: 0 20px; }
+.offer { padding: 18px 20px 0; }
+.offer .lbl { font-size: 13px; color: var(--s-muted); }
+.offer .was { font-size: 18px; font-weight: 600; color: var(--s-muted); text-decoration: line-through; text-decoration-thickness: 2px; margin-top: 6px; }
+.offer .now { font-weight: 800; font-size: 46px; line-height: 1; letter-spacing: -.035em; margin: 2px 0 10px; }
+.offer .now span { font-size: 22px; letter-spacing: -.01em; }
+.gsec { margin: 26px 20px 0; display: grid; gap: 12px; }
+.gsec h4 { margin: 0; font-size: 15px; font-weight: 700; }
+.secret { display: grid; grid-template-columns: 1fr auto; gap: 0 12px; background: var(--s-surface); border: 1px solid var(--s-line); border-radius: var(--s-r-md); padding: 4px 14px; font-size: 13.5px; }
+.secret > div { display: contents; }
+.secret span, .secret b { padding: 10px 0; border-bottom: 1px solid var(--s-line); }
+.secret > div:last-child span, .secret > div:last-child b { border-bottom: 0; }
+.secret span { color: var(--s-muted); }
+.secret b { font-family: ui-monospace, Menlo, monospace; font-size: 15px; text-align: right; letter-spacing: .04em; }
+.textlink { background: none; border: 0; padding: 0; color: var(--s-ink); font-weight: 600; font-size: 13.5px; text-decoration: underline; text-underline-offset: 3px; width: fit-content; transition: transform .45s var(--m-spring), opacity .2s ease; }
+.textlink:active { transform: scale(.96); opacity: .7; transition-duration: .12s, .12s; }
+.fine.left { text-align: left; }
+@keyframes focus-in { from { opacity: 0; filter: blur(8px); letter-spacing: .3em; } }
+@keyframes card-in { from { opacity: 0; transform: translateY(14px) scale(.97); } }
+#screen.fresh .gcard { animation: card-in .6s 80ms var(--m-out) backwards; }
+.just .num, .secret.just b { animation: focus-in .7s var(--m-out) backwards; }
+.secret.just > div:nth-child(2) b { animation-delay: 90ms; }
+.secret.just > div:nth-child(3) b { animation-delay: 180ms; }
+
+/* seller: enter the card, then watch it get checked */
+.form { margin: 18px 20px 0; display: grid; gap: 12px; }
+.field input { transition: border-color .2s ease, box-shadow .2s ease; }
+.field input:focus { outline: none; border-color: var(--s-ink); box-shadow: 0 0 0 4px rgba(14,17,16,.08); }
+.field input.mono { font-family: ui-monospace, Menlo, monospace; letter-spacing: .04em; }
+.selectish { height: 48px; border-radius: var(--s-r-sm); border: 1px solid var(--s-line); background: var(--s-paper); display: flex; align-items: center; gap: 10px; padding: 0 12px; color: var(--s-ink); font-size: 15px; font-weight: 600; }
+.selectish .mark { width: 26px; height: 26px; border-radius: 7px; font-size: 13px; }
+.selectish .icon { margin-left: auto; color: var(--s-muted); }
+.demo-line { font-size: 13px; color: var(--s-muted); display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
+.steps { margin: 22px 20px 0; display: grid; gap: 0; background: var(--s-surface); border: 1px solid var(--s-line); border-radius: var(--s-r-md); padding: 4px 14px; }
+.stp { display: flex; gap: 12px; align-items: flex-start; padding: 13px 0; border-bottom: 1px solid var(--s-line); font-size: 14px; }
+.stp:last-child { border-bottom: 0; }
+.stp .dot { width: 22px; height: 22px; border-radius: 50%; flex: none; display: grid; place-content: center; border: 2px solid var(--s-line); margin-top: 1px; }
+.stp .dot .icon { width: 13px; height: 13px; stroke-width: 3.2; }
+.stp.done .dot { background: var(--s-ink); border-color: var(--s-ink); color: #fff; }
+.stp.active .dot { border-color: var(--s-line); border-top-color: var(--s-ink); animation: spin .8s linear infinite; }
+.stp .txt { display: grid; gap: 2px; min-width: 0; }
+.stp .txt small { color: var(--s-muted); font-size: 12.5px; }
+.stp.wait { color: var(--s-muted); }
+.stp.just .dot { animation: pop .5s var(--m-spring) both; }
+.stp.just .txt { animation: rise .45s var(--m-out) backwards; }
+
 /* seller */
 .credit-row { display: flex; gap: 12px; align-items: center; padding: 14px; }
 .credit-row .t { flex: 1; min-width: 0; display: grid; }
@@ -231,6 +288,7 @@ header p { margin: 0; color: var(--muted); max-width: 66ch; font-size: 16px; }
 .payout .lbl { font-size: 13px; color: var(--s-muted); }
 .payout .now { font-weight: 800; font-size: 96px; line-height: .9; letter-spacing: -0.04em; margin: 2px 0 10px; }
 .payout .now.green { color: var(--s-save); }
+.pad + .payout { padding-top: 16px; }
 .split { margin: 18px 20px 0; display: grid; gap: 8px; font-size: 13.5px; background: var(--s-surface); border: 1px solid var(--s-line); border-radius: var(--s-r-md); padding: 12px 14px; }
 .split div { display: flex; justify-content: space-between; gap: 12px; color: var(--s-muted); }
 .split div.you { color: var(--s-ink); font-weight: 700; }
@@ -297,7 +355,7 @@ header p { margin: 0; color: var(--muted); max-width: 66ch; font-size: 16px; }
 <div class="wrap">
   <header>
     <h1>Sway prototype</h1>
-    <p>Tap through as Maya the shopper or Jordan the seller. This version matches Drew's real system: Sway sets the prices, a $3 fee is included in the $88, and one hold on the button pays (no pop-ups). The panel shows where you are, what happens behind the scenes, and how many taps it took.</p>
+    <p>Tap through as Maya the shopper or Jordan the seller. This version follows Drew's gift card system: Jordan hands in a $100 card, Sway moves its balance to a new number, and Maya buys that new card for $88. She's the only one who ever sees its number and PIN. A $3 fee is included in the $88, and one hold on the button pays. The panel shows where you are, what happens behind the scenes, and how many taps it took.</p>
   </header>
 
   <section class="stage">
@@ -363,6 +421,7 @@ header p { margin: 0; color: var(--muted); max-width: 66ch; font-size: 16px; }
         <div>
           <div class="type-row"><span>Price 96</span><div style="font-weight:800;font-size:56px;line-height:1;letter-spacing:-0.04em">$88</div></div>
           <div class="type-row"><span>Title 26</span><div style="font-weight:800;font-size:26px;letter-spacing:-0.02em;line-height:1.1">Daybreak Coffee</div></div>
+          <div class="type-row"><span>Card 16 mono</span><div style="font-family:ui-monospace,Menlo,monospace;font-size:16px;letter-spacing:.06em">7777 4821 0937 6604</div></div>
           <div class="type-row"><span>Body 15</span><div>You save $12 with Sway.</div></div>
           <div class="type-row"><span>Small 13</span><div style="font-size:13px;color:var(--muted)">Price held for 1:00</div></div>
         </div>
@@ -386,6 +445,7 @@ header p { margin: 0; color: var(--muted); max-width: 66ch; font-size: 16px; }
           <li>One honest total. The $3 Sway fee is inside the $88 and shown in details and on the receipt.</li>
           <li>Errors say what happened, that you weren't charged (only when true), and what to do next.</li>
           <li>Plain words: "Sign in", "payment record". Arc is named once, in the footer.</li>
+          <li>The card number and PIN appear only for the buyer, only after paying, and never in the public record.</li>
         </ul>
       </div>
     </div>
@@ -404,19 +464,19 @@ header p { margin: 0; color: var(--muted); max-width: 66ch; font-size: 16px; }
   };
   const ic = (n) => `<svg class="icon" viewBox="0 0 24 24" aria-hidden="true">${I[n]}</svg>`;
 
-  // Seed data mirrors apps/web/server/seed.ts. Every demo cart totals exactly $100.
+  // Seed data mirrors apps/web/server/seed.ts: three fictional shops, one $100 eGift card each.
+  // Card numbers use the 7777 prefix like the simulated card system (16 digits, 6-digit PIN).
   const SHOPS = [
-    { slug: 'daybreak', name: 'Daybreak Coffee', tag: 'Small-batch roasts, big mornings', color: '#C8742B',
-      items: [['Roaster\'s Choice beans', '3-month subscription', '$72.00', '#E9D9C6', '#C8742B'], ['Ceramic pour-over set', 'Qty 1', '$28.00', '#EFEAE3', '#9C8F80']] },
-    { slug: 'northline', name: 'Northline Apparel', tag: 'Built for the long way home', color: '#2F4A5A',
-      items: [['Ridgeline rain shell', 'Size M', '$85.00', '#D8E1E6', '#2F4A5A'], ['Merino beanie', 'Qty 1', '$15.00', '#E6E2DA', '#7E7466']] },
-    { slug: 'parkside', name: 'Parkside Market', tag: 'Your neighborhood grocer', color: '#3E7B4F',
-      items: [['Weekly produce box', 'Delivered Saturday', '$64.00', '#DCEBDD', '#3E7B4F'], ['Pantry staples bundle', 'Qty 1', '$36.00', '#ECE5D6', '#A3865A']] }
+    { slug: 'daybreak', name: 'Daybreak Coffee', tag: 'Small-batch roasts, big mornings', color: '#C8742B', c1: '#D9883F', c2: '#8E4714' },
+    { slug: 'northline', name: 'Northline Apparel', tag: 'Built for the long way home', color: '#2F4A5A', c1: '#46677B', c2: '#1C2F3B' },
+    { slug: 'parkside', name: 'Parkside Market', tag: 'Your neighborhood grocer', color: '#3E7B4F', c1: '#559A67', c2: '#24533A' }
   ];
+  const BUYER_CARD = { number: '7777 4821 0937 6604', pin: '319482' };
+  const SELLER_CARD = { number: '7777 0193 5527 5530', pin: '804217' };
 
   const S = { role: 'shopper', mode: 'first', screen: 'landing', shop: SHOPS[0], phase: null, sheet: null, signedIn: false,
-    details: false, taps: 0, secs: 60, busy: null, hint: '', confirming: false,
-    seller: { signedIn: false, screen: 'home', allowed: false } };
+    details: false, taps: 0, receiptTaps: null, secs: 60, busy: null, hint: '', confirming: false, revealed: false, revealing: false, justRevealed: false,
+    seller: { signedIn: false, screen: 'home', number: '', pin: '', demo: false, stage: 0, just: -1 } };
   const $ = (id) => document.getElementById(id);
   const screen = $('screen');
   const QUOTE = ['signed-out', 'ready', 'rejected', 'insufficient-funds', 'wrong-network'];
@@ -426,32 +486,34 @@ header p { margin: 0; color: var(--muted); max-width: 66ch; font-size: 16px; }
   // ── panel annotations ──────────────────────
   const SHOP_INFO = {
     landing: { step: '1 · Sway home', chain: 'Nothing.' },
-    store: { step: '2 · The shop', chain: 'Nothing. Tapping Check out makes the server write a signed order slip.' },
-    'loading-quote': { step: '3 · Finding a price', phase: 'loading-quote', chain: 'Read only. The server finds the oldest listing that covers $100; the app re-checks it on the ledger.' },
-    'signed-out': { step: '4 · The offer', phase: 'signed-out', chain: 'Nothing. Browsing and seeing the price need no account.' },
+    store: { step: '2 · The gift card', chain: 'Read only. The shop page shows a live price, refreshed every 15 seconds. Tapping Buy makes the server write a signed order.' },
+    'loading-quote': { step: '3 · Finding a price', phase: 'loading-quote', chain: 'Read only. Checkout re-checks the oldest listed $100 card for this shop on the ledger.' },
+    'signed-out': { step: '4 · The offer', phase: 'signed-out', chain: 'Nothing. Seeing the price needs no account.' },
     signin: { step: '5 · Sign in', phase: 'signed-out', chain: 'Nothing on the ledger. Privy creates her secure account (first visit only).' },
-    ready: { step: '6 · Hold to pay', phase: 'needs-approval or ready', chain: 'Nothing yet. Holding for a second starts the payment. No pop-up follows.' },
+    ready: { step: '6 · Hold to pay', phase: 'needs-approval or ready', chain: 'Nothing yet. Holding for a second starts the payment. (Proposal: the app today asks for two confirmations.)' },
     approving: { step: '6 · Paying, part 1', phase: 'approving', chain: 'Permission slip: "Sway may take up to $88" (approve). No money moves yet.' },
-    pending: { step: '6 · Paying, part 2', phase: 'pending', chain: 'The swap, all at once: Maya pays $88, Jordan gets $85, Sway keeps $3, the $100 credit is shredded (checkout).' },
-    confirm: { step: '6 · Tap-to-confirm backup', phase: 'ready', chain: 'Nothing yet. For people who can\'t hold (keyboard, screen readers). Confirm starts the same payment.' },
-    receipt: { step: '7 · Receipt', phase: 'confirmed', chain: 'Read only. Rebuilt from the ledger record of the swap. Shown only after it\'s confirmed.' },
-    record: { step: '7 · Payment record', phase: 'confirmed', chain: 'The public record of the swap, in plain words. The explorer link is the raw version.' },
-    'no-offer': { step: 'Detour · No deal', phase: 'no-offer', chain: 'Nothing. Sway never invents a price.' },
+    pending: { step: '6 · Paying, part 2', phase: 'pending', chain: 'All at once (checkout): Maya pays $88, the seller gets $85, Sway keeps $3, and one vaulted $100 Daybreak card is assigned to her order.' },
+    confirm: { step: '6 · Tap-to-confirm backup', phase: 'ready', chain: "Nothing yet. For people who can't hold (keyboard, screen readers). Confirm starts the same payment." },
+    receipt: { step: '7 · Receipt', phase: 'confirmed', chain: "Read only. Rebuilt from the ledger record. The card's number stays hidden until she asks to see it." },
+    reveal: { step: '8 · Her gift card', phase: 'confirmed', chain: "Nothing on the ledger. She signs a free message proving she's the buyer; the server checks it against the paid order, then shows the new number and PIN." },
+    balance: { step: '8 · Card balance', phase: 'confirmed', chain: "Read only. The shop's gift card system (simulated) shows the new card at $100." },
+    record: { step: '7 · Payment record', phase: 'confirmed', chain: 'The public record of the payment, in plain words. The explorer link is the raw version.' },
+    'no-offer': { step: 'Detour · No deal', phase: 'no-offer', chain: 'Nothing. Nobody has listed a Daybreak card. Sway never invents a price.' },
     'quote-stale': { step: 'Detour · Price expired', phase: 'quote-stale', chain: 'Nothing. Refreshing re-reads the listings.' },
     'insufficient-funds': { step: 'Detour · Not enough balance', phase: 'insufficient-funds', chain: 'Nothing. Checked before paying is allowed. How a new shopper adds money is still open (Q3).' },
     'wrong-network': { step: 'Detour · Wrong network', phase: 'wrong-network', chain: 'The app asks to switch to Arc. Rare with a Privy account.' },
     rejected: { step: 'Detour · Cancelled', phase: 'rejected', chain: 'Nothing was sent. Only reachable from the tap-to-confirm backup.' },
-    failed: { step: 'Detour · Deal taken', phase: 'failed', chain: 'The swap was refused as a whole, so no money moved and no credit was shredded.' }
+    failed: { step: 'Detour · Card taken', phase: 'failed', chain: 'The payment was refused as a whole, so no money moved and no card was assigned.' }
   };
   const SELL_INFO = {
     home: { step: '1 · Seller home', chain: 'Nothing.' },
     signin: { step: '2 · Sign in', chain: 'Nothing on the ledger. Privy creates his secure account.' },
-    credit: { step: '3 · Your credit', chain: 'Reads his credit balance and Daybreak\'s rates (shoppers pay 88%, sellers get 85%).' },
-    sell: { step: '4 · Sell it', chain: 'Nothing yet. The $85 comes from Sway\'s rate for Daybreak and locks when he lists.' },
-    locking: { step: '5 · Locking your credit', chain: 'First time: lets Sway\'s contract hold his credit. Then his $100 moves into the locker (createListing).' },
-    listed: { step: '6 · Listed', chain: 'His credit sits in the locker. Only two exits: a shopper\'s checkout shreds it and pays him, or he cancels and gets it back.' },
-    sold: { step: '7 · Sold', chain: 'Happened inside Maya\'s checkout: $85 arrived in the same moment the credit was shredded.' },
-    cancelled: { step: 'Detour · Cancelled', chain: 'cancelListing returned exactly $100 of credit to his account.' }
+    enter: { step: '3 · Enter the card', chain: "Nothing yet. $85 is Sway's fixed rate for a $100 Daybreak card (sellers get 85%), read from the marketplace (previewPrice). The demo link asks the shop for a pretend $100 card." },
+    checking: { step: '4 · Check and list', chain: 'Server: checks the card with the shop (simulated), moves its full balance to a new number only Sway holds (his old number drops to $0), mints $100 of credit to him 1:1 and covers the processing cost. Then his account approves once and lists it (createListing).' },
+    listed: { step: '5 · Listed', chain: "His $100 credit waits in the marketplace. Two exits: a shopper's checkout pays him $85 and hands her the vaulted card, or he cancels and the credit comes back." },
+    oldcard: { step: '5 · Old card check', chain: "Read only. The shop's system shows his old number at $0 (status: swapped)." },
+    sold: { step: '6 · Sold', chain: "Happened inside Maya's checkout: $85 arrived in the same moment the card was assigned to her order." },
+    cancelled: { step: 'Detour · Cancelled', chain: 'cancelListing returns exactly $100 of credit to his account.' }
   };
 
   // ── shopper screens ────────────────────────
@@ -461,12 +523,18 @@ header p { margin: 0; color: var(--muted); max-width: 66ch; font-size: 16px; }
   const nav = (backAct, chip) => `<div class="navrow">${backAct ? `<button class="back" data-act="${backAct}">${ic('left')}Back</button>` : ''}${chip ? `<span class="chip">${chip}</span>` : ''}</div>`;
   const mark = (s, size) => `<span class="mark" style="background:${s.color}${size ? `;width:${size}px;height:${size}px` : ''}">${s.name[0]}</span>`;
 
+  // The card. `num` is the visible number line: masked until the buyer asks to see it.
+  const giftCard = (s, num, extra = '') => `<div class="gcard${extra}" style="--c1:${s.c1};--c2:${s.c2}">
+      <div class="top"><span>${s.name}</span><small>eGift card</small></div>
+      <div class="num${num ? '' : ' masked'}">${num || '•••• •••• •••• ••••'}</div>
+      <div class="bottom"><span class="val">$100</span><small>Use in store or online</small></div></div>`;
+
   function landing() {
     return `${status()}<div class="scroll">${band()}
-      <div class="pad"><h1 class="h-land">Your $100 order. $88 with Sway.</h1>
-      <p class="sub">Sway finds unused store credit other shoppers are selling and puts it on your order automatically.</p></div>
+      <div class="pad"><h1 class="h-land">A $100 gift card. $88 with Sway.</h1>
+      <p class="sub">Buy gift cards other people won't use, for less. You're the only one who ever sees the card number.</p></div>
       <div class="shops">${SHOPS.map(s => `<button class="shop" data-act="shop:${s.slug}">${mark(s)}
-        <span class="t"><b>${s.name}</b><small class="deal">Save $12 on your $100 order</small></span>${ic('right')}</button>`).join('')}</div>
+        <span class="t"><b>${s.name}</b><small class="deal">Save $12 on a $100 gift card</small></span>${ic('right')}</button>`).join('')}</div>
       ${footer()}</div>`;
   }
 
@@ -474,10 +542,13 @@ header p { margin: 0; color: var(--muted); max-width: 66ch; font-size: 16px; }
     const s = S.shop;
     return `${status()}<div class="scroll">${nav('home', 'Demo shop')}
       <div class="store-head">${mark(s, 48)}<div><h2>${s.name}</h2><p>${s.tag}</p></div></div>
-      <div class="items">${s.items.map(([n, d, p, c1, c2]) => `<div class="item"><span class="thumb" style="background:linear-gradient(140deg, ${c1}, ${c2})"></span><span class="t"><b>${n}</b><small>${d}</small></span><span class="p">${p}</span></div>`).join('')}</div>
-      <div class="hint">${ic('check')}Sway will lower your price at checkout</div>
+      <div class="gwrap">${giftCard(s)}</div>
+      <div class="offer"><div class="lbl">${s.name} $100 gift card</div><div class="was">$100.00</div>
+        <div class="now">$88 <span>with Sway</span></div>
+        <span class="saveline">${ic('check')}You save $12</span></div>
+      <div class="note calm"><b>${ic('lock')}Can't be used up before you get it</b><p>The seller's card was moved to a new number only Sway holds. After you pay, that number is yours alone.</p></div>
     </div>
-    <div class="dock"><button class="cta" data-act="checkout"><span>Check out · $100.00</span></button></div>`;
+    <div class="dock"><button class="cta" data-act="checkout"><span>Buy gift card</span></button></div>`;
   }
 
   function priceBlock(dim) {
@@ -487,10 +558,10 @@ header p { margin: 0; color: var(--muted); max-width: 66ch; font-size: 16px; }
       ${dim ? '' : `<span class="saveline">${ic('check')}You save $12 with Sway</span>`}</div>
       <div class="details${S.details ? ' open' : ''}"><button data-act="details" aria-expanded="${S.details}" aria-controls="pdrawer">Price details${ic('down')}</button>
       <div class="drawer" id="pdrawer"${S.details ? '' : ' inert'}><div><div class="lines">
-        ${s.items.map(([n, , p], i) => `<div style="--i:${i}"><span>${n}</span><span>${p}</span></div>`).join('')}
-        <div class="g" style="--i:2"><span>Store credit discount</span><span>−$12.00</span></div>
-        <div class="tot" style="--i:3"><span>You pay</span><span>$88.00</span></div>
-        <div class="fee" style="--i:4"><span>Includes $3 Sway service fee</span><span></span></div></div></div></div></div>`;
+        <div style="--i:0"><span>${s.name} $100 gift card</span><span>$100.00</span></div>
+        <div class="g" style="--i:1"><span>Gift card discount</span><span>−$12.00</span></div>
+        <div class="tot" style="--i:2"><span>You pay</span><span>$88.00</span></div>
+        <div class="fee" style="--i:3"><span>Includes $3 Sway service fee</span><span></span></div></div></div></div></div>`;
   }
 
   const holdBtn = (label) => `<button class="cta hold" id="hold" aria-describedby="holdhint"><i class="fill"></i><span>${label}</span></button>
@@ -499,7 +570,7 @@ header p { margin: 0; color: var(--muted); max-width: 66ch; font-size: 16px; }
 
   function checkout() {
     const p = S.phase, s = S.shop;
-    const top = `${status()}<div class="scroll">${nav('store', 'Demo credit')}`;
+    const top = `${status()}<div class="scroll">${nav('store', 'Demo card')}`;
     if (p === 'loading-quote') {
       return `${top}<div class="price"><div class="lbl">Finding you a better price</div>
         <div class="skel" style="height:22px;width:90px;margin-top:8px"></div>
@@ -509,8 +580,8 @@ header p { margin: 0; color: var(--muted); max-width: 66ch; font-size: 16px; }
     }
     if (p === 'no-offer') {
       return `${top}<div class="price"><div class="lbl">Your total</div><div class="now" style="font-size:72px">$100</div></div>
-        <div class="note calm"><b>${ic('info')}No deal for this order right now</b>
-        <p>Nobody is selling ${s.name} store credit at the moment. Check back soon, or pay full price at the shop.</p></div></div>
+        <div class="note calm"><b>${ic('info')}No discounted cards right now</b>
+        <p>Nobody is selling a ${s.name} gift card at the moment. Check back soon, or buy one at full price from the shop.</p></div></div>
         <div class="dock"><button class="cta" data-act="retry"><span>${ic('refresh')}Check again</span></button>
         <button class="cta ghost" data-act="store"><span>Back to store</span></button></div>`;
     }
@@ -525,7 +596,7 @@ header p { margin: 0; color: var(--muted); max-width: 66ch; font-size: 16px; }
       dock = `<button class="cta hold done" disabled><i class="fill"></i><span><i class="spin"></i>${p === 'approving' ? 'Allowing this payment…' : 'Paying…'}</span></button>`;
     }
     if (p === 'quote-stale') {
-      body += `<div class="note calm"><b>${ic('clock')}This price expired</b><p>Store credit prices can change, so refresh to get the latest.</p></div>`;
+      body += `<div class="note calm"><b>${ic('clock')}This price expired</b><p>Gift card prices can change, so refresh to get the latest.</p></div>`;
       dock = `<button class="cta" data-act="retry"><span>${ic('refresh')}Refresh price</span></button>`;
     }
     if (p === 'insufficient-funds') {
@@ -537,17 +608,25 @@ header p { margin: 0; color: var(--muted); max-width: 66ch; font-size: 16px; }
       dock = `<button class="cta" data-act="switch"><span>Switch and continue</span></button>`;
     }
     if (p === 'failed') {
-      body += `<div class="note alert"><b>${ic('alert')}This deal was just taken</b><p>Someone else bought this store credit a moment ago. You weren't charged.</p></div>`;
-      dock = `<button class="cta" data-act="retry"><span>Find another price</span></button>`;
+      body += `<div class="note alert"><b>${ic('alert')}This card was just taken</b><p>Someone else bought this gift card a moment ago. You weren't charged.</p></div>`;
+      dock = `<button class="cta" data-act="retry"><span>Find another card</span></button>`;
     }
     return `${top}${body}</div><div class="dock">${dock}</div>${shopSheet()}`;
   }
+
+  const balanceSheet = (s, last4, cents, swapped) => `<div class="scrim"><div class="sheet" role="dialog" aria-label="Gift card balance">
+      <div class="grab"></div>
+      <div class="head"><h3>Gift card balance</h3><button class="back" data-act="close" aria-label="Close">${ic('x')}</button></div>
+      <p>Pretend balance checker for the demo shops.</p>
+      <div class="record"><div><span>Card</span><span>${s.name} ···· ${last4}</span></div><div><span>Balance</span><span>${cents}</span></div></div>
+      ${swapped ? `<div class="note good" style="margin:0"><b>${ic('check')}This card was sold on Sway</b><p>Its balance moved to a new card number, so nobody can spend it twice.</p></div>` : ''}
+      <button class="cta ghost" data-act="close"><span>Done</span></button></div></div>`;
 
   function shopSheet() {
     if (S.sheet === 'signin') return signinSheet('Sign in to pay $88', 'signin');
     if (S.sheet === 'confirm') return `<div class="scrim"><div class="sheet" role="dialog" aria-label="Confirm payment">
       <div class="grab"></div><p>Confirm payment</p><div class="confirm-amt">$88.00</div>
-      <p>For your $100 ${S.shop.name} order. This can't be undone.</p>
+      <p>For a $100 ${S.shop.name} gift card. This can't be undone.</p>
       <button class="cta" data-act="confirm"><span>Pay $88</span></button>
       <button class="cta ghost" data-act="cancel"><span>Cancel</span></button></div></div>`;
     if (S.sheet === 'record') return `<div class="scrim"><div class="sheet" role="dialog" aria-label="Payment record">
@@ -557,12 +636,14 @@ header p { margin: 0; color: var(--muted); max-width: 66ch; font-size: 16px; }
       <div class="record">
         <div><span>Order</span><span>SW-7F3A</span></div>
         <div><span>You paid</span><span>$88.00</span></div>
-        <div><span>Store credit used</span><span>$100 of ${S.shop.name} credit</span></div>
-        <div><span>Paid to the credit seller</span><span>$85.00</span></div>
+        <div><span>Gift card</span><span>$100 ${S.shop.name}</span></div>
+        <div><span>Paid to the card's seller</span><span>$85.00</span></div>
         <div><span>Sway service fee</span><span>$3.00</span></div>
         <div><span>Recorded</span><span>Today, 9:41 AM</span></div>
       </div>
+      <p class="fine">The card number is never part of the public record.</p>
       <button class="linkish" data-act="noop">Open the raw record on Arc</button></div></div>`;
+    if (S.sheet === 'balance') return balanceSheet(S.shop, BUYER_CARD.number.slice(-4), '$100.00', false);
     return '';
   }
 
@@ -580,14 +661,28 @@ header p { margin: 0; color: var(--muted); max-width: 66ch; font-size: 16px; }
     const s = S.shop;
     if (S.confirming) return `${status()}<div class="scroll"><div class="price" style="padding-top:60px"><div class="lbl">Confirming your payment…</div>
       <div class="skel" style="height:96px;width:160px;margin-top:14px"></div><div class="skel" style="height:18px;width:240px;margin-top:16px"></div></div></div>`;
-    return `${status()}<div class="scroll">
+    const just = S.justRevealed ? ' just' : '';
+    const cardBlock = S.revealed
+      ? `${giftCard(s, BUYER_CARD.number, just)}
+        <div class="secret${just}">
+          <div><span>Card number</span><b>${BUYER_CARD.number}</b></div>
+          <div><span>PIN</span><b>${BUYER_CARD.pin}</b></div>
+          <div><span>Balance</span><b>$100.00</b></div>
+        </div>
+        <button class="textlink" data-act="balance">Check balance at the shop</button>
+        <p class="fine left">Demo card from a pretend shop. In real life this comes from the shop's own gift card system.</p>`
+      : `${giftCard(s)}
+        <button class="cta" data-act="reveal"${S.revealing ? ' disabled' : ''}><span>${S.revealing ? `<i class="spin"></i>Confirming it's you…` : 'Show my gift card'}</span></button>
+        <p class="fine">You'll confirm once to prove you're the buyer. It's free.</p>`;
+    return `${status()}<div class="scroll" id="rscroll">
       <div class="rc"><span class="badge">${ic('check')}</span><div class="lbl">You saved</div><div class="big">$12</div>
-      <p>Paid $88 for your $100 ${s.name} order.</p></div>
+      <p>Paid $88 for a $100 ${s.name} gift card.</p></div>
+      <div class="gsec"><h4>Your gift card</h4>${cardBlock}</div>
       <div class="rcard">
         <div><span>You paid</span><span>$88.00</span></div>
-        <div><span>Covered by</span><span>$100 of ${s.name} store credit</span></div>
+        <div><span>Gift card value</span><span>$100.00</span></div>
         <div><span>Sway service fee</span><span>$3.00 (included)</span></div>
-        <div><span>Credit seller</span><span>Paid at the same moment</span></div>
+        <div><span>Card's seller</span><span>Paid at the same moment</span></div>
         <div><span>Order</span><span>SW-7F3A</span></div>
       </div>
       <button class="proof" data-act="record">${ic('doc')}View payment record</button>
@@ -597,63 +692,82 @@ header p { margin: 0; color: var(--muted); max-width: 66ch; font-size: 16px; }
   }
 
   // ── seller screens ─────────────────────────
+  const cardReady = () => S.seller.number.replace(/\D/g, '').length >= 12 && /^\d{4,8}$/.test(S.seller.pin);
+  const STEPS = [
+    ['Checking your card with the shop…', 'Checked: $100 on the card', ''],
+    ['Moving it to a new card number…', 'Moved to a new card number', `Your card ending ${SELLER_CARD.number.slice(-4)} is now $0, so it can't be spent twice.`],
+    ['Listing your card…', 'Listed', 'Sway covered the small processing cost for you.']
+  ];
+
   function sellerScreen() {
     const sl = S.seller, d = SHOPS[0];
-    const top = (back) => `${status()}<div class="scroll">${nav(back, 'Demo credit')}`;
     if (sl.screen === 'home') return `${status()}<div class="scroll">${band()}
-      <div class="pad"><h1 class="h-land">Turn store credit into cash.</h1>
-      <p class="sub">List store credit you won't use. You get paid the moment a shopper checks out with it.</p></div>
-      <div class="note" style="margin-top:24px"><b>${ic('lock')}Can't be drained</b><p>Your credit is locked with Sway while it's listed, then used up in the same moment you're paid. Nobody can spend it twice.</p></div>
+      <div class="pad"><h1 class="h-land">Turn gift cards into cash.</h1>
+      <p class="sub">Sell a gift card you won't use. You get paid the moment someone buys it.</p></div>
+      <div class="gwrap" style="margin-top:22px">${giftCard(d)}</div>
+      <div class="note"><b>${ic('lock')}Nobody can spend it twice</b><p>Sway moves your card's balance to a new number only Sway holds. Your old number drops to $0.</p></div>
       ${footer()}</div><div class="dock"><button class="cta" data-act="s-open-signin"><span>Sign in to sell</span></button></div>
       ${S.sheet === 'signin' ? signinSheet('Sign in to sell', 's-signin') : ''}`;
-    if (sl.screen === 'credit' || sl.screen === 'sold' || sl.screen === 'cancelled') {
-      const sold = sl.screen === 'sold';
-      return `${status()}<div class="scroll">
-        <div class="pad"><h1 class="h-page">${sold ? 'Your credit sold.' : 'Your store credit'}</h1>
-        ${sold ? `<p class="sub">A shopper checked out with it. The money is already yours.</p>` : `<p class="sub">Credit shops have given you. Sell what you won't use.</p>`}</div>
-        ${sold ? `<div class="payout"><div class="lbl">Received</div><div class="now green">+$85</div></div>` : ''}
-        ${sl.screen === 'cancelled' ? `<div class="note good"><b>${ic('check')}Listing cancelled</b><p>Your $100 of Daybreak credit is back in your account.</p></div>` : ''}
-        <div class="items" style="margin-top:18px">
-          ${sold ? `<div class="credit-row">${mark(d)}<span class="t"><b>Daybreak Coffee</b><small>$0 left · sold for $85</small></span></div>`
-                 : `<div class="credit-row">${mark(d)}<span class="t"><b>$100 Daybreak Coffee</b><small class="deal">Sell now, get $85</small></span><button class="mini" data-act="s-sell">Sell</button></div>`}
-          <div class="credit-row">${mark(SHOPS[1])}<span class="t"><b>Northline Apparel</b><small>No credit yet</small></span></div>
-        </div>
-        ${sold ? `<div class="split"><div><span>Your balance</span><span>$85.00</span></div><div><span>Sold</span><span>Today, 9:41 AM</span></div></div>` : ''}
-        ${footer()}</div>`;
-    }
-    if (sl.screen === 'sell') return `${top('s-back')}
-      <div class="store-head" style="padding-bottom:6px">${mark(d, 48)}<div><h2>$100 Daybreak credit</h2><p>Demo credit</p></div></div>
+    if (sl.screen === 'enter') return `${status()}<div class="scroll">${nav(null, 'Demo card')}
+      <div class="pad"><h1 class="h-page">Sell a gift card</h1><p class="sub">Got a card you won't use? Get paid the moment someone buys it.</p></div>
       <div class="payout"><div class="lbl">You get when it sells</div><div class="now green">$85</div></div>
+      <div class="form">
+        <div class="field">Shop<div class="selectish">${mark(d)}${d.name}${ic('down')}</div></div>
+        <label class="field">Card number<input id="cardnum" class="mono" inputmode="numeric" autocomplete="off" placeholder="7777 0000 0000 0000" value="${sl.number}"></label>
+        <label class="field">PIN<input id="cardpin" class="mono" inputmode="numeric" autocomplete="off" placeholder="6 digits" value="${sl.pin}"></label>
+        <div class="demo-line">No card handy? <button class="textlink" data-act="s-demo">Get a demo $100 card</button></div>
+        ${sl.demo ? `<div class="note good" style="margin:0"><b>${ic('check')}Demo card filled in</b><p>Here's a pretend $100 card from the shop.</p></div>` : ''}
+      </div>
       <div class="split">
         <div><span>Shoppers pay</span><span>$88</span></div>
         <div><span>Sway service fee</span><span>$3</span></div>
         <div class="you"><span>You get</span><span>$85</span></div>
       </div>
-      <div class="note calm"><b>${ic('info')}Why $85?</b><p>Sway sets one price for all Daybreak credit, at or above what gift card resale sites pay. No haggling, and shoppers always see one clear price.</p></div>
-      ${sl.allowed ? '' : `<div class="note"><b>${ic('lock')}First time only</b><p>Sway will hold your credit until it sells or you cancel. You can cancel any time.</p></div>`}
-      </div><div class="dock"><button class="cta" data-act="s-list"><span>List it and get $85</span></button></div>`;
-    if (sl.screen === 'locking') return `${top()}
-      <div class="payout" style="padding-top:40px"><div class="lbl">Listing your credit</div><div class="now">$100</div></div>
-      </div><div class="dock"><button class="cta" disabled><span><i class="spin"></i>Locking your credit…</span></button></div>`;
+      <div class="note calm"><b>${ic('info')}Why $85?</b><p>Sway sets one price for every $100 Daybreak card, at or above what gift card resale sites pay. No haggling, and shoppers always see one clear price.</p></div>
+      </div><div class="dock"><button class="cta" data-act="s-list"${cardReady() ? '' : ' disabled'}><span>Check and list my card</span></button></div>`;
+    if (sl.screen === 'checking') {
+      const rows = STEPS.map(([doing, done, note], i) => {
+        const state = i < sl.stage ? 'done' : i === sl.stage ? 'active' : 'wait';
+        return `<div class="stp ${state}${i === sl.just ? ' just' : ''}"><span class="dot">${state === 'done' ? ic('check') : ''}</span>
+          <span class="txt"><b>${state === 'done' ? done : doing.replace('…', '')}</b>${state === 'done' && note ? `<small>${note}</small>` : ''}</span></div>`;
+      }).join('');
+      return `${status()}<div class="scroll">${nav(null, 'Demo card')}
+        <div class="pad"><h1 class="h-page">Checking your card</h1><p class="sub">This takes a few seconds. Keep this screen open.</p></div>
+        <div class="steps">${rows}</div></div>
+        <div class="dock"><button class="cta" disabled><span><i class="spin"></i>${STEPS[Math.min(sl.stage, 2)][0]}</span></button></div>`;
+    }
     if (sl.screen === 'listed') return `${status()}<div class="scroll">
-      <div class="pad"><h1 class="h-page">Listed.</h1><p class="sub">Your credit is locked until it sells or you cancel. You'll get $85 the moment a shopper uses it.</p></div>
-      <div class="items" style="margin-top:22px"><div class="credit-row">${mark(d)}<span class="t"><b>$100 Daybreak Coffee</b><small><i class="status-dot"></i>Waiting for a buyer · you get $85</small></span></div></div>
-      ${footer()}</div><div class="dock"><button class="cta ghost" data-act="s-cancel"><span>Cancel listing</span></button></div>`;
+      <div class="pad"><h1 class="h-page">Listed.</h1><p class="sub">You'll be paid $85 automatically when someone buys it.</p></div>
+      <div class="items" style="margin-top:22px"><div class="credit-row">${mark(d)}<span class="t"><b>$100 Daybreak Coffee gift card</b><small><i class="status-dot"></i>Waiting for a buyer · you get $85</small></span></div></div>
+      <div class="note good"><b>${ic('check')}Your old card is now $0</b><p>Its balance moved to a new number only Sway holds, so nobody can spend it twice.</p></div>
+      <div class="pad" style="margin-top:14px"><button class="textlink" data-act="s-oldcard">Check your old card's balance</button></div>
+      ${footer()}</div><div class="dock"><button class="cta ghost" data-act="s-cancel"><span>Cancel listing</span></button></div>
+      ${S.sheet === 'oldcard' ? balanceSheet(d, SELLER_CARD.number.slice(-4), '$0.00', true) : ''}`;
+    if (sl.screen === 'sold') return `${status()}<div class="scroll">
+      <div class="pad"><h1 class="h-page">Your card sold.</h1><p class="sub">A shopper bought it. The money is already yours.</p></div>
+      <div class="payout"><div class="lbl">Received</div><div class="now green">+$85</div></div>
+      <div class="items" style="margin-top:18px"><div class="credit-row">${mark(d)}<span class="t"><b>$100 Daybreak Coffee gift card</b><small>Sold for $85 · Today, 9:41 AM</small></span></div></div>
+      <div class="split"><div><span>Your balance</span><span>$85.00</span></div></div>
+      ${footer()}</div><div class="dock"><button class="cta ghost" data-act="s-again"><span>Sell another card</span></button></div>`;
+    if (sl.screen === 'cancelled') return `${status()}<div class="scroll">
+      <div class="pad"><h1 class="h-page">Listing cancelled</h1><p class="sub">Nothing sold, so nothing was paid.</p></div>
+      <div class="note good"><b>${ic('check')}The card's value is back in your account</b><p>$100 of Daybreak credit. You can list it again any time.</p></div>
+      ${footer()}</div><div class="dock"><button class="cta ghost" data-act="s-again"><span>Sell a card</span></button></div>`;
     return '';
   }
 
   // ── panel ───────────────────────────────────
-  const SHOP_MAIN = [['landing', 'Sway home'], ['store', 'Shop'], ['loading-quote', 'Finding price'], ['signed-out', 'Offer'], ['signin', 'Sign in'],
-    ['ready', 'Hold to pay'], ['approving', 'Paying 1'], ['pending', 'Paying 2'], ['receipt', 'Receipt'], ['record', 'Payment record']];
+  const SHOP_MAIN = [['landing', 'Sway home'], ['store', 'Gift card'], ['loading-quote', 'Finding price'], ['signed-out', 'Offer'], ['signin', 'Sign in'],
+    ['ready', 'Hold to pay'], ['approving', 'Paying 1'], ['pending', 'Paying 2'], ['receipt', 'Receipt'], ['reveal', 'Show the card'], ['balance', 'Card balance'], ['record', 'Payment record']];
   const SHOP_DETOUR = [['confirm', 'Tap-to-confirm backup'], ['no-offer', 'No deal'], ['quote-stale', 'Price expired'], ['insufficient-funds', 'Not enough balance'],
-    ['wrong-network', 'Wrong network'], ['rejected', 'Cancelled'], ['failed', 'Deal taken']];
-  const SELL_MAIN = [['home', 'Seller home'], ['signin', 'Sign in'], ['credit', 'Your credit'], ['sell', 'Sell it'], ['locking', 'Locking'], ['listed', 'Listed'], ['sold', 'Sold']];
+    ['wrong-network', 'Wrong network'], ['rejected', 'Cancelled'], ['failed', 'Card taken']];
+  const SELL_MAIN = [['home', 'Seller home'], ['signin', 'Sign in'], ['enter', 'Enter the card'], ['checking', 'Check and list'], ['listed', 'Listed'], ['oldcard', 'Old card check'], ['sold', 'Sold']];
   const SELL_DETOUR = [['cancelled', 'Cancelled']];
 
   const shopKey = () => S.screen === 'landing' ? 'landing' : S.screen === 'store' ? 'store'
-    : S.screen === 'receipt' ? (S.sheet === 'record' ? 'record' : 'receipt')
+    : S.screen === 'receipt' ? (S.sheet === 'record' ? 'record' : S.sheet === 'balance' ? 'balance' : S.revealed ? 'reveal' : 'receipt')
     : S.sheet === 'signin' ? 'signin' : S.sheet === 'confirm' ? 'confirm' : S.phase;
-  const sellKey = () => S.sheet === 'signin' ? 'signin' : S.seller.screen;
+  const sellKey = () => S.sheet === 'signin' ? 'signin' : S.sheet === 'oldcard' ? 'oldcard' : S.seller.screen;
 
   function panel() {
     const seller = S.role === 'seller';
@@ -662,7 +776,7 @@ header p { margin: 0; color: var(--muted); max-width: 66ch; font-size: 16px; }
     $('where').innerHTML = `<div class="step">${info.step}</div>
       ${info.phase ? `<code>CheckoutPhase: ${info.phase}</code>` : ''}
       <div class="chain"><span>Behind the scenes</span>${info.chain}</div>
-      <span class="built ${seller ? 'no' : 'yes'}">${seller ? 'Proposal: no seller screen in the app yet' : 'Built by Drew (visuals are this proposal)'}</span>`;
+      ${seller && k === 'cancelled' ? `<span class="built no">Proposal: cancelling isn't in the app yet</span>` : `<span class="built yes">Built by Drew (visuals are this proposal)</span>`}`;
     $('simwrap').innerHTML = seller && S.seller.screen === 'listed' ? `<button class="sim" id="simSale">Simulate a shopper buying it</button>` : '';
     const btn = ([id, label]) => `<button data-jump="${id}" aria-current="${id === k}">${label}</button>`;
     $('j-main').innerHTML = (seller ? SELL_MAIN : SHOP_MAIN).map(btn).join('');
@@ -673,9 +787,9 @@ header p { margin: 0; color: var(--muted); max-width: 66ch; font-size: 16px; }
     $('tapnote').textContent = seller ? 'From seller home to listed' : 'Target: 5 or fewer for a returning shopper';
     $('meter').innerHTML = Array.from({ length: 9 }, (_, i) => `<i class="${i < S.taps ? (i >= goal ? 'over' : 'on') : ''}${i === goal - 1 ? ' goal' : ''}"></i>`).join('');
     let v = '';
-    if (!seller && S.screen === 'receipt' && !S.confirming) {
-      v = S.taps <= 5 ? `<div class="verdict good">${S.taps} taps. Under the target of 5.</div>`
-        : `<div class="verdict meh">${S.taps} taps. Fine for a first visit: sign-in happens once. Switch to Returning to see the 3-tap path.</div>`;
+    if (!seller && S.screen === 'receipt' && !S.confirming && S.receiptTaps !== null) {
+      v = S.receiptTaps <= 5 ? `<div class="verdict good">${S.receiptTaps} taps to the receipt. Under the target of 5.</div>`
+        : `<div class="verdict meh">${S.receiptTaps} taps to the receipt. Fine for a first visit: sign-in happens once. Switch to Returning to see the 3-tap path.</div>`;
     }
     if (seller && S.seller.screen === 'listed') v = `<div class="verdict good">${S.taps} taps to list. Selling is a one-time effort, so this is fine.</div>`;
     $('verdict').innerHTML = v;
@@ -685,7 +799,7 @@ header p { margin: 0; color: var(--muted); max-width: 66ch; font-size: 16px; }
 
   // Motion bookkeeping: which screen we were on decides whether the new one glides in (and from which side),
   // and whether an open sheet is new (animate) or just being redrawn (stay still).
-  const ORDER = { landing: 0, store: 1, checkout: 2, receipt: 3, home: 0, credit: 1, sell: 2, locking: 3, listed: 4, sold: 5, cancelled: 5 };
+  const ORDER = { landing: 0, store: 1, checkout: 2, receipt: 3, home: 0, enter: 1, checking: 2, listed: 3, sold: 4, cancelled: 4 };
   let lastKey = null, lastSheet = null;
   function render() {
     const name = S.role === 'seller' ? S.seller.screen : S.screen;
@@ -700,7 +814,7 @@ header p { margin: 0; color: var(--muted); max-width: 66ch; font-size: 16px; }
     screen.classList.remove('fresh', 'go-fwd', 'go-back', 'go-same'); // prefixed: .back is already the Back button's style
     if (fresh) { void screen.offsetWidth; screen.classList.add('fresh', dir); }
     if (!sheetFresh) screen.querySelector('.scrim')?.classList.add('static');
-    S.reveal = false;
+    S.reveal = false; S.justRevealed = false; S.seller.just = -1;
     panel();
   }
   // Sheets leave the way they came in, then the state changes underneath.
@@ -717,9 +831,9 @@ header p { margin: 0; color: var(--muted); max-width: 66ch; font-size: 16px; }
   // ── flow helpers ────────────────────────────
   function reset() {
     clearTimeout(S.busy); cancelHold(); cancelClose();
-    Object.assign(S, { screen: 'landing', phase: null, sheet: null, details: false, taps: 0, secs: 60, hint: '', confirming: false });
+    Object.assign(S, { screen: 'landing', phase: null, sheet: null, details: false, taps: 0, receiptTaps: null, secs: 60, hint: '', confirming: false, revealed: false, revealing: false });
     S.signedIn = S.mode === 'return';
-    S.seller = { signedIn: false, screen: 'home', allowed: false };
+    S.seller = { signedIn: false, screen: 'home', number: '', pin: '', demo: false, stage: 0, just: -1 };
     render();
   }
   function go(scr, phase) { S.screen = scr; S.phase = phase || null; S.sheet = null; S.hint = ''; render(); }
@@ -727,7 +841,27 @@ header p { margin: 0; color: var(--muted); max-width: 66ch; font-size: 16px; }
   function startPay() {
     S.sheet = null; S.phase = 'approving'; render();
     after(1000, () => { S.phase = 'pending'; render();
-      after(1200, () => { S.confirming = true; go('receipt'); after(800, () => { S.confirming = false; render(); }); }); });
+      after(1200, () => { S.confirming = true; S.revealed = false; S.receiptTaps = S.taps; go('receipt'); after(800, () => { S.confirming = false; render(); }); }); });
+  }
+
+  // Showing the card: a short "confirming it's you", then the number comes into focus.
+  function revealCard() {
+    S.revealing = true; render();
+    after(900, () => {
+      S.revealing = false; S.revealed = true; S.justRevealed = true; render();
+      const sc = document.getElementById('rscroll'), card = screen.querySelector('.gcard');
+      if (sc && card) sc.scrollTo({ top: card.offsetTop - 70, behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
+    });
+  }
+  // Selling: each check finishes in turn, then the listing appears.
+  function runChecks() {
+    const sl = S.seller; sl.screen = 'checking'; sl.stage = 0; render();
+    const next = () => {
+      sl.just = sl.stage; sl.stage++; render();
+      if (sl.stage < STEPS.length) after(sl.stage === 2 ? 1000 : 850, next);
+      else after(650, () => { sl.screen = 'listed'; render(); });
+    };
+    after(950, next);
   }
 
   // ── hold to pay ─────────────────────────────
@@ -784,14 +918,32 @@ header p { margin: 0; color: var(--muted); max-width: 66ch; font-size: 16px; }
       case 'cancel': S.sheet = null; S.phase = 'rejected'; render(); break;
       case 'topup': case 'switch': S.phase = 'ready'; render(); break;
       case 'record': S.sheet = 'record'; render(); break;
-      case 's-signin': S.seller.signedIn = true; S.sheet = null; S.seller.screen = 'credit'; render(); break;
-      case 's-sell': S.seller.screen = 'sell'; render(); break;
-      case 's-back': S.seller.screen = 'credit'; render(); break;
-      case 's-list': S.seller.screen = 'locking'; render(); after(1300, () => { S.seller.allowed = true; S.seller.screen = 'listed'; render(); }); break;
+      case 'reveal': if (!S.revealing && !S.revealed) revealCard(); break;
+      case 'balance': S.sheet = 'balance'; render(); break;
+      case 's-signin': S.seller.signedIn = true; S.sheet = null; S.seller.screen = 'enter'; render(); break;
+      case 's-demo': Object.assign(S.seller, { number: SELLER_CARD.number, pin: SELLER_CARD.pin, demo: true }); render(); break;
+      case 's-list': if (cardReady()) runChecks(); break;
+      case 's-oldcard': S.sheet = 'oldcard'; render(); break;
       case 's-cancel': S.seller.screen = 'cancelled'; render(); break;
+      case 's-again': Object.assign(S.seller, { screen: 'enter', number: '', pin: '', demo: false, stage: 0 }); render(); break;
       default: panel();
     }
   }
+
+  // Typing a card in: keep the state, tidy the number into groups of 4, and enable the button once it looks complete.
+  screen.addEventListener('input', (e) => {
+    const t = e.target;
+    if (t.id === 'cardnum') {
+      const digits = t.value.replace(/\D/g, '').slice(0, 19);
+      t.value = digits.replace(/(\d{4})(?=\d)/g, '$1 ');
+      S.seller.number = t.value;
+    } else if (t.id === 'cardpin') {
+      t.value = t.value.replace(/\D/g, '').slice(0, 8);
+      S.seller.pin = t.value;
+    } else return;
+    const b = screen.querySelector('[data-act="s-list"]');
+    if (b) b.disabled = !cardReady();
+  });
 
   // ── panel controls ──────────────────────────
   document.querySelector('.panel').addEventListener('click', (e) => {
@@ -805,16 +957,25 @@ header p { margin: 0; color: var(--muted); max-width: 66ch; font-size: 16px; }
     if (!j) return;
     clearTimeout(S.busy); cancelHold(); cancelClose();
     const id = j.dataset.jump;
-    S.sheet = null; S.hint = ''; S.secs = 60; S.confirming = false;
+    S.sheet = null; S.hint = ''; S.secs = 60; S.confirming = false; S.revealing = false;
     if (S.role === 'seller') {
-      if (id === 'signin') { S.seller.screen = 'home'; S.sheet = 'signin'; }
-      else { S.seller.screen = id; S.seller.signedIn = id !== 'home'; S.seller.allowed = ['listed', 'sold', 'cancelled'].includes(id); }
+      const sl = S.seller;
+      sl.signedIn = !['home', 'signin'].includes(id);
+      if (id === 'signin') { sl.screen = 'home'; S.sheet = 'signin'; }
+      else if (id === 'oldcard') { sl.screen = 'listed'; S.sheet = 'oldcard'; }
+      else if (id === 'checking') { Object.assign(sl, { number: SELLER_CARD.number, pin: SELLER_CARD.pin, demo: true }); return runChecks(); }
+      else sl.screen = id;
       render(); return;
     }
     S.shop = SHOPS[0];
     S.signedIn = !['landing', 'store', 'loading-quote', 'signed-out', 'signin'].includes(id) || S.mode === 'return';
     if (id === 'landing' || id === 'store') return go(id);
-    if (id === 'receipt' || id === 'record') { S.screen = 'receipt'; S.phase = null; S.sheet = id === 'record' ? 'record' : null; render(); return; }
+    if (['receipt', 'reveal', 'balance', 'record'].includes(id)) {
+      S.screen = 'receipt'; S.phase = null; S.receiptTaps = null;
+      S.revealed = id === 'reveal' || id === 'balance';
+      S.sheet = id === 'record' ? 'record' : id === 'balance' ? 'balance' : null;
+      render(); return;
+    }
     S.screen = 'checkout';
     if (id === 'signin') { S.phase = 'signed-out'; S.sheet = 'signin'; }
     else if (id === 'confirm') { S.phase = 'ready'; S.sheet = 'confirm'; }
