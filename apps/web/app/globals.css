@@ -315,7 +315,8 @@ a { color: inherit; }
 /* ── sleek pass (Nov 20): quieter chrome, fewer boxes, more air ─────────────── */
 .app { box-shadow: none; }
 html { background: var(--s-paper); }
-.demo-band { font-size: 10.5px; letter-spacing: .02em; opacity: .75; padding: 6px 16px 0; }
+/* lane B a11y: honesty label stays quiet via the muted token, not opacity (opacity .75 → 3.3:1, fails AA; muted = 5.6:1) */
+.demo-band { font-size: 11px; letter-spacing: .02em; padding: 6px 16px 0; }
 .topbar { padding: 10px 20px 2px; min-height: 52px; }
 .logo { font-size: 22px; letter-spacing: -0.045em; }
 .chip { border-color: transparent; background: rgba(14,17,16,.05); font-size: 12px; padding: 5px 11px; }
@@ -344,6 +345,6 @@ html { background: var(--s-paper); }
 .store-title p { margin: 4px 0 0; color: var(--s-muted); font-size: 14px; }
 .rcard, .record, .split, .steps, .items { border: 0; background: rgba(14,17,16,.035); }
 .details { border-top-color: transparent; }
-.footer-note { opacity: .7; }
+/* lane B a11y: was opacity .7 (3.0:1, fails AA at 11.5px); muted token alone is 5.6:1 */
 .secondary-link { display: block; text-align: center; margin: 22px 20px 0; font-weight: 600; font-size: 14.5px; color: var(--s-ink); text-decoration: none; }
 .secondary-link span { color: var(--s-muted); font-weight: 500; }

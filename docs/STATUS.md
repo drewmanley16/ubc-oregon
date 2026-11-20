@@ -25,6 +25,8 @@ Times are Pacific. Deadline **Fri Nov 20, 10:00 a.m.** Feature freeze **Thu Nov 
 
 - [x] **(D) Gift card swap model** (team decision Nov 19, Shantam's swap idea) — simulated store card system (`server/giftcards.ts`, Upstash/file KV), `POST /api/sell` (verify → swap → mint → gas top-up), `POST /api/cards/reveal` (chain receipt + buyer signature), `/sell`, gift card store page, receipt reveal, `/balance`. 15 node tests. **Local E2E (anvil, chainId 5042002):** demo card → wrong PIN rejected → sell: swapped, minted 10000 credit, seller gas 0 → 0.2 → old card $0 / `SWAPPED_OUT` → re-sell rejected `ZERO_BALANCE` → seller lists → quote 88 USDC → buyer checkout → reveal signed by seller rejected `NOT_BUYER` → reveal by buyer returns a NEW number with $100 → idempotent → USDC buyer 12 / seller 85 / treasury 3.
 
+- [x] **(B) Design QA + a11y pass (Nov 20, lane-b/polish)** — tokens kept as-is (lane A prototype palette: one green savings accent `#0A7A45`, 96px price). Checked landing, store, sell, balance at **375px and 1440px**: no horizontal overflow (`scrollWidth` = viewport on all 8). WCAG AA contrast measured: muted/paper 5.56, save/paper 5.08, save/save-soft 4.71, alert/alert-soft 5.70, white on hold-fill 5.41. **Fixed 2 failures** from the sleek pass: demo band (honesty label) 3.27 → 5.56, footer note 2.99 → 5.56 (removed `opacity`, kept muted token). `prefers-reduced-motion` already kills animations/transitions. Build + web typecheck green. Screenshots: `docs/screenshots/qa/` (live site, before), `docs/screenshots/lane-b/` (local, after).
+
 ## Deployments
 **Web (Vercel):** https://sway-ubc.vercel.app — project `sway-ubc`, root `apps/web`, auto-deploys from `main`. Env vars set (Privy, RPC, fresh signing/vault secrets, issuer key). **Missing:** Upstash (sell/reveal need it on Vercel).
 
@@ -55,6 +57,8 @@ Live site `GET /api/quote?merchantId=1&amountCents=10000` returns listing 1, sav
 | Nov 18 | **Fee model.** Sway-set per-merchant rates (demo 88% buyer / 85% seller / 3% fee). `createListing(merchantId, creditCents)` (no ask arg). `Listing` + `ListingCreated` add `sellerPayoutUnits`; `CheckoutCompleted` adds `sellerPayoutUnits`, `feeUnits`. New: `setMerchantRates`, `setTreasury`, `previewPrice`, `merchantRates`, `treasury`. Types: `MarketplaceListing.sellerPayoutUnits`, `CheckoutReceipt.sellerPayoutUnits/feeUnits`, `Deployment.treasury`. Copy: `receipt.swayFee`. | **C** (listings + receipts), A (fee copy), B (receipt) | lane-d/contracts |
 
 ## Blockers / cross-lane requests
+- (lane B → lane D) `pnpm typecheck` fails in `packages/shared` on main: `money.test.ts` can't resolve `node:test` / `node:assert/strict` — add `@types/node` to `packages/shared` devDependencies (+ `"types": ["node"]` if needed). Root config is lane D's. `@sway/web` typecheck + build pass.
+- (lane B, open) Gift card small labels (`EGIFT CARD`, `.gcard .mid`/`.bottom small` at opacity .8–.85) are white-on-accent at 10.5–12px; light accents (e.g. Daybreak `#C8742B`) are ~3:1. Decorative/secondary, left for post-submit.
 - (lane D) Need Privy App ID → `NEXT_PUBLIC_PRIVY_APP_ID`.
 - ~~(lane D) Arc faucet funding~~ — done, deployed Nov 19 (see Deployments).
 - (lane D) Upstash for Vercel: deferred by Drew. Live site can't sell/reveal until it's added; local dev uses a file.
