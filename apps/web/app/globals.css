@@ -1,16 +1,165 @@
+@import url("https://fonts.googleapis.com/css2?family=Figtree:wght@400..900&display=swap");
 @import "tailwindcss";
 
-/* LANE B owns. Design tokens. Direction: premium consumer fintech, calm neutrals,
-   ONE vivid savings accent, very legible large prices, subtle motion. No purple crypto dashboard. */
+/* LANE B owns this file. Direction: premium consumer fintech, calm neutrals, ONE vivid savings accent,
+   very legible large prices, subtle motion. No purple crypto dashboard.
+
+   Nov 19: LANE A BASELINE (Chris), placed before lane B starts so the live site matches the approved
+   prototype's look (docs/ux/prototype.html, "Design system v0"). Tokens only plus a few global rules;
+   no component, page or prop changes. Lane B: keep, adjust or replace freely.
+   Fonts: loaded here with @import so layout.tsx (lane D) is untouched; next/font is the better long-term home. */
+
 @theme {
-  --color-ink: #111111;
-  --color-paper: #fafaf7;
-  --color-savings: #0a8f5a; /* placeholder — lane B to finalize */
-  --font-sans: ui-sans-serif, system-ui, sans-serif;
+  /* Sway palette */
+  --color-ink: #0e1110;
+  --color-paper: #f7f8f6;
+  --color-surface: #ffffff;
+  --color-muted: #5d6662;
+  --color-line: #e3e7e4;
+  --color-savings: #0a7a45; /* green only ever means money you keep */
+  --color-savings-soft: #e3f3ea;
+  --color-alert: #b42318;
+
+  /* Map the Tailwind colors the components already use onto the palette */
+  --color-black: #0e1110; /* bg-black buttons -> ink */
+  --color-green-700: #0a7a45; /* "You save $12.00" -> savings */
+  --color-red-700: #b42318; /* errors -> alert */
+  --color-amber-100: #f6efd9; /* demo banner, calmer but still visible */
+  --color-amber-900: #5f4a14;
+
+  --font-sans: "Figtree", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
 }
 
-body {
-  background: var(--color-paper);
-  color: var(--color-ink);
-  font-family: var(--font-sans);
+@layer base {
+  *,
+  ::before,
+  ::after {
+    border-color: var(--color-line); /* Tailwind v4 defaults borders to black */
+  }
+  body {
+    background: var(--color-paper);
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+  }
+  ::selection {
+    background: var(--color-savings-soft);
+    color: var(--color-ink);
+  }
+  :focus-visible {
+    outline: 2px solid var(--color-savings);
+    outline-offset: 2px;
+  }
+  input,
+  select {
+    caret-color: var(--color-savings);
+  }
+}
+
+/* Global rules outside the layers so they win over utility classes without editing components. */
+h1 {
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  line-height: 1.05;
+  text-wrap: balance;
+}
+h2 {
+  font-weight: 700;
+  letter-spacing: -0.015em;
+}
+
+/* Softer corners: cards and buttons use the bare `rounded` class */
+.rounded {
+  border-radius: 14px;
+}
+
+/* Cards sit on white over the paper background */
+main .rounded.border {
+  background: var(--color-surface);
+}
+
+/* Inputs: comfortable height, white, soft corners */
+main input,
+main select {
+  min-height: 48px;
+  border-radius: 10px;
+  background: var(--color-surface);
+}
+
+/* Shop cards (MerchantCard): shop name bold, tagline quiet, gentle hover */
+main a.block.rounded h3 {
+  font-weight: 700;
+}
+main a.block.rounded p {
+  color: var(--color-muted);
+}
+main a.block.rounded:hover {
+  border-color: var(--color-muted);
+}
+
+/* Buttons and button-like links: confident, thumb-sized, pressable */
+main button,
+main a.rounded:not(.block) {
+  font-weight: 700;
+  transition:
+    transform 80ms ease,
+    background-color 200ms ease,
+    opacity 200ms ease;
+}
+main button:not(:disabled):active {
+  transform: scale(0.985);
+}
+
+/* The price moment: <Price size="..."> renders data-size, so the big number can be big */
+[data-size="xl"] {
+  display: inline-block;
+  font-size: clamp(44px, 9vw, 72px);
+  font-weight: 800;
+  letter-spacing: -0.04em;
+  line-height: 1;
+}
+[data-size="lg"] {
+  font-size: 28px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+/* A crossed-out "was" price stays small so the Sway price is the hero */
+.line-through [data-size] {
+  font-size: 20px;
+  font-weight: 600;
+  letter-spacing: 0;
+}
+
+/* Shop offer: "$88.00 with Sway" is the one big number */
+main span.text-2xl.font-semibold {
+  font-size: clamp(28px, 5vw, 34px);
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  line-height: 1.05;
+  white-space: nowrap;
+}
+main .flex.items-baseline {
+  flex-wrap: wrap;
+  row-gap: 8px;
+}
+
+/* Savings reads as the one accent: a soft green pill, like the prototype */
+.text-green-700 {
+  font-weight: 700;
+}
+main span.text-green-700 {
+  background: var(--color-savings-soft);
+  border-radius: 999px;
+  padding: 4px 10px;
+  font-size: 14px;
+  white-space: nowrap;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  ::before,
+  ::after {
+    transition: none !important;
+    animation: none !important;
+  }
 }
