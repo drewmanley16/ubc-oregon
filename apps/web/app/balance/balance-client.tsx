@@ -34,7 +34,6 @@ export function BalanceClient() {
         <TopBar back="/" />
         <div className="pad">
           <h1 className="h-page">{copy.balance.title}</h1>
-          <p className="sub">{copy.balance.sub}</p>
         </div>
         <form
           className="form"

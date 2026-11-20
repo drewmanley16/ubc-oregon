@@ -45,7 +45,6 @@ export function GiftCardOffer({ merchant, product }: { merchant: Merchant; produ
         <TopBar back="/" />
         <div className="store-title">
           <h2>{merchant.name}</h2>
-          <p>{merchant.tagline}</p>
         </div>
         <div className="gwrap">
           <GiftCard merchant={merchant} valueCents={product.priceCents} />
@@ -71,23 +70,7 @@ export function GiftCardOffer({ merchant, product }: { merchant: Merchant; produ
             <div className="now">{whole(product.priceCents)}</div>
           )}
         </div>
-        {q.data && "reason" in q.data ? (
-          <div className="note calm">
-            <b>
-              <Icon name="info" />
-              No discounted cards right now
-            </b>
-            <p>{q.data.message || copy.store.noOffer}</p>
-          </div>
-        ) : (
-          <div className="note calm">
-            <b>
-              <Icon name="lock" />
-              Can&apos;t be used up before you get it
-            </b>
-            <p>The seller&apos;s card was moved to a new number only Sway holds. After you pay, that number is yours alone.</p>
-          </div>
-        )}
+        {q.data && "reason" in q.data && <p className="err" style={{ color: "var(--s-muted)" }}>{copy.store.noOffer}</p>}
         {error && <p className="err" role="alert">{error}</p>}
       </div>
       <div className="dock">

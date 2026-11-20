@@ -28,7 +28,7 @@ export function ShopList({ merchants }: { merchants: Merchant[] }) {
               {deal ? (
                 <small className="deal">{copy.landing.shopDeal(formatCents(deal.grossSavingsCents))}</small>
               ) : (
-                <small>{quotes[i].isLoading ? m.tagline : copy.landing.shopNoDeal}</small>
+                <small>{quotes[i].isLoading ? "\u00a0" : copy.landing.shopNoDeal}</small>
               )}
             </span>
             <Icon name="right" />

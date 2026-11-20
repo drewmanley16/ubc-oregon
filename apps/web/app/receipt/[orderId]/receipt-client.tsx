@@ -77,9 +77,6 @@ export function ReceiptClient({ orderId, token, txHash }: { orderId: Hex; token:
           </span>
           <div className="lbl">{copy.receipt.title}</div>
           <div className="big">{whole(receipt.grossSavingsCents)}</div>
-          <p>
-            Paid {whole(paidCents)} for a {whole(receipt.creditCents)} {merchant.name} gift card.
-          </p>
         </div>
 
         <div className="gsec">
@@ -91,7 +88,6 @@ export function ReceiptClient({ orderId, token, txHash }: { orderId: Hex; token:
                 <Link className="textlink" href="/balance">
                   {copy.card.checkBalance}
                 </Link>
-                <p className="fine">Tap the card to flip it</p>
               </div>
               <p className="fine left">{copy.card.simulated}</p>
             </>
@@ -104,7 +100,6 @@ export function ReceiptClient({ orderId, token, txHash }: { orderId: Hex; token:
                   {revealing ? copy.card.revealing : copy.card.reveal}
                 </span>
               </button>
-              <p className="fine">{copy.card.revealHint}</p>
             </>
           )}
           {revealError && <p className="err" style={{ margin: 0 }} role="alert">{revealError}</p>}
@@ -132,7 +127,6 @@ export function ReceiptClient({ orderId, token, txHash }: { orderId: Hex; token:
           <Icon name="doc" />
           {copy.receipt.viewOnExplorer}
         </a>
-        <div className="footer-note">Payments are recorded on Arc, a public ledger.</div>
       </div>
       <div className="dock">
         <Link href="/" className="cta ghost" style={{ textDecoration: "none" }}>

@@ -30,7 +30,7 @@ export const copy = {
   landing: {
     headline: "A $10 gift card. $8.80 with Sway.",
     sub: "Buy gift cards other people won't use, for less. Or sell yours and get paid the moment it sells.",
-    demoBadge: "Demo: fictional shops and test money.",
+    demoBadge: "Demo · fictional shops · test money",
     buyCta: "Shop gift cards",
     sellCta: "Sell a gift card",
     howTitle: "Why you can't get a used-up card",
@@ -217,7 +217,7 @@ export const copy = {
     pin: "PIN",
     balance: "Balance",
     checkBalance: "Check balance at the shop",
-    simulated: "Demo card from a pretend shop. In real life this comes from the shop's own gift card system.",
+    simulated: "Simulated demo card",
   },
 
   balance: {

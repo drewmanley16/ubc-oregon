@@ -80,7 +80,6 @@ export function SellClient({ merchants }: { merchants: Merchant[] }) {
           <TopBar />
           <div className="pad">
             <h1 className="h-page">Listed.</h1>
-            <p className="sub">{payoutCents !== null ? `You'll be paid ${whole(payoutCents)} automatically when someone buys it.` : copy.sell.listed}</p>
           </div>
           <div className="items" style={{ marginTop: 22 }}>
             <div className="credit-row">
@@ -109,7 +108,6 @@ export function SellClient({ merchants }: { merchants: Merchant[] }) {
               {copy.sell.mintTx}
             </a>
           </div>
-          <div className="footer-note">Payments are recorded on Arc, a public ledger.</div>
         </div>
         <div className="dock">
           <button
@@ -143,7 +141,6 @@ export function SellClient({ merchants }: { merchants: Merchant[] }) {
           <TopBar />
           <div className="pad">
             <h1 className="h-page">Checking your card</h1>
-            <p className="sub">This takes a few seconds. Keep this screen open.</p>
           </div>
           <div className="steps">
             {steps.map(([doing, done, note], i) => {
@@ -204,18 +201,10 @@ export function SellClient({ merchants }: { merchants: Merchant[] }) {
         <div className="scroll fresh">
           <TopBar />
           <div className="pad">
-            <h1 className="h-land">Turn gift cards into cash.</h1>
-            <p className="sub">{copy.sell.sub}</p>
+            <h1 className="h-land">Sell a gift card.</h1>
           </div>
           <div className="gwrap" style={{ marginTop: 22 }}>
             <GiftCard merchant={merchant} />
-          </div>
-          <div className="note">
-            <b>
-              <Icon name="lock" />
-              Nobody can spend it twice
-            </b>
-            <p>Sway moves your card&apos;s balance to a new number only Sway holds. Your old number drops to $0.</p>
           </div>
         </div>
         <div className="dock">
@@ -233,7 +222,6 @@ export function SellClient({ merchants }: { merchants: Merchant[] }) {
         <TopBar />
         <div className="pad">
           <h1 className="h-page">{copy.sell.title}</h1>
-          <p className="sub">{copy.sell.sub}</p>
         </div>
         <div className="payout">
           <div className="lbl">You get when it sells</div>
@@ -265,20 +253,10 @@ export function SellClient({ merchants }: { merchants: Merchant[] }) {
             <input className="mono" inputMode="numeric" autoComplete="off" placeholder="6 digits" value={pin} onChange={(e) => setPin(e.target.value)} />
           </label>
           <div className="demo-line">
-            {copy.sell.noCard}{" "}
             <button type="button" className="textlink" onClick={() => void getDemoCard()}>
-              {copy.sell.getDemo}
+              {demo ? "Demo card filled in ✓" : copy.sell.getDemo}
             </button>
           </div>
-          {demo && (
-            <div className="note good" style={{ margin: 0 }}>
-              <b>
-                <Icon name="check" />
-                Demo card filled in
-              </b>
-              <p>{copy.sell.demoIssued}</p>
-            </div>
-          )}
           <button type="submit" hidden />
         </form>
         {askCents !== null && payoutCents !== null && feeCents !== null && (

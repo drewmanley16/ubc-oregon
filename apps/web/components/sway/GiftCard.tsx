@@ -21,10 +21,9 @@ export function GiftCard({ merchant, valueCents = DEMO_FACE_CENTS.toString(), cl
         <span>{merchant.name}</span>
         <small>eGift card</small>
       </div>
-      <div className="mid">{brandOf(merchant.id).gift}</div>
+      <div className="mid" />
       <div className="bottom">
         <span className="val">{formatCents(valueCents).replace(".00", "")}</span>
-        <small>Use in store or online</small>
       </div>
     </div>
   );
