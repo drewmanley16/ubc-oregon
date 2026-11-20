@@ -3,9 +3,10 @@
 Read this file first. Then read **your lane file** in `docs/lanes/`, then `docs/STATUS.md`.
 Full product spec: `docs/SPEC.md` (authoritative for acceptance tests, invariants, scope cutline).
 
-**Sway**: one-tap checkout that buys discounted, merchant-issued on-chain store credit and spends it
-atomically. Demo: $100 cart at *Daybreak Coffee*, a seller lists $100 credit for 88 USDC, buyer pays
-$88, saves $12 — in ONE `checkout` transaction on **Arc testnet**.
+**Sway**: gift cards that can't be drained. A seller submits a gift card; Sway verifies it and **swaps** its
+value onto a new card number only Sway knows (old number → $0), mints matching on-chain credit, and the seller lists
+it. A buyer pays $88 USDC for the $100 card in ONE `checkout` transaction on **Arc testnet** (seller $85, Sway $3),
+then reveals the new number + PIN with a wallet signature. The store gift-card system is **simulated** (fictional stores).
 
 **Deadline: Fri Nov 20 2026, 10:00 a.m. Pacific** (Devpost submission). Feature freeze Thu Nov 19 evening.
 

@@ -1,5 +1,7 @@
 # User journeys
 
+> **Note (Nov 19, evening):** the team pivoted to gift cards (`lane-d/giftcard-swap`, merged to main): sellers enter a card number and PIN, Sway swaps it to a new number, buyers get the new number after paying. The tables below describe the earlier store-credit checkout. What still applies: the 88/85/3 split, no pop-ups, hold to pay, one honest total, the payment record and the seller's fixed $85. Gift card journeys are next.
+
 Lane A (UX). Three roles: **shopper** (primary, this is the demo), **seller**, **merchant**.
 Every step lists the screen, what the person does, what they see, and what happens on-chain.
 

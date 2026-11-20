@@ -1,16 +1,56 @@
 "use client";
-// LANE D. PLACEHOLDER implementation so lanes A/B can build screens before Privy is wired.
-// TODO(lane-D): implement with @privy-io/react-auth (usePrivy, useWallets) + @privy-io/wagmi.
-//   - PrivyProvider config: defaultChain/supportedChains = [arcTestnet], embeddedWallets.ethereum.createOnLogin = "users-without-wallets",
-//     loginMethods: ["email","google","passkey","wallet"].
+// LANE D. The only wallet surface pages/components use (see ./types.ts).
+import { usePrivy, useWallets } from "@privy-io/react-auth";
+import { useAccount, useSignMessage } from "wagmi";
+import { ARC_TESTNET_CHAIN_ID, type Address, type Hex } from "@sway/shared";
+import { privyEnabled } from "./config";
 import type { SwayWallet } from "./types";
 
-export function useSwayWallet(): SwayWallet {
+const short = (a: string) => `${a.slice(0, 6)}…${a.slice(-4)}`;
+
+function usePrivySwayWallet(): SwayWallet {
+  const { ready, authenticated, login, logout, user } = usePrivy();
+  const { wallets } = useWallets();
+  const { address, chainId } = useAccount();
+  const { signMessageAsync } = useSignMessage();
+  const active = wallets.find((w) => w.address.toLowerCase() === address?.toLowerCase()) ?? wallets[0];
+
+  const notReady = async (): Promise<Hex> => {
+    throw new Error("Sign in first.");
+  };
+  if (!ready) return { status: "loading", onArc: false, signIn: () => {}, signOut: () => {}, switchToArc: async () => {}, signMessage: notReady };
+  const addr = (address ?? active?.address) as Address | undefined;
+  return {
+    status: authenticated && addr ? "signed-in" : authenticated ? "loading" : "signed-out",
+    address: addr,
+    label: user?.email?.address ?? user?.google?.email ?? (addr ? short(addr) : undefined),
+    onArc: chainId === ARC_TESTNET_CHAIN_ID,
+    signIn: () => login(),
+    signOut: () => void logout(),
+    switchToArc: async () => {
+      await active?.switchChain(ARC_TESTNET_CHAIN_ID);
+    },
+    signMessage: (message: string) => signMessageAsync({ message }),
+  };
+}
+
+function useDisabledSwayWallet(): SwayWallet {
   return {
     status: "signed-out",
     onArc: false,
-    signIn: () => console.warn("TODO(lane-D): Privy signIn"),
+    signIn: () => alertMissingConfig(),
     signOut: () => {},
     switchToArc: async () => {},
+    signMessage: async () => {
+      alertMissingConfig();
+      throw new Error("Sign-in is not configured.");
+    },
   };
 }
+
+function alertMissingConfig() {
+  console.error("Sign-in disabled: set NEXT_PUBLIC_PRIVY_APP_ID (see .env.example).");
+}
+
+// privyEnabled is a build-time constant, so hook order is stable.
+export const useSwayWallet: () => SwayWallet = privyEnabled ? usePrivySwayWallet : useDisabledSwayWallet;

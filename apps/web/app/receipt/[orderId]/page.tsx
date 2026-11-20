@@ -1,5 +1,13 @@
-// LANE D (lane C may take this if capacity). Reload-safe: always re-derive from GET /api/orders/:id (chain-confirmed).
+// LANE D. See receipt-client.tsx.
+import type { Hex } from "@sway/shared";
+import { ReceiptClient } from "./receipt-client";
+
 export default async function ReceiptPage(props: PageProps<"/receipt/[orderId]">) {
   const { orderId } = await props.params;
-  return <main className="mx-auto max-w-xl p-6"><h1>Receipt</h1><p>Order {orderId} — TODO(lane-D)</p></main>;
+  const { t, tx } = await props.searchParams;
+  return (
+    <main className="mx-auto max-w-xl p-6">
+      <ReceiptClient orderId={orderId as Hex} token={typeof t === "string" ? t : ""} txHash={typeof tx === "string" ? (tx as Hex) : undefined} />
+    </main>
+  );
 }

@@ -1,18 +1,17 @@
-// LANE D. Store + sample $100 cart. TODO(lane-D): "Checkout" -> POST /api/orders -> /checkout/[orderId]?t=token
+// LANE D. Store page: the store's $100 gift card with the live Sway price.
 import { notFound } from "next/navigation";
 import { getMerchantBySlug, getProducts } from "@/server/seed";
-import { ProductCard } from "@/components/sway/ProductCard";
+import { GiftCardOffer } from "./offer";
 
 export default async function StorePage(props: PageProps<"/store/[slug]">) {
   const { slug } = await props.params;
   const merchant = getMerchantBySlug(slug);
   if (!merchant) notFound();
   return (
-    <main className="mx-auto max-w-3xl p-6">
+    <main className="mx-auto max-w-xl p-6">
       <h1 className="text-2xl font-semibold">{merchant.name}</h1>
-      <div className="mt-6 grid gap-3">
-        {getProducts(merchant.id).map((p) => <ProductCard key={p.id} product={p} quantity={1} />)}
-      </div>
+      {merchant.tagline && <p className="opacity-70">{merchant.tagline}</p>}
+      <GiftCardOffer merchant={merchant} product={getProducts(merchant.id)[0]} />
     </main>
   );
 }

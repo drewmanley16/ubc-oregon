@@ -1,6 +1,6 @@
 // LANE D owns. The ONLY wallet surface pages/components may use. Swap implementations behind it.
 // Product rule (spec §1, §3): wallet is secondary UI. Users "Sign in", they don't "connect a wallet".
-import type { Address } from "@sway/shared";
+import type { Address, Hex } from "@sway/shared";
 
 export type SwayWallet = {
   status: "loading" | "signed-out" | "signed-in";
@@ -12,4 +12,6 @@ export type SwayWallet = {
   signIn: () => void; // Privy: email / Google / passkey; external wallets as secondary option
   signOut: () => void;
   switchToArc: () => Promise<void>;
+  /** Off-chain signature (no gas), e.g. proving you're the buyer to reveal a gift card. */
+  signMessage: (message: string) => Promise<Hex>;
 };

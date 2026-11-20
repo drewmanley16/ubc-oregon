@@ -8,6 +8,12 @@ Premium consumer fintech. Calm neutrals + **one** vivid savings accent. Huge, le
 **Avoid:** purple crypto-dashboard look, wallet-first hero, real retailer logos.
 The $12 savings must be understood in **5 seconds**.
 
+## Nov 19 — product is now gift cards
+New screens to style: `/sell` (`app/sell/sell-client.tsx` — form + verified/swapped/listed steps), store gift card
+offer (`app/store/[slug]/offer.tsx` — strike-through $100 → "$88 with Sway"), receipt **gift card reveal**
+(`app/receipt/[orderId]/receipt-client.tsx` — make it look like a real card: number, PIN, store art, "Simulated" tag),
+`/balance`. Pull these into `components/sway/` (e.g. `GiftCard`, `SellSteps`) — props with lane D.
+
 ## Owns
 `apps/web/app/globals.css` (Tailwind v4 `@theme` tokens) · `apps/web/components/ui/**` (primitives) ·
 markup/classes inside `apps/web/components/sway/**` · `apps/web/public/brand/**` (logo SVG, favicon) ·
