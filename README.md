@@ -65,6 +65,13 @@ cd packages/contracts && set -a && source .env && set +a
 forge script script/Deploy.s.sol --rpc-url arc_testnet --broadcast
 ```
 
+## Deployed on Arc testnet
+| Contract | Address |
+|---|---|
+| MerchantCredit | [`0x7Bc4952F41f6B2A0be5b27f8479786A480a18f64`](https://explorer.testnet.arc.io/address/0x7Bc4952F41f6B2A0be5b27f8479786A480a18f64) |
+| SwayMarketplace | [`0xbA5b1c1621a815E1C254188374191C1AAFdb9f90`](https://explorer.testnet.arc.io/address/0xbA5b1c1621a815E1C254188374191C1AAFdb9f90) |
+| USDC (official) | [`0x3600000000000000000000000000000000000000`](https://explorer.testnet.arc.io/address/0x3600000000000000000000000000000000000000) |
+
 ## Network (verified from [docs.arc.io](https://docs.arc.io/arc/references/connect-to-arc.md), 2026-11-18)
 | | Arc testnet |
 |---|---|

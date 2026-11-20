@@ -30,9 +30,12 @@ Times are Pacific. Deadline **Fri Nov 20, 10:00 a.m.** Feature freeze **Thu Nov 
 
 | Contract | Address | Explorer |
 |---|---|---|
-| MerchantCredit | — | — |
-| SwayMarketplace | — | — |
-| USDC | `0x3600000000000000000000000000000000000000` (official, 6dp) — pending end-to-end spike | https://explorer.testnet.arc.io/address/0x3600000000000000000000000000000000000000 |
+| MerchantCredit | `0x7Bc4952F41f6B2A0be5b27f8479786A480a18f64` | https://explorer.testnet.arc.io/address/0x7Bc4952F41f6B2A0be5b27f8479786A480a18f64 |
+| SwayMarketplace | `0xbA5b1c1621a815E1C254188374191C1AAFdb9f90` | https://explorer.testnet.arc.io/address/0xbA5b1c1621a815E1C254188374191C1AAFdb9f90 |
+| USDC | `0x3600000000000000000000000000000000000000` (official, 6dp) | https://explorer.testnet.arc.io/address/0x3600000000000000000000000000000000000000 |
+| Treasury (Sway fee) | `0x03CB170258eD7aBF3D77Fe0cc6293edc7BB44bAB` | https://explorer.testnet.arc.io/address/0x03CB170258eD7aBF3D77Fe0cc6293edc7BB44bAB |
+
+Deployed Nov 19 at block 73100460. Verified on chain: `issuerOf(1)` = issuer, `merchantRates(1)` = 8800/8500, `previewPrice(1, 10000)` = 88 / 85 / 3 USDC, marketplace holds `REDEEMER_ROLE`, `usdc()` = official. Deploy cost ≈ 0.05 USDC.
 
 ## Contract changes log
 | Date | Change | Lanes affected | PR |

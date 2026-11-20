@@ -1,1 +1,10 @@
-{}
+{
+  "chainId": 5042002,
+  "deployBlock": 73100460,
+  "marketplace": "0xbA5b1c1621a815E1C254188374191C1AAFdb9f90",
+  "merchantCredit": "0x7Bc4952F41f6B2A0be5b27f8479786A480a18f64",
+  "treasury": "0x03CB170258eD7aBF3D77Fe0cc6293edc7BB44bAB",
+  "usdc": "0x3600000000000000000000000000000000000000",
+  "usdcDecimals": 6,
+  "usdcIsMock": false
+}
