@@ -186,8 +186,8 @@ header p { margin: 0; color: var(--muted); max-width: 66ch; font-size: 16px; }
 @keyframes in-fwd { from { opacity: 0; transform: translateX(22px); } }
 @keyframes in-back { from { opacity: 0; transform: translateX(-22px); } }
 @keyframes rise { from { opacity: 0; transform: translateY(10px); } }
-#screen.fresh.fwd .scroll, #screen.fresh.fwd .dock { animation: in-fwd .44s var(--m-out) backwards; }
-#screen.fresh.back .scroll, #screen.fresh.back .dock { animation: in-back .44s var(--m-out) backwards; }
+#screen.fresh.go-fwd .scroll, #screen.fresh.go-fwd .dock { animation: in-fwd .44s var(--m-out) backwards; }
+#screen.fresh.go-back .scroll, #screen.fresh.go-back .dock { animation: in-back .44s var(--m-out) backwards; }
 #screen.fresh .dock { animation-delay: 60ms; }
 #screen.fresh .shop, #screen.fresh .item, #screen.fresh .credit-row { animation: rise .5s var(--m-out) backwards; }
 #screen.fresh :is(.shop, .item, .credit-row):nth-child(2) { animation-delay: 50ms; }
@@ -692,12 +692,12 @@ header p { margin: 0; color: var(--muted); max-width: 66ch; font-size: 16px; }
     const key = `${S.role}:${name}:${S.confirming}`;
     const prevName = lastKey && lastKey.split(':')[1];
     const fresh = key !== lastKey;
-    const dir = !lastKey || prevName === name || lastKey.split(':')[0] !== S.role ? 'same' : (ORDER[name] ?? 0) < (ORDER[prevName] ?? 0) ? 'back' : 'fwd';
+    const dir = !lastKey || prevName === name || lastKey.split(':')[0] !== S.role ? 'go-same' : (ORDER[name] ?? 0) < (ORDER[prevName] ?? 0) ? 'go-back' : 'go-fwd';
     const sheetFresh = S.sheet && S.sheet !== lastSheet;
     lastKey = key; lastSheet = S.sheet;
     if (S.role === 'seller') screen.innerHTML = sellerScreen();
     else screen.innerHTML = S.screen === 'landing' ? landing() : S.screen === 'store' ? store() : S.screen === 'receipt' ? receipt() : checkout();
-    screen.classList.remove('fresh', 'fwd', 'back', 'same');
+    screen.classList.remove('fresh', 'go-fwd', 'go-back', 'go-same'); // prefixed: .back is already the Back button's style
     if (fresh) { void screen.offsetWidth; screen.classList.add('fresh', dir); }
     if (!sheetFresh) screen.querySelector('.scrim')?.classList.add('static');
     S.reveal = false;
