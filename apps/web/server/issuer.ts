@@ -12,6 +12,8 @@ function issuerAccount(merchantId: number) {
   return privateKeyToAccount(pk as Hex);
 }
 
+export const issuerWallet = (merchantId: number) => walletFor(merchantId);
+
 function walletFor(merchantId: number) {
   return createWalletClient({
     account: issuerAccount(merchantId),

@@ -5,6 +5,7 @@ import { randomUUID } from "node:crypto";
 import type { Address, Hex } from "@sway/shared";
 import { kv } from "./kv.ts";
 import { addToPool, swapIntoVault } from "./giftcards.ts";
+import { isStatelessDemo, swapDemoCard } from "./stateless-cards.ts";
 import { ensureSellerGas, mintCreditTo } from "./issuer.ts";
 
 export type SaleStatus = "SWAPPED" | "MINTING" | "READY_TO_LIST";
@@ -49,6 +50,15 @@ async function finish(s: StoredSale): Promise<Sale> {
 }
 
 export async function submitCard(input: { merchantId: number; number: string; pin: string; seller: Address }) {
+  if (isStatelessDemo(input.number)) {
+    // Storage-free: swap recorded on Arc, then credit minted 1:1, then gas top-up.
+    const sw = await swapDemoCard(input.number, input.pin, input.merchantId);
+    const saleId = randomUUID();
+    const mintTx = await mintCreditTo(sw.merchantId, input.seller, BigInt(sw.faceCents), saleId);
+    const gasTx = await ensureSellerGas(sw.merchantId, input.seller).catch(() => null);
+    const sale: Sale = { saleId, seller: input.seller, merchantId: sw.merchantId, faceCents: sw.faceCents, oldLast4: sw.oldLast4, status: "READY_TO_LIST", mintTx, gasTx, createdAt: new Date().toISOString() };
+    return sale;
+  }
   const swapped = await swapIntoVault(input.number, input.pin, input.merchantId);
   const sale: StoredSale = {
     saleId: randomUUID(),
