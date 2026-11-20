@@ -45,6 +45,9 @@ listing #1 [`0x04c5…355e`](https://explorer.testnet.arc.io/tx/0x04c59cf0a95894
 Live site `GET /api/quote?merchantId=1&amountCents=10000` returns listing 1, saves $12.00. Buy pending a funded buyer.
 ⚠️ Listing #1's vault card is in Drew's **local** KV (no Upstash yet) → reveal it via `localhost:3000`, not the live site.
 
+**Nov 20 — per-store rates (on chain, admin):** buyer pays 83–94% of face (saves 6–17%), seller gets buyer − 3%, Sway keeps 3%.
+1:88 2:90 3:85 4:92 5:87 6:91 7:84 8:89 9:93 10:86 11:83 12:94 (buyer %). Stores 4–12 registered Nov 20. Demo cards are $1.
+
 ## Contract changes log
 | Date | Change | Lanes affected | PR |
 |---|---|---|---|

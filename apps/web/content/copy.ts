@@ -28,7 +28,7 @@ export const copy = {
   brand: { name: "Sway", tagline: "Gift cards you can trust. Cash for the ones you won't use." },
 
   landing: {
-    headline: "Gift cards, 12% off.",
+    headline: "Gift cards, up to 17% off.",
     sub: "Buy gift cards other people won't use, for less. Or sell yours and get paid the moment it sells.",
     demoBadge: "Demo · fictional shops · test money",
     buyCta: "Shop gift cards",
